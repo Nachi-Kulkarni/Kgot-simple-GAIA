@@ -1,0 +1,30 @@
+# LangChain Sequential Manager Dependencies
+# Core LangChain and AI integration
+langchain>=0.1.0
+langchain-openai>=0.1.0
+langchain-core>=0.1.0
+
+# FastAPI and web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# HTTP client for service communication  
+httpx>=0.25.0
+
+# Data validation and serialization
+pydantic>=2.0.0
+
+# Async support
+asyncio-mqtt>=0.13.0
+
+# Environment and configuration
+python-dotenv>=1.0.0
+
+# Date and time utilities
+python-dateutil>=2.8.2
+
+# Development and testing (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+isort>=5.12.0 

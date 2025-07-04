@@ -1,0 +1,4 @@
+2025-06-30 16:39:43,090 — CommunicationMCPs — INFO — __init__:323 — EmailClientMCP initialized
+2025-06-30 16:39:43,091 — CommunicationMCPs — INFO — __init__:623 — APIClientMCP initialized
+2025-06-30 16:39:43,091 — CommunicationMCPs — INFO — __init__:853 — CalendarSchedulingMCP initialized
+2025-06-30 16:39:43,091 — CommunicationMCPs — INFO — __init__:1234 — MessagingMCP initialized

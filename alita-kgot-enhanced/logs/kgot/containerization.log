@@ -1,0 +1,103 @@
+2025-06-28 15:12:53,265 - CodeRunnerTest - INFO - Initializing Task 11 Test Suite
+2025-06-28 15:12:53,265 - CodeRunnerTest - INFO - Starting comprehensive Task 11 testing
+2025-06-28 15:12:53,265 - CodeRunnerTest - INFO - Running test: Basic Initialization
+2025-06-28 15:12:53,265 - AlitaCodeRunner - INFO - Creating CodeRunningTool instance
+2025-06-28 15:12:53,266 - containerization.ConfigManager - INFO - Creating default environment configurations
+2025-06-28 15:12:53,266 - containerization.ConfigManager - ERROR - Failed to save configuration: [Errno 30] Read-only file system: '/app'
+2025-06-28 15:12:53,266 - containerization.ConfigManager - ERROR - Failed to save configuration: [Errno 30] Read-only file system: '/app'
+2025-06-28 15:12:53,266 - containerization.ConfigManager - ERROR - Failed to save configuration: [Errno 30] Read-only file system: '/app'
+2025-06-28 15:12:53,266 - containerization.ConfigManager - ERROR - Failed to save configuration: [Errno 30] Read-only file system: '/app'
+2025-06-28 15:12:53,266 - containerization.ConfigManager - ERROR - Failed to save configuration: [Errno 30] Read-only file system: '/app'
+2025-06-28 15:12:53,266 - containerization.ContainerOrchestrator - INFO - Container orchestrator initialized
+2025-06-28 15:12:53,266 - AlitaCodeRunner - ERROR - Failed to create container orchestrator: asyncio.run() cannot be called from a running event loop
+2025-06-28 15:12:53,266 - CodeRunnerTest - INFO - Test Basic Initialization: FAILED - Initialization failed: Cannot initialize execution environment: asyncio.run() cannot be called from a running event loop
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Running test: Simple Code Execution
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Test Simple Code Execution: FAILED - Code execution failed: 'NoneType' object has no attribute 'validate_and_execute_code'
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Running test: Error Handling and Refinement
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Test Error Handling and Refinement: FAILED - Error handling test failed: 'NoneType' object has no attribute 'validate_and_execute_code'
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Running test: Caching Functionality
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Test Caching Functionality: FAILED - Caching test failed: 'NoneType' object has no attribute 'validate_and_execute_code'
+2025-06-28 15:12:53,269 - CodeRunnerTest - INFO - Running test: Cross-Validation Framework
+2025-06-28 15:12:53,270 - CodeRunnerTest - INFO - Test Cross-Validation Framework: FAILED - Cross-validation test failed: 'NoneType' object has no attribute 'validate_and_execute_code'
+2025-06-28 15:12:53,270 - CodeRunnerTest - INFO - Running test: MCP Server Generation
+2025-06-28 15:12:53,270 - CodeRunnerTest - INFO - Test MCP Server Generation: FAILED - MCP generation test failed: 'NoneType' object has no attribute 'validate_and_execute_code'
+2025-06-28 15:12:53,270 - CodeRunnerTest - INFO - Running test: KGoT Integration
+2025-06-28 15:12:53,270 - CodeRunnerTest - INFO - Test KGoT Integration: FAILED - KGoT integration test failed: 'NoneType' object has no attribute 'refinement_engine'
+2025-06-28 15:15:13,847 - SimpleCodeRunnerTest - INFO - Initializing Simple Task 11 Test Suite
+2025-06-28 15:15:13,847 - SimpleCodeRunnerTest - INFO - Starting simplified Task 11 testing
+2025-06-28 15:15:13,847 - SimpleCodeRunnerTest - INFO - Running test: Component Initialization
+2025-06-28 15:15:13,848 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 15:15:13,849 - SimpleCodeRunnerTest - INFO - Test Component Initialization: FAILED - Component initialization failed: 1 validation error for ChatOpenAI
+__root__
+  Did not find openai_api_key, please add an environment variable `OPENAI_API_KEY` which contains it, or pass `openai_api_key` as a named parameter. (type=value_error)
+2025-06-28 15:15:13,849 - SimpleCodeRunnerTest - INFO - Running test: Execution Context
+2025-06-28 15:15:13,849 - SimpleCodeRunnerTest - INFO - Test Execution Context: PASSED - ExecutionContext created and serialized correctly
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Running test: Validation Result
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Test Validation Result: PASSED - ValidationResult created and analyzed correctly
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Running test: Cache Functionality
+2025-06-28 15:15:13,850 - AlitaCodeRunner - INFO - Initialized ResultCache
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Test Cache Functionality: FAILED - Cache test failed: 
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Running test: MCP Generator
+2025-06-28 15:15:13,850 - AlitaCodeRunner - INFO - Initialized MCPServerGenerator
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Test MCP Generator: PASSED - MCP generator analysis completed
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Running test: Validation Framework
+2025-06-28 15:15:13,850 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 15:15:13,850 - AlitaCodeRunner - INFO - Initialized ValidationFramework
+2025-06-28 15:15:13,850 - SimpleCodeRunnerTest - INFO - Test Validation Framework: PASSED - Validation framework initialized correctly
+2025-06-28 15:26:56,925 - SimpleCodeRunnerTest - INFO - Initializing Simple Task 11 Test Suite
+2025-06-28 15:26:56,925 - SimpleCodeRunnerTest - INFO - Starting simplified Task 11 testing
+2025-06-28 15:26:56,925 - SimpleCodeRunnerTest - INFO - Running test: Component Initialization
+2025-06-28 15:26:56,925 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 15:26:56,926 - AlitaCodeRunner - INFO - Creating Claude 4 Sonnet client for code running
+2025-06-28 15:26:56,956 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-28 15:26:56,956 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Test Component Initialization: FAILED - Component initialization failed: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Running test: Execution Context
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Test Execution Context: PASSED - ExecutionContext created and serialized correctly
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Running test: Validation Result
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Test Validation Result: PASSED - ValidationResult created and analyzed correctly
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Running test: Cache Functionality
+2025-06-28 15:26:56,960 - AlitaCodeRunner - INFO - Initialized ResultCache
+2025-06-28 15:26:56,960 - SimpleCodeRunnerTest - INFO - Test Cache Functionality: FAILED - Cache test failed: 
+2025-06-28 15:26:56,961 - SimpleCodeRunnerTest - INFO - Running test: MCP Generator
+2025-06-28 15:26:56,961 - AlitaCodeRunner - INFO - Initialized MCPServerGenerator
+2025-06-28 15:26:56,961 - SimpleCodeRunnerTest - INFO - Test MCP Generator: PASSED - MCP generator analysis completed
+2025-06-28 15:26:56,961 - SimpleCodeRunnerTest - INFO - Running test: Validation Framework
+2025-06-28 15:26:56,961 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 15:26:56,961 - AlitaCodeRunner - INFO - Initialized ValidationFramework
+2025-06-28 15:26:56,961 - SimpleCodeRunnerTest - INFO - Test Validation Framework: PASSED - Validation framework initialized correctly
+2025-06-28 15:28:17,093 - AlitaCodeRunner - INFO - Creating CodeRunningTool instance
+2025-06-28 15:28:17,093 - containerization.ConfigManager - INFO - Creating default environment configurations
+2025-06-28 15:28:17,095 - containerization.ContainerOrchestrator - INFO - Container orchestrator initialized
+2025-06-28 15:28:17,095 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 15:28:17,095 - AlitaCodeRunner - INFO - Creating Claude 4 Sonnet client for code running
+2025-06-28 15:28:17,118 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-28 15:28:17,118 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-28 15:30:26,403 - AlitaCodeRunner - INFO - Creating Claude 4 Sonnet client for code running
+2025-06-28 15:30:26,416 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-28 15:30:26,416 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-28 15:31:26,214 - AlitaCodeRunner - INFO - Creating Claude 4 Sonnet client for code running
+2025-06-28 15:31:26,230 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-28 15:31:26,230 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-28 16:47:14,125 - SimpleCodeRunnerTest - INFO - Initializing Simple Task 11 Test Suite
+2025-06-28 16:47:14,126 - SimpleCodeRunnerTest - INFO - Starting simplified Task 11 testing
+2025-06-28 16:47:14,126 - SimpleCodeRunnerTest - INFO - Running test: Component Initialization
+2025-06-28 16:47:14,126 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 16:47:14,126 - AlitaCodeRunner - INFO - Creating Claude 4 Sonnet client for code running
+2025-06-28 16:47:14,160 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-28 16:47:14,160 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-28 16:47:14,163 - SimpleCodeRunnerTest - INFO - Test Component Initialization: FAILED - Component initialization failed: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-06-28 16:47:14,163 - SimpleCodeRunnerTest - INFO - Running test: Execution Context
+2025-06-28 16:47:14,164 - SimpleCodeRunnerTest - INFO - Test Execution Context: PASSED - ExecutionContext created and serialized correctly
+2025-06-28 16:47:14,164 - SimpleCodeRunnerTest - INFO - Running test: Validation Result
+2025-06-28 16:47:14,164 - SimpleCodeRunnerTest - INFO - Test Validation Result: PASSED - ValidationResult created and analyzed correctly
+2025-06-28 16:47:14,164 - SimpleCodeRunnerTest - INFO - Running test: Cache Functionality
+2025-06-28 16:47:14,164 - AlitaCodeRunner - INFO - Initialized ResultCache
+2025-06-28 16:47:14,165 - SimpleCodeRunnerTest - INFO - Test Cache Functionality: FAILED - Cache test failed: 
+2025-06-28 16:47:14,165 - SimpleCodeRunnerTest - INFO - Running test: MCP Generator
+2025-06-28 16:47:14,166 - AlitaCodeRunner - INFO - Initialized MCPServerGenerator
+2025-06-28 16:47:14,166 - SimpleCodeRunnerTest - INFO - Test MCP Generator: PASSED - MCP generator analysis completed
+2025-06-28 16:47:14,166 - SimpleCodeRunnerTest - INFO - Running test: Validation Framework
+2025-06-28 16:47:14,166 - AlitaCodeRunner - INFO - Initialized ExecutionEnvironment
+2025-06-28 16:47:14,166 - AlitaCodeRunner - INFO - Initialized ValidationFramework
+2025-06-28 16:47:14,166 - SimpleCodeRunnerTest - INFO - Test Validation Framework: PASSED - Validation framework initialized correctly

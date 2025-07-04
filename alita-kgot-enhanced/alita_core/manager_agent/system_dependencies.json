@@ -1,0 +1,182 @@
+{
+  "system_dependencies": {
+    "alita": {
+      "depends_on": ["kgot", "validation"],
+      "provides_to": ["web_interface", "mcp_creation"],
+      "criticality": "high",
+      "failure_propagation_probability": {
+        "kgot": 0.8,
+        "validation": 0.6,
+        "multimodal": 0.4
+      },
+      "recovery_time_estimate": "5-15 minutes",
+      "components": {
+        "manager_agent": {
+          "depends_on": ["sequential_thinking", "langchain_manager"],
+          "failure_impact": "critical"
+        },
+        "web_agent": {
+          "depends_on": ["browser_automation", "kgot_surfer"],
+          "failure_impact": "high"
+        },
+        "mcp_creation": {
+          "depends_on": ["rag_mcp_engine", "validation"],
+          "failure_impact": "medium"
+        }
+      }
+    },
+    "kgot": {
+      "depends_on": ["graph_store", "neo4j"],
+      "provides_to": ["alita", "validation", "multimodal"],
+      "criticality": "critical",
+      "failure_propagation_probability": {
+        "alita": 0.9,
+        "validation": 0.7,
+        "multimodal": 0.6
+      },
+      "recovery_time_estimate": "10-30 minutes",
+      "components": {
+        "controller": {
+          "depends_on": ["graph_store", "integrated_tools"],
+          "failure_impact": "critical"
+        },
+        "graph_store": {
+          "depends_on": ["neo4j", "networkx"],
+          "failure_impact": "critical"
+        },
+        "integrated_tools": {
+          "depends_on": ["python_executor", "surfer_agent"],
+          "failure_impact": "high"
+        },
+        "error_management": {
+          "depends_on": ["langchain", "docker"],
+          "failure_impact": "medium"
+        }
+      }
+    },
+    "validation": {
+      "depends_on": ["alita", "kgot"],
+      "provides_to": ["quality_assurance", "testing"],
+      "criticality": "medium",
+      "failure_propagation_probability": {
+        "alita": 0.3,
+        "kgot": 0.2,
+        "multimodal": 0.1
+      },
+      "recovery_time_estimate": "2-10 minutes",
+      "components": {
+        "mcp_cross_validator": {
+          "depends_on": ["alita", "kgot"],
+          "failure_impact": "medium"
+        },
+        "rag_mcp_coordinator": {
+          "depends_on": ["rag_engine", "mcp_knowledge_base"],
+          "failure_impact": "low"
+        }
+      }
+    },
+    "multimodal": {
+      "depends_on": ["kgot", "vision_models"],
+      "provides_to": ["enhanced_capabilities"],
+      "criticality": "low",
+      "failure_propagation_probability": {
+        "alita": 0.1,
+        "kgot": 0.2,
+        "validation": 0.1
+      },
+      "recovery_time_estimate": "1-5 minutes",
+      "components": {
+        "vision": {
+          "depends_on": ["image_processing", "ocr"],
+          "failure_impact": "low"
+        },
+        "audio": {
+          "depends_on": ["speech_processing"],
+          "failure_impact": "low"
+        },
+        "text_processing": {
+          "depends_on": ["nlp_models"],
+          "failure_impact": "low"
+        }
+      }
+    }
+  },
+  "failure_scenarios": {
+    "database_failure": {
+      "primary_affected": ["kgot"],
+      "cascade_to": ["alita", "validation"],
+      "probability": 0.05,
+      "impact_severity": "critical",
+      "recovery_strategies": ["database_restart", "backup_restoration", "failover_activation"]
+    },
+    "network_partition": {
+      "primary_affected": ["alita", "kgot"],
+      "cascade_to": ["validation", "multimodal"],
+      "probability": 0.03,
+      "impact_severity": "high",
+      "recovery_strategies": ["network_healing", "local_mode_activation", "cache_utilization"]
+    },
+    "memory_exhaustion": {
+      "primary_affected": ["kgot", "multimodal"],
+      "cascade_to": ["alita"],
+      "probability": 0.08,
+      "impact_severity": "medium",
+      "recovery_strategies": ["memory_cleanup", "process_restart", "resource_scaling"]
+    },
+    "api_rate_limiting": {
+      "primary_affected": ["alita"],
+      "cascade_to": ["validation"],
+      "probability": 0.15,
+      "impact_severity": "medium",
+      "recovery_strategies": ["rate_limit_backoff", "alternative_endpoints", "request_prioritization"]
+    }
+  },
+  "mitigation_strategies": {
+    "isolation": {
+      "description": "Isolate affected systems to prevent cascade",
+      "applicable_to": ["cascading", "system_wide"],
+      "success_rate": 0.85,
+      "implementation_time": "immediate"
+    },
+    "circuit_breaker": {
+      "description": "Activate circuit breakers to prevent overload",
+      "applicable_to": ["api_error", "timeout"],
+      "success_rate": 0.90,
+      "implementation_time": "immediate"
+    },
+    "graceful_degradation": {
+      "description": "Reduce functionality to maintain core operations",
+      "applicable_to": ["resource_exhaustion", "partial_failure"],
+      "success_rate": 0.95,
+      "implementation_time": "1-2 minutes"
+    },
+    "rollback": {
+      "description": "Revert to last known good state",
+      "applicable_to": ["deployment_error", "configuration_error"],
+      "success_rate": 0.98,
+      "implementation_time": "2-5 minutes"
+    }
+  },
+  "monitoring_points": {
+    "system_health": {
+      "metrics": ["cpu_usage", "memory_usage", "response_time", "error_rate"],
+      "thresholds": {
+        "cpu_usage": 80,
+        "memory_usage": 85,
+        "response_time": 5000,
+        "error_rate": 0.05
+      }
+    },
+    "dependency_health": {
+      "metrics": ["connection_status", "response_time", "success_rate"],
+      "check_interval": 30
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2024-01-15T00:00:00Z",
+    "system_count": 4,
+    "dependency_count": 12,
+    "scenario_count": 4
+  }
+} 

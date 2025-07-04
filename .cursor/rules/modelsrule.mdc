@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+use o3(vision), claude-4-sonnet(webagent), gemini-2.5-pro(orchestration) whenever necessary pick out of the  3 based on the requirement of the codebase, using openrouter endpoints

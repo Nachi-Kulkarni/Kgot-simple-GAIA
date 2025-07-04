@@ -1,0 +1,210 @@
+{
+  "decision_trees": {
+    "syntax_error_tree": {
+      "root": {
+        "id": "syntax_root",
+        "condition": "error_type == 'SYNTAX_ERROR'",
+        "description": "Root node for syntax error resolution",
+        "children": {
+          "json_content": {
+            "id": "json_check",
+            "condition": "is_json_content",
+            "description": "Check if content is JSON-structured",
+            "action": "langchain_json_parser",
+            "confidence": 0.85,
+            "success_rate": 0.90,
+            "children": {
+              "success": {
+                "id": "json_success",
+                "action": "return_corrected_content",
+                "confidence": 0.95
+              },
+              "failure": {
+                "id": "json_fallback",
+                "action": "unicode_correction",
+                "confidence": 0.70
+              }
+            }
+          },
+          "unicode_issues": {
+            "id": "unicode_check",
+            "condition": "has_unicode_errors",
+            "description": "Check for unicode encoding issues",
+            "action": "unicode_escape_correction",
+            "confidence": 0.80,
+            "success_rate": 0.85,
+            "children": {
+              "success": {
+                "id": "unicode_success",
+                "action": "return_corrected_content",
+                "confidence": 0.90
+              },
+              "failure": {
+                "id": "llm_correction",
+                "action": "llm_syntax_correction",
+                "confidence": 0.75
+              }
+            }
+          }
+        }
+      }
+    },
+    "api_error_tree": {
+      "root": {
+        "id": "api_root",
+        "condition": "error_type == 'API_ERROR'",
+        "description": "Root node for API error resolution",
+        "children": {
+          "rate_limit": {
+            "id": "rate_limit_check",
+            "condition": "error_message.contains('rate') or status_code == 429",
+            "description": "Rate limiting detected",
+            "action": "exponential_backoff",
+            "confidence": 0.95,
+            "success_rate": 0.95,
+            "children": {
+              "success": {
+                "id": "rate_limit_success",
+                "action": "retry_operation",
+                "confidence": 0.95
+              },
+              "failure": {
+                "id": "alternative_endpoint",
+                "action": "switch_endpoint",
+                "confidence": 0.70
+              }
+            }
+          },
+          "timeout": {
+            "id": "timeout_check",
+            "condition": "error_type.contains('timeout') or error_type.contains('connection')",
+            "description": "Connection or timeout issues",
+            "action": "retry_with_timeout_increase",
+            "confidence": 0.80,
+            "success_rate": 0.80,
+            "children": {
+              "success": {
+                "id": "timeout_success",
+                "action": "continue_operation",
+                "confidence": 0.85
+              },
+              "failure": {
+                "id": "circuit_breaker",
+                "action": "activate_circuit_breaker",
+                "confidence": 0.90
+              }
+            }
+          }
+        }
+      }
+    },
+    "cascading_error_tree": {
+      "root": {
+        "id": "cascading_root",
+        "condition": "error_complexity == 'CASCADING' or error_complexity == 'SYSTEM_WIDE'",
+        "description": "Root node for cascading error resolution",
+        "children": {
+          "system_isolation": {
+            "id": "isolate_systems",
+            "condition": "affected_systems.length > 1",
+            "description": "Isolate affected systems to prevent spread",
+            "action": "isolate_affected_systems",
+            "confidence": 0.90,
+            "success_rate": 0.85,
+            "children": {
+              "success": {
+                "id": "analyze_root_cause",
+                "action": "sequential_thinking_analysis",
+                "confidence": 0.85,
+                "children": {
+                  "cause_identified": {
+                    "id": "apply_fix",
+                    "action": "apply_targeted_fix",
+                    "confidence": 0.90
+                  },
+                  "cause_unclear": {
+                    "id": "systematic_recovery",
+                    "action": "systematic_system_recovery",
+                    "confidence": 0.75
+                  }
+                }
+              },
+              "failure": {
+                "id": "emergency_rollback",
+                "action": "emergency_system_rollback",
+                "confidence": 0.95
+              }
+            }
+          }
+        }
+      }
+    },
+    "complex_error_tree": {
+      "root": {
+        "id": "complex_root",
+        "condition": "error_complexity == 'COMPOUND' or requires_sequential_thinking",
+        "description": "Root node for complex error resolution requiring sequential thinking",
+        "children": {
+          "thinking_analysis": {
+            "id": "sequential_thinking",
+            "condition": "complexity_score > 7",
+            "description": "Use sequential thinking for complex analysis",
+            "action": "invoke_sequential_thinking",
+            "confidence": 0.85,
+            "success_rate": 0.80,
+            "children": {
+              "clear_plan": {
+                "id": "execute_plan",
+                "action": "execute_thinking_plan",
+                "confidence": 0.90
+              },
+              "unclear_plan": {
+                "id": "iterative_refinement",
+                "action": "iterative_problem_solving",
+                "confidence": 0.75
+              }
+            }
+          },
+          "pattern_matching": {
+            "id": "pattern_analysis",
+            "condition": "error_pattern != 'NOVEL'",
+            "description": "Apply known pattern resolution",
+            "action": "apply_pattern_resolution",
+            "confidence": 0.80,
+            "success_rate": 0.85
+          }
+        }
+      }
+    }
+  },
+  "validation_checkpoints": {
+    "pre_resolution": [
+      "validate_error_classification",
+      "check_system_health",
+      "verify_dependencies"
+    ],
+    "during_resolution": [
+      "monitor_progress",
+      "check_side_effects",
+      "validate_intermediate_results"
+    ],
+    "post_resolution": [
+      "verify_error_resolved",
+      "check_system_stability",
+      "validate_no_regressions"
+    ]
+  },
+  "fallback_strategies": {
+    "decision_tree_failure": "fallback_to_kgot_system",
+    "timeout_exceeded": "emergency_rollback",
+    "confidence_too_low": "request_human_intervention",
+    "unknown_error_type": "generic_recovery_procedure"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2024-01-15T00:00:00Z",
+    "tree_count": 4,
+    "total_nodes": 24,
+    "average_depth": 3.5
+  }
+} 

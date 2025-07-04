@@ -1,0 +1,28 @@
+prometheus-client
+aiohttp
+# KGoT Performance Optimization Dependencies
+mpi4py>=3.1.4                    # MPI-based distributed processing
+psutil>=5.9.0                    # System resource monitoring
+asyncio-pool>=0.6.0              # Enhanced asyncio pool management
+concurrent-log-handler>=0.9.20   # Concurrent logging for distributed systems
+numpy>=1.24.0                    # Numerical computations for work-stealing algorithms
+networkx>=3.0                    # Graph operations optimization
+redis>=4.5.0                     # Distributed task queue for work-stealing
+celery>=5.3.0                    # Distributed task execution
+kombu>=5.3.0                     # Message queue abstraction
+py-cpuinfo>=9.0.0                # CPU information for optimization
+memory-profiler>=0.60.0          # Memory usage profiling
+line-profiler>=4.0.0             # Performance profiling
+# cProfile is part of Python standard library, no installation needed
+asyncio-throttle>=1.0.2          # Rate limiting for async operations
+mpi4py
+
+# KGoT Error Management Dependencies
+tenacity>=8.2.0                  # Exponential backoff and retry mechanisms
+langchain>=0.1.36                # LangChain core for JSON parsing and agents
+langchain-core>=0.1.62           # LangChain core components for error handling
+docker>=6.1.0                    # Docker integration for Python Executor containerization
+pydantic>=2.5.0                  # Data validation for error management
+typing-extensions>=4.8.0         # Extended typing support for error handling
+aiosqlite
+semver

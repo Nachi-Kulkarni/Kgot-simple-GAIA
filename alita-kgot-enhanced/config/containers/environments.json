@@ -1,0 +1,164 @@
+{
+  "local_docker": {
+    "services": {
+      "alita-manager": {
+        "image": "alita-manager:latest",
+        "ports": {
+          "3000": "3000"
+        },
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "health_check": {
+          "test": [
+            "CMD",
+            "curl",
+            "-f",
+            "http://localhost:3000/health"
+          ],
+          "interval": 30,
+          "timeout": 10,
+          "retries": 3
+        },
+        "resource_limits": {
+          "memory": "1g",
+          "cpu": "1"
+        }
+      },
+      "kgot-controller": {
+        "image": "kgot-controller:latest",
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      },
+      "neo4j": {
+        "image": "neo4j:5.15-community",
+        "ports": {
+          "7474": "7474",
+          "7687": "7687"
+        },
+        "environment": {
+          "NEO4J_AUTH": "neo4j/password"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      }
+    }
+  },
+  "cloud_docker": {
+    "services": {
+      "alita-manager": {
+        "image": "alita-manager:latest",
+        "ports": {
+          "3000": "3000"
+        },
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "health_check": {
+          "test": [
+            "CMD",
+            "curl",
+            "-f",
+            "http://localhost:3000/health"
+          ],
+          "interval": 30,
+          "timeout": 10,
+          "retries": 3
+        },
+        "resource_limits": {
+          "memory": "1g",
+          "cpu": "1"
+        }
+      },
+      "kgot-controller": {
+        "image": "kgot-controller:latest",
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      },
+      "neo4j": {
+        "image": "neo4j:5.15-community",
+        "ports": {
+          "7474": "7474",
+          "7687": "7687"
+        },
+        "environment": {
+          "NEO4J_AUTH": "neo4j/password"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      }
+    }
+  },
+  "hpc_sarus": {
+    "services": {
+      "alita-manager": {
+        "image": "alita-manager:latest",
+        "ports": {
+          "3000": "3000"
+        },
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "health_check": {
+          "test": [
+            "CMD",
+            "curl",
+            "-f",
+            "http://localhost:3000/health"
+          ],
+          "interval": 30,
+          "timeout": 10,
+          "retries": 3
+        },
+        "resource_limits": {
+          "memory": "1g",
+          "cpu": "1"
+        }
+      },
+      "kgot-controller": {
+        "image": "kgot-controller:latest",
+        "environment": {
+          "NODE_ENV": "production",
+          "LOG_LEVEL": "info"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      },
+      "neo4j": {
+        "image": "neo4j:5.15-community",
+        "ports": {
+          "7474": "7474",
+          "7687": "7687"
+        },
+        "environment": {
+          "NEO4J_AUTH": "neo4j/password"
+        },
+        "resource_limits": {
+          "memory": "2g",
+          "cpu": "2"
+        }
+      }
+    }
+  }
+}

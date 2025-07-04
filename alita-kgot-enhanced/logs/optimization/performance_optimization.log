@@ -1,0 +1,4 @@
+2025-06-27 14:41:01,325 — KGoTPerformanceOptimization — INFO — __init__:291 — Initialized AsyncExecutionEngine
+2025-06-27 14:41:01,330 — KGoTPerformanceOptimization — INFO — __init__:1436 — Initialized WorkStealingScheduler
+2025-06-27 14:41:01,334 — KGoTPerformanceOptimization — INFO — __init__:2021 — Initialized ScalabilityEnhancer
+2025-06-27 14:41:01,334 — KGoTPerformanceOptimization — INFO — __init__:2167 — Initialized PerformanceOptimizer

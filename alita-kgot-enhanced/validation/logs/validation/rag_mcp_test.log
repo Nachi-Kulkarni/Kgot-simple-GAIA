@@ -1,0 +1,122 @@
+2025-06-29 11:52:39,881 - RAGMCPTest - INFO - 🚀 Starting RAG-MCP Coordinator Verification Tests
+2025-06-29 11:52:39,881 - RAGMCPTest - INFO - 📋 Running test: import_verification
+2025-06-29 11:52:39,882 - RAGMCPTest - INFO - 🔍 Testing imports and dependencies...
+2025-06-29 11:52:40,159 - RAGMCPTest - INFO -   ✅ numpy - Available
+2025-06-29 11:52:40,831 - RAGMCPTest - INFO -   ✅ pandas - Available
+2025-06-29 11:52:40,904 - RAGMCPTest - INFO -   ✅ scipy - Available
+2025-06-29 11:52:40,989 - RAGMCPTest - INFO -   ✅ langchain - Available
+2025-06-29 11:52:40,991 - RAGMCPTest - INFO -   ✅ langchain_community - Available
+2025-06-29 11:52:41,506 - RAGMCPTest - INFO -   ✅ openai - Available
+2025-06-29 11:52:41,506 - RAGMCPTest - INFO -   ✅ pydantic - Available
+2025-06-29 11:52:44,457 - RAGMCPTest - ERROR - 💥 Test import_verification ERROR: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO - 📋 Running test: directory_setup
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO - 📁 Testing directory structure...
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO -   ✅ Directory exists: ./logs/validation/
+2025-06-29 11:52:44,457 - RAGMCPTest - WARNING -   ⚠️  Directory missing: ./data/
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO -   ✅ Created directory: ./data/
+2025-06-29 11:52:44,457 - RAGMCPTest - WARNING -   ⚠️  Directory missing: ./config/
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO -   ✅ Created directory: ./config/
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO -   ✅ Directory exists: ../kgot_core/
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO -   ✅ Directory exists: ../alita_core/
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO - ✅ Test directory_setup: PASSED
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO - 📋 Running test: basic_functionality
+2025-06-29 11:52:44,457 - RAGMCPTest - INFO - ⚙️ Testing basic functionality...
+2025-06-29 11:52:44,458 - RAGMCPTest - ERROR -   ❌ Basic functionality test failed: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+2025-06-29 11:52:44,458 - RAGMCPTest - INFO - ❌ Test basic_functionality: FAILED
+2025-06-29 11:52:44,458 - RAGMCPTest - INFO - 📋 Running test: integration_tests
+2025-06-29 11:52:44,459 - RAGMCPTest - INFO - 🔗 Testing system integrations...
+2025-06-29 11:52:45,149 - RAGMCPTest - ERROR - 💥 Test integration_tests ERROR: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+2025-06-29 11:52:45,149 - RAGMCPTest - INFO - 📋 Running test: configuration_test
+2025-06-29 11:52:45,149 - RAGMCPTest - INFO - ⚙️ Testing configuration management...
+2025-06-29 11:52:45,150 - RAGMCPTest - ERROR -   ❌ Configuration test failed: metaclass conflict: the metaclass of a derived class must be a (non-strict) subclass of the metaclasses of all its bases
+2025-06-29 11:52:45,150 - RAGMCPTest - INFO - ❌ Test configuration_test: FAILED
+2025-06-29 11:52:45,150 - RAGMCPTest - INFO - 📋 Running test: end_to_end_test
+2025-06-29 11:52:45,150 - RAGMCPTest - INFO - 🔄 Testing end-to-end pipeline...
+2025-06-29 11:52:45,150 - RAGMCPTest - ERROR -   ❌ No coordinator available for end-to-end test
+2025-06-29 11:52:45,151 - RAGMCPTest - INFO - ❌ Test end_to_end_test: FAILED
+2025-06-29 11:52:45,151 - RAGMCPTest - INFO - 📊 Generating test report...
+2025-06-29 11:52:45,151 - RAGMCPTest - INFO - 📄 Test report saved to: ./logs/validation/rag_mcp_test_report.txt
+2025-06-29 11:53:39,146 - RAGMCPTest - INFO - 🚀 Starting RAG-MCP Coordinator Verification Tests
+2025-06-29 11:53:39,146 - RAGMCPTest - INFO - 📋 Running test: import_verification
+2025-06-29 11:53:39,146 - RAGMCPTest - INFO - 🔍 Testing imports and dependencies...
+2025-06-29 11:53:39,273 - RAGMCPTest - INFO -   ✅ numpy - Available
+2025-06-29 11:53:39,683 - RAGMCPTest - INFO -   ✅ pandas - Available
+2025-06-29 11:53:39,690 - RAGMCPTest - INFO -   ✅ scipy - Available
+2025-06-29 11:53:39,761 - RAGMCPTest - INFO -   ✅ langchain - Available
+2025-06-29 11:53:39,763 - RAGMCPTest - INFO -   ✅ langchain_community - Available
+2025-06-29 11:53:40,203 - RAGMCPTest - INFO -   ✅ openai - Available
+2025-06-29 11:53:40,203 - RAGMCPTest - INFO -   ✅ pydantic - Available
+2025-06-29 11:53:41,263 - RAGMCPTest - ERROR - 💥 Test import_verification ERROR: [Errno 2] No such file or directory: '/Users/radhikakulkarni/Downloads/kgot_alita/alita-kgot-enhanced/validation/logs/kgot/error_management.log'
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO - 📋 Running test: directory_setup
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO - 📁 Testing directory structure...
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO -   ✅ Directory exists: ./logs/validation/
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO -   ✅ Directory exists: ./data/
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO -   ✅ Directory exists: ./config/
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO -   ✅ Directory exists: ../kgot_core/
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO -   ✅ Directory exists: ../alita_core/
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO - ✅ Test directory_setup: PASSED
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO - 📋 Running test: basic_functionality
+2025-06-29 11:53:41,264 - RAGMCPTest - INFO - ⚙️ Testing basic functionality...
+2025-06-29 11:53:41,265 - RAGMCPTest - ERROR -   ❌ Basic functionality test failed: [Errno 2] No such file or directory: '/Users/radhikakulkarni/Downloads/kgot_alita/alita-kgot-enhanced/validation/logs/kgot/error_management.log'
+2025-06-29 11:53:41,266 - RAGMCPTest - INFO - ❌ Test basic_functionality: FAILED
+2025-06-29 11:53:41,266 - RAGMCPTest - INFO - 📋 Running test: integration_tests
+2025-06-29 11:53:41,266 - RAGMCPTest - INFO - 🔗 Testing system integrations...
+2025-06-29 11:53:41,270 - RAGMCPTest - ERROR - 💥 Test integration_tests ERROR: [Errno 2] No such file or directory: '/Users/radhikakulkarni/Downloads/kgot_alita/alita-kgot-enhanced/validation/logs/kgot/error_management.log'
+2025-06-29 11:53:41,270 - RAGMCPTest - INFO - 📋 Running test: configuration_test
+2025-06-29 11:53:41,270 - RAGMCPTest - INFO - ⚙️ Testing configuration management...
+2025-06-29 11:53:41,271 - RAGMCPTest - ERROR -   ❌ Configuration test failed: [Errno 2] No such file or directory: '/Users/radhikakulkarni/Downloads/kgot_alita/alita-kgot-enhanced/validation/logs/kgot/error_management.log'
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - ❌ Test configuration_test: FAILED
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - 📋 Running test: end_to_end_test
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - 🔄 Testing end-to-end pipeline...
+2025-06-29 11:53:41,272 - RAGMCPTest - ERROR -   ❌ No coordinator available for end-to-end test
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - ❌ Test end_to_end_test: FAILED
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - 📊 Generating test report...
+2025-06-29 11:53:41,272 - RAGMCPTest - INFO - 📄 Test report saved to: ./logs/validation/rag_mcp_test_report.txt
+2025-06-29 11:53:50,034 - RAGMCPTest - INFO - 🚀 Starting RAG-MCP Coordinator Verification Tests
+2025-06-29 11:53:50,034 - RAGMCPTest - INFO - 📋 Running test: import_verification
+2025-06-29 11:53:50,034 - RAGMCPTest - INFO - 🔍 Testing imports and dependencies...
+2025-06-29 11:53:50,141 - RAGMCPTest - INFO -   ✅ numpy - Available
+2025-06-29 11:53:50,448 - RAGMCPTest - INFO -   ✅ pandas - Available
+2025-06-29 11:53:50,453 - RAGMCPTest - INFO -   ✅ scipy - Available
+2025-06-29 11:53:50,517 - RAGMCPTest - INFO -   ✅ langchain - Available
+2025-06-29 11:53:50,519 - RAGMCPTest - INFO -   ✅ langchain_community - Available
+2025-06-29 11:53:50,909 - RAGMCPTest - INFO -   ✅ openai - Available
+2025-06-29 11:53:50,909 - RAGMCPTest - INFO -   ✅ pydantic - Available
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ RAG-MCP Coordinator imports - Success
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - ✅ Test import_verification: PASSED
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - 📋 Running test: directory_setup
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - 📁 Testing directory structure...
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Directory exists: ./logs/validation/
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Directory exists: ./data/
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Directory exists: ./config/
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Directory exists: ../kgot_core/
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Directory exists: ../alita_core/
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - ✅ Test directory_setup: PASSED
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - 📋 Running test: basic_functionality
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - ⚙️ Testing basic functionality...
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO -   ✅ Default configuration loaded
+2025-06-29 11:53:51,893 - RAGMCPTest - ERROR -   ❌ Basic functionality test failed: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - ❌ Test basic_functionality: FAILED
+2025-06-29 11:53:51,893 - RAGMCPTest - INFO - 📋 Running test: integration_tests
+2025-06-29 11:53:51,894 - RAGMCPTest - INFO - 🔗 Testing system integrations...
+2025-06-29 11:53:51,896 - RAGMCPTest - INFO -   ✅ MCP Cross-Validator import successful
+2025-06-29 11:53:51,898 - RAGMCPTest - INFO -   ✅ KGoT Error Management import successful
+2025-06-29 11:53:51,898 - RAGMCPTest - INFO -   ✅ Node.js Brainstorming Engine found
+2025-06-29 11:53:51,898 - RAGMCPTest - INFO - ✅ Test integration_tests: PASSED
+2025-06-29 11:53:51,899 - RAGMCPTest - INFO - 📋 Running test: configuration_test
+2025-06-29 11:53:51,899 - RAGMCPTest - INFO - ⚙️ Testing configuration management...
+2025-06-29 11:53:51,903 - MCPCrossValidation - INFO - Creating MCP Cross-Validation Engine
+2025-06-29 11:53:51,904 - MCPCrossValidation - INFO - Initialized Statistical Significance Analyzer
+2025-06-29 11:53:51,904 - MCPCrossValidation - INFO - Initialized K-Fold MCP Validator
+2025-06-29 11:53:51,904 - MCPCrossValidation - INFO - Initialized Multi-Scenario Test Framework
+2025-06-29 11:53:51,904 - MCPCrossValidation - INFO - Initialized Validation Metrics Engine
+2025-06-29 11:53:51,904 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-06-29 11:53:51,904 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-06-29 11:53:51,908 - RAGMCPTest - ERROR -   ❌ Configuration test failed: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-06-29 11:53:51,908 - RAGMCPTest - INFO - ❌ Test configuration_test: FAILED
+2025-06-29 11:53:51,908 - RAGMCPTest - INFO - 📋 Running test: end_to_end_test
+2025-06-29 11:53:51,908 - RAGMCPTest - INFO - 🔄 Testing end-to-end pipeline...
+2025-06-29 11:53:51,908 - RAGMCPTest - ERROR -   ❌ No coordinator available for end-to-end test
+2025-06-29 11:53:51,908 - RAGMCPTest - INFO - ❌ Test end_to_end_test: FAILED
+2025-06-29 11:53:51,908 - RAGMCPTest - INFO - 📊 Generating test report...
+2025-06-29 11:53:51,909 - RAGMCPTest - INFO - 📄 Test report saved to: ./logs/validation/rag_mcp_test_report.txt

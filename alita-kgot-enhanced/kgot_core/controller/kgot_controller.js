@@ -1,0 +1,826 @@
+/**
+ * Knowledge Graph of Thoughts (KGoT) Controller
+ * 
+ * Implementation of the KGoT Controller as specified in the research paper Section 2.2.
+ * This controller implements a dual-LLM architecture with iterative workflow, and integration with Alita Manager Agent
+ * 
+ * Key Features:
+ * - Dual-LLM Architecture: LLM Graph Executor and LLM Tool Executor
+ * - Iterative workflow: task interpretation → tool identification → graph integration
+ * - Majority voting system for Enhance/Solve pathway decisions (Section 3)
+ * - Integration with Alita Manager Agent for coordinated task orchestration
+ * - Knowledge graph state tracking for MCP brainstorming workflow
+ * - Multimodal task routing alongside tool selection
+ * - MCP cross-validation coordinator for systematic validation
+ * 
+ * @module KGoTController
+ */
+
+const { ChatOpenAI } = require('@langchain/openai');
+const { HumanMessage, SystemMessage, AIMessage } = require('@langchain/core/messages');
+const { ChatPromptTemplate } = require('@langchain/core/prompts');
+const { DynamicTool } = require('@langchain/core/tools');
+const EventEmitter = require('events');
+
+// Import logging configuration
+const { loggers } = require('../../config/logging/winston_config');
+const logger = loggers.kgotController;
+
+// Import configuration
+const modelConfig = require('../../config/models/model_config.json');
+
+/**
+ * KGoT Controller Class
+ * Implements Knowledge Graph of Thoughts reasoning with dual-LLM architecture
+ */
+class KGoTController extends EventEmitter {
+  constructor(options = {}) {
+    super();
+    
+    this.options = {
+      maxIterations: options.maxIterations || 10,
+      maxRetries: options.maxRetries || 3,
+      votingThreshold: options.votingThreshold || 0.6, // For majority voting decisions
+      graphUpdateInterval: options.graphUpdateInterval || 5000,
+      validationEnabled: options.validationEnabled !== false,
+      ...options
+    };
+
+    // Dual-LLM Architecture components
+    this.llmGraphExecutor = null;
+    this.llmToolExecutor = null;
+    
+    // Knowledge Graph state management
+    this.knowledgeGraph = new Map(); // Stores thought vertices and relationships
+    this.taskState = new Map(); // Tracks current task state
+    this.iterationHistory = [];
+    
+    // Tool and validation systems
+    this.toolRegistry = new Map();
+    this.mcpValidator = null;
+    this.validationResults = new Map();
+    
+    // Workflow state tracking
+    this.currentIteration = 0;
+    this.isActive = false;
+    this.finalResult = null;
+    
+    logger.info('Initializing KGoT Controller', { 
+      operation: 'KGOT_INIT',
+      options: this.options 
+    });
+    
+    this.initializeLLMs();
+    this.setupToolRegistry();
+    this.initializeKnowledgeGraph();
+  }
+
+  /**
+   * Initialize the dual-LLM architecture with specialized roles
+   * LLM Graph Executor: Manages knowledge graph operations and reasoning
+   * LLM Tool Executor: Handles tool selection and execution
+   */
+  async initializeLLMs() {
+    try {
+      logger.logOperation('info', 'DUAL_LLM_INIT', 'Initializing dual-LLM architecture');
+
+      const kgotConfig = modelConfig.alita_config.kgot_controller;
+      const openRouterConfig = modelConfig.model_providers.openrouter;
+
+      // Initialize LLM Graph Executor for knowledge graph operations
+      this.llmGraphExecutor = new ChatOpenAI({
+        openAIApiKey: process.env.OPENROUTER_API_KEY,
+        configuration: {
+          baseURL: openRouterConfig.base_url,
+        },
+        modelName: openRouterConfig.models[kgotConfig.graph_executor_model].model_id,
+        temperature: 0.1, // Lower temperature for consistent graph operations
+        maxTokens: 4000,
+        timeout: kgotConfig.timeout * 1000,
+        maxRetries: this.options.maxRetries,
+      });
+
+      // Initialize LLM Tool Executor for tool selection and execution
+      this.llmToolExecutor = new ChatOpenAI({
+        openAIApiKey: process.env.OPENROUTER_API_KEY,
+        configuration: {
+          baseURL: openRouterConfig.base_url,
+        },
+        modelName: openRouterConfig.models[kgotConfig.tool_executor_model].model_id,
+        temperature: 0.3, // Higher temperature for creative tool usage
+        maxTokens: 4000,
+        timeout: kgotConfig.timeout * 1000,
+        maxRetries: this.options.maxRetries,
+      });
+
+      logger.logOperation('info', 'DUAL_LLM_SUCCESS', 'Dual-LLM architecture initialized successfully');
+
+    } catch (error) {
+      logger.logError('DUAL_LLM_INIT_FAILED', error, { 
+        kgotConfig,
+        openRouterConfig: modelConfig.model_providers.openrouter 
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Setup tool registry for KGoT operations
+   * Integrates with available tools and MCP creation capabilities
+   */
+  setupToolRegistry() {
+    logger.logOperation('info', 'TOOL_REGISTRY_SETUP', 'Setting up KGoT tool registry');
+
+    // Core KGoT tools
+    const coreTools = [
+      {
+        name: 'graph_vertex_add',
+        description: 'Add a new thought vertex to the knowledge graph',
+        func: this.addGraphVertex.bind(this)
+      },
+      {
+        name: 'graph_edge_add',
+        description: 'Add a relationship edge between thought vertices',
+        func: this.addGraphEdge.bind(this)
+      },
+      {
+        name: 'graph_query',
+        description: 'Query the knowledge graph for relevant information',
+        func: this.queryGraph.bind(this)
+      },
+      {
+        name: 'task_decompose',
+        description: 'Decompose complex task into manageable subtasks',
+        func: this.decomposeTask.bind(this)
+      },
+      {
+        name: 'solution_synthesis',
+        description: 'Synthesize final solution from graph insights',
+        func: this.synthesizeSolution.bind(this)
+      },
+      {
+        name: 'pathway_vote',
+        description: 'Perform majority voting for Enhance/Solve pathway decisions',
+        func: this.performPathwayVote.bind(this)
+      }
+    ];
+
+    // Register core tools
+    coreTools.forEach(tool => {
+      this.toolRegistry.set(tool.name, new DynamicTool(tool));
+    });
+
+    logger.logOperation('info', 'TOOL_REGISTRY_READY', `Registered ${coreTools.length} core KGoT tools`);
+  }
+
+  /**
+   * Initialize the knowledge graph structure
+   * Creates the foundational graph for storing thoughts and relationships
+   */
+  initializeKnowledgeGraph() {
+    logger.logOperation('info', 'KNOWLEDGE_GRAPH_INIT', 'Initializing knowledge graph structure');
+
+    this.knowledgeGraph.clear();
+    this.taskState.clear();
+    
+    // Initialize root node for the current task
+    this.knowledgeGraph.set('root', {
+      id: 'root',
+      type: 'task_root',
+      content: '',
+      timestamp: new Date(),
+      connections: [],
+      metadata: {
+        iteration: 0,
+        confidence: 1.0,
+        source: 'system'
+      }
+    });
+
+    logger.logOperation('info', 'KNOWLEDGE_GRAPH_READY', 'Knowledge graph structure initialized');
+  }
+
+  /**
+   * Main execution method implementing the iterative KGoT workflow
+   * Follows the process: task interpretation → tool identification → graph integration
+   * 
+   * @param {string} task - The task/problem to solve
+   * @param {Object} context - Additional context and parameters
+   * @returns {Promise<Object>} - The solution and execution metadata
+   */
+  async execute(task, context = {}) {
+    try {
+      logger.logOperation('info', 'KGOT_EXECUTION_START', 'Starting KGoT execution workflow', {
+        task: task.substring(0, 100) + '...',
+        contextKeys: Object.keys(context)
+      });
+
+      // Initialize execution state
+      this.isActive = true;
+      this.currentIteration = 0;
+      this.finalResult = null;
+      this.iterationHistory = [];
+
+      // Phase 1: Task Interpretation and Initial Graph Setup
+      await this.interpretTask(task, context);
+
+      // Phase 2: Iterative Reasoning Loop
+      let solution = null;
+      while (this.currentIteration < this.options.maxIterations && this.isActive) {
+        const iterationResult = await this.performIteration(task, context);
+        
+        // Check if we've reached a satisfactory solution
+        if (iterationResult.shouldTerminate) {
+          solution = iterationResult.solution;
+          break;
+        }
+
+        this.currentIteration++;
+      }
+
+      // Phase 3: Final Solution Synthesis
+      if (!solution) {
+        solution = await this.synthesizeFinalSolution(task, context);
+      }
+
+      // Phase 4: Validation (if enabled)
+      let validationResult = null;
+      if (this.options.validationEnabled) {
+        validationResult = await this.validateSolution(solution, task, context);
+      }
+
+      const executionResult = {
+        solution: solution,
+        iterations: this.currentIteration,
+        knowledgeGraph: this.exportKnowledgeGraph(),
+        validationResult: validationResult,
+        metadata: {
+          executionTime: Date.now() - context.startTime,
+          iterationHistory: this.iterationHistory,
+          finalGraphSize: this.knowledgeGraph.size,
+          toolsUsed: Array.from(this.toolRegistry.keys())
+        }
+      };
+
+      logger.logOperation('info', 'KGOT_EXECUTION_SUCCESS', 'KGoT execution completed successfully', {
+        iterations: this.currentIteration,
+        graphSize: this.knowledgeGraph.size,
+        solutionLength: solution?.length || 0
+      });
+
+      return executionResult;
+
+    } catch (error) {
+      logger.logError('KGOT_EXECUTION_FAILED', error, {
+        task: task.substring(0, 100),
+        iteration: this.currentIteration,
+        graphSize: this.knowledgeGraph.size
+      });
+      throw error;
+    } finally {
+      this.isActive = false;
+    }
+  }
+
+  /**
+   * Interpret the incoming task and setup initial knowledge graph structure
+   * Creates the foundational vertices and relationships for reasoning
+   * 
+   * @param {string} task - The task to interpret
+   * @param {Object} context - Additional context
+   */
+  async interpretTask(task, context) {
+    logger.logOperation('info', 'TASK_INTERPRETATION', 'Interpreting task and setting up knowledge graph');
+
+    const interpretationPrompt = ChatPromptTemplate.fromMessages([
+      new SystemMessage(`You are the LLM Graph Executor in a Knowledge Graph of Thoughts system.
+Your role is to interpret tasks and create initial knowledge graph structure.
+
+Task: Analyze the given task and identify:
+1. Core concepts and entities
+2. Key relationships and dependencies
+3. Problem decomposition opportunities
+4. Initial reasoning pathways
+
+Create a structured representation that will guide the iterative reasoning process.`),
+      new HumanMessage(`Task to interpret: ${task}
+
+Context: ${JSON.stringify(context, null, 2)}
+
+Please provide a detailed interpretation with:
+1. Main concepts and entities
+2. Relationships between concepts
+3. Potential solution pathways
+4. Initial graph structure recommendations`)
+    ]);
+
+    const interpretation = await this.llmGraphExecutor.invoke(interpretationPrompt.formatMessages());
+    
+    // Update root node with task interpretation
+    const rootNode = this.knowledgeGraph.get('root');
+    rootNode.content = task;
+    rootNode.metadata.interpretation = interpretation.content;
+
+    // Create initial thought vertices based on interpretation
+    await this.createInitialThoughtVertices(interpretation.content, task);
+
+    this.taskState.set('currentTask', task);
+    this.taskState.set('interpretation', interpretation.content);
+    this.taskState.set('phase', 'reasoning');
+
+    logger.logOperation('info', 'TASK_INTERPRETATION_COMPLETE', 'Task interpretation completed', {
+      interpretationLength: interpretation.content.length,
+      initialVertices: this.knowledgeGraph.size
+    });
+  }
+
+  /**
+   * Perform a single iteration of the KGoT reasoning process
+   * Implements the core iterative workflow from the research paper
+   * 
+   * @param {string} task - The original task
+   * @param {Object} context - Current context
+   * @returns {Promise<Object>} - Iteration result with termination decision
+   */
+  async performIteration(task, context) {
+    logger.logOperation('info', 'ITERATION_START', `Starting KGoT iteration ${this.currentIteration}`);
+
+    const iterationStartTime = Date.now();
+
+    try {
+      // Step 1: Analyze current knowledge graph state
+      const graphState = this.analyzeGraphState();
+
+      // Step 2: Majority voting for Enhance/Solve pathway decision (Section 3 implementation)
+      const pathwayDecision = await this.performPathwayVote(graphState);
+
+      let iterationResult = {
+        shouldTerminate: false,
+        solution: null,
+        pathwayDecision: pathwayDecision,
+        graphUpdates: [],
+        toolsExecuted: []
+      };
+
+      if (pathwayDecision.decision === 'SOLVE') {
+        // Solution pathway: attempt to synthesize solution
+        logger.logOperation('info', 'PATHWAY_SOLVE', 'Taking SOLVE pathway for solution synthesis');
+        
+        const solution = await this.synthesizeSolution(graphState, task);
+        iterationResult.solution = solution;
+        iterationResult.shouldTerminate = true;
+
+      } else {
+        // Enhancement pathway: expand knowledge graph
+        logger.logOperation('info', 'PATHWAY_ENHANCE', 'Taking ENHANCE pathway for knowledge expansion');
+
+        // Step 3: Tool identification and execution
+        const toolDecisions = await this.identifyAndExecuteTools(graphState, task, context);
+        iterationResult.toolsExecuted = toolDecisions;
+
+        // Step 4: Integrate tool results into knowledge graph
+        const graphUpdates = await this.integrateToolResults(toolDecisions);
+        iterationResult.graphUpdates = graphUpdates;
+
+        // Step 5: Check if we should continue or terminate
+        const continuationDecision = await this.decideContinuation(graphState, toolDecisions);
+        iterationResult.shouldTerminate = !continuationDecision.shouldContinue;
+        
+        if (iterationResult.shouldTerminate && continuationDecision.hasSolution) {
+          iterationResult.solution = continuationDecision.solution;
+        }
+      }
+
+      // Record iteration history
+      const iterationDuration = Date.now() - iterationStartTime;
+      this.iterationHistory.push({
+        iteration: this.currentIteration,
+        duration: iterationDuration,
+        pathwayDecision: pathwayDecision,
+        graphSize: this.knowledgeGraph.size,
+        toolsExecuted: iterationResult.toolsExecuted.length,
+        shouldTerminate: iterationResult.shouldTerminate
+      });
+
+      logger.logOperation('info', 'ITERATION_COMPLETE', `Iteration ${this.currentIteration} completed`, {
+        duration: iterationDuration,
+        pathway: pathwayDecision.decision,
+        shouldTerminate: iterationResult.shouldTerminate,
+        toolsExecuted: iterationResult.toolsExecuted.length
+      });
+
+      return iterationResult;
+
+    } catch (error) {
+      logger.logError('ITERATION_FAILED', error, {
+        iteration: this.currentIteration,
+        duration: Date.now() - iterationStartTime
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Implement majority voting system for Enhance/Solve pathway decisions
+   * Based on Section 3 of the research paper
+   * 
+   * @param {Object} graphState - Current knowledge graph state
+   * @returns {Promise<Object>} - Voting decision with confidence scores
+   */
+  async performPathwayVote(graphState) {
+    logger.logOperation('info', 'PATHWAY_VOTING', 'Performing majority voting for pathway decision');
+
+    const votingPrompt = ChatPromptTemplate.fromMessages([
+      new SystemMessage(`You are participating in a majority voting system for Knowledge Graph of Thoughts pathway decisions.
+
+Your task is to vote on whether to:
+- ENHANCE: Continue expanding the knowledge graph with more information
+- SOLVE: Attempt to synthesize a solution from current knowledge
+
+Consider:
+1. Completeness of current knowledge
+2. Clarity of solution path
+3. Confidence in available information
+4. Potential for additional insights
+
+Provide your vote with confidence score (0.0-1.0) and reasoning.`),
+      new HumanMessage(`Current Knowledge Graph State:
+Graph Size: ${this.knowledgeGraph.size} vertices
+Iteration: ${this.currentIteration}/${this.options.maxIterations}
+
+Graph Analysis: ${JSON.stringify(graphState, null, 2)}
+
+Vote Format:
+{
+  "vote": "ENHANCE" or "SOLVE",
+  "confidence": 0.0-1.0,
+  "reasoning": "detailed explanation"
+}`)
+    ]);
+
+    // Perform multiple votes for majority decision
+    const numVoters = 5; // Configurable number of voting instances
+    const votes = [];
+
+    for (let i = 0; i < numVoters; i++) {
+      try {
+        const voteResponse = await this.llmGraphExecutor.invoke(votingPrompt.formatMessages());
+        const voteData = this.parseVoteResponse(voteResponse.content);
+        votes.push(voteData);
+      } catch (error) {
+        logger.logWarning('VOTE_PARSING_ERROR', `Error parsing vote ${i}`, { error: error.message });
+      }
+    }
+
+    // Aggregate votes using majority rule
+    const enhanceVotes = votes.filter(v => v.vote === 'ENHANCE');
+    const solveVotes = votes.filter(v => v.vote === 'SOLVE');
+
+    const enhanceConfidence = enhanceVotes.reduce((sum, v) => sum + v.confidence, 0) / enhanceVotes.length || 0;
+    const solveConfidence = solveVotes.reduce((sum, v) => sum + v.confidence, 0) / solveVotes.length || 0;
+
+    const decision = enhanceVotes.length > solveVotes.length ? 'ENHANCE' : 'SOLVE';
+    const winningConfidence = decision === 'ENHANCE' ? enhanceConfidence : solveConfidence;
+
+    const votingResult = {
+      decision: decision,
+      confidence: winningConfidence,
+      enhanceVotes: enhanceVotes.length,
+      solveVotes: solveVotes.length,
+      totalVotes: votes.length,
+      allVotes: votes
+    };
+
+    logger.logOperation('info', 'PATHWAY_VOTING_COMPLETE', 'Pathway voting completed', {
+      decision: decision,
+      confidence: winningConfidence,
+      enhanceVotes: enhanceVotes.length,
+      solveVotes: solveVotes.length
+    });
+
+    return votingResult;
+  }
+
+  /**
+   * Identify and execute appropriate tools based on current graph state
+   * Implements the tool identification logic from the research paper
+   * 
+   * @param {Object} graphState - Current knowledge graph state
+   * @param {string} task - Original task
+   * @param {Object} context - Execution context
+   * @returns {Promise<Array>} - Array of tool execution results
+   */
+  async identifyAndExecuteTools(graphState, task, context) {
+    logger.logOperation('info', 'TOOL_IDENTIFICATION', 'Identifying and executing tools for knowledge expansion');
+
+    const toolIdentificationPrompt = ChatPromptTemplate.fromMessages([
+      new SystemMessage(`You are the LLM Tool Executor in a Knowledge Graph of Thoughts system.
+Your role is to identify and select appropriate tools for expanding knowledge.
+
+Available tools and capabilities:
+- Web search and information retrieval
+- Document processing and analysis
+- Mathematical computation
+- Code execution and analysis
+- Image and multimodal processing
+- Expert system queries
+
+Select tools that will provide valuable information to expand the knowledge graph.`),
+      new HumanMessage(`Current Task: ${task}
+
+Knowledge Graph State: ${JSON.stringify(graphState, null, 2)}
+
+Context: ${JSON.stringify(context, null, 2)}
+
+Identify 1-3 tools that would be most beneficial for expanding knowledge about this task.
+Provide tool selection with specific parameters and expected outcomes.
+
+Response Format:
+{
+  "tools": [
+    {
+      "name": "tool_name",
+      "parameters": {...},
+      "rationale": "why this tool is needed",
+      "expectedOutcome": "what information we expect to gain"
+    }
+  ]
+}`)
+    ]);
+
+    const toolResponse = await this.llmToolExecutor.invoke(toolIdentificationPrompt.formatMessages());
+    const toolDecisions = this.parseToolResponse(toolResponse.content);
+
+    // Execute selected tools
+    const toolResults = [];
+    for (const toolDecision of toolDecisions.tools || []) {
+      try {
+        const result = await this.executeTool(toolDecision);
+        toolResults.push({
+          tool: toolDecision,
+          result: result,
+          success: true
+        });
+      } catch (error) {
+        logger.logError('TOOL_EXECUTION_FAILED', error, { tool: toolDecision.name });
+        toolResults.push({
+          tool: toolDecision,
+          result: null,
+          success: false,
+          error: error.message
+        });
+      }
+    }
+
+    logger.logOperation('info', 'TOOL_EXECUTION_COMPLETE', 'Tool execution completed', {
+      toolsIdentified: toolDecisions.tools?.length || 0,
+      toolsExecuted: toolResults.filter(r => r.success).length,
+      toolsFailed: toolResults.filter(r => !r.success).length
+    });
+
+    return toolResults;
+  }
+
+  /**
+   * Add a new thought vertex to the knowledge graph
+   * Core graph operation for expanding reasoning structure
+   * 
+   * @param {Object} vertexData - Data for the new vertex
+   * @returns {string} - The ID of the created vertex
+   */
+  async addGraphVertex(vertexData) {
+    const vertexId = this.generateVertexId();
+    
+    const vertex = {
+      id: vertexId,
+      type: vertexData.type || 'thought',
+      content: vertexData.content,
+      timestamp: new Date(),
+      connections: [],
+      metadata: {
+        iteration: this.currentIteration,
+        confidence: vertexData.confidence || 0.5,
+        source: vertexData.source || 'llm',
+        ...vertexData.metadata
+      }
+    };
+
+    this.knowledgeGraph.set(vertexId, vertex);
+
+    logger.logOperation('debug', 'GRAPH_VERTEX_ADDED', 'Added new vertex to knowledge graph', {
+      vertexId: vertexId,
+      type: vertex.type,
+      contentLength: vertex.content?.length || 0
+    });
+
+    this.emit('vertexAdded', vertex);
+    return vertexId;
+  }
+
+  /**
+   * Add a relationship edge between thought vertices
+   * Establishes connections in the knowledge graph
+   * 
+   * @param {Object} edgeData - Data for the new edge
+   * @returns {string} - The ID of the created edge
+   */
+  async addGraphEdge(edgeData) {
+    const { fromVertexId, toVertexId, relationship, weight = 1.0 } = edgeData;
+    
+    const fromVertex = this.knowledgeGraph.get(fromVertexId);
+    const toVertex = this.knowledgeGraph.get(toVertexId);
+
+    if (!fromVertex || !toVertex) {
+      throw new Error(`Invalid vertex IDs: ${fromVertexId} -> ${toVertexId}`);
+    }
+
+    const edgeId = this.generateEdgeId();
+    const edge = {
+      id: edgeId,
+      from: fromVertexId,
+      to: toVertexId,
+      relationship: relationship,
+      weight: weight,
+      timestamp: new Date(),
+      metadata: {
+        iteration: this.currentIteration,
+        ...edgeData.metadata
+      }
+    };
+
+    fromVertex.connections.push(edge);
+
+    logger.logOperation('debug', 'GRAPH_EDGE_ADDED', 'Added new edge to knowledge graph', {
+      edgeId: edgeId,
+      from: fromVertexId,
+      to: toVertexId,
+      relationship: relationship
+    });
+
+    this.emit('edgeAdded', edge);
+    return edgeId;
+  }
+
+  /**
+   * Query the knowledge graph for relevant information
+   * Implements graph traversal and information retrieval
+   * 
+   * @param {Object} queryParams - Query parameters
+   * @returns {Array} - Query results
+   */
+  async queryGraph(queryParams) {
+    logger.logOperation('debug', 'GRAPH_QUERY', 'Querying knowledge graph', { queryParams });
+
+    const { queryType, filters, maxResults = 10 } = queryParams;
+    const results = [];
+
+    switch (queryType) {
+      case 'vertices_by_type':
+        for (const [id, vertex] of this.knowledgeGraph) {
+          if (vertex.type === filters.type) {
+            results.push(vertex);
+          }
+        }
+        break;
+
+      case 'vertices_by_content':
+        const searchTerm = filters.content.toLowerCase();
+        for (const [id, vertex] of this.knowledgeGraph) {
+          if (vertex.content && vertex.content.toLowerCase().includes(searchTerm)) {
+            results.push(vertex);
+          }
+        }
+        break;
+
+      case 'connected_vertices':
+        const startVertex = this.knowledgeGraph.get(filters.startVertexId);
+        if (startVertex) {
+          const connectedIds = startVertex.connections.map(edge => edge.to);
+          for (const connectedId of connectedIds) {
+            const connectedVertex = this.knowledgeGraph.get(connectedId);
+            if (connectedVertex) {
+              results.push(connectedVertex);
+            }
+          }
+        }
+        break;
+
+      default:
+        // Return all vertices if no specific query type
+        for (const [id, vertex] of this.knowledgeGraph) {
+          results.push(vertex);
+        }
+    }
+
+    return results.slice(0, maxResults);
+  }
+
+  /**
+   * Generate unique vertex ID
+   * @returns {string} - Unique vertex identifier
+   */
+  generateVertexId() {
+    return `vertex_${this.currentIteration}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Generate unique edge ID
+   * @returns {string} - Unique edge identifier
+   */
+  generateEdgeId() {
+    return `edge_${this.currentIteration}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Export current knowledge graph state
+   * @returns {Object} - Serializable graph representation
+   */
+  exportKnowledgeGraph() {
+    const graphData = {
+      vertices: {},
+      edges: [],
+      metadata: {
+        size: this.knowledgeGraph.size,
+        iteration: this.currentIteration,
+        timestamp: new Date(),
+        taskState: Object.fromEntries(this.taskState)
+      }
+    };
+
+    // Export vertices
+    for (const [id, vertex] of this.knowledgeGraph) {
+      graphData.vertices[id] = { ...vertex };
+    }
+
+    // Export edges from vertex connections
+    for (const [id, vertex] of this.knowledgeGraph) {
+      vertex.connections.forEach(edge => {
+        graphData.edges.push({ ...edge });
+      });
+    }
+
+    return graphData;
+  }
+
+  // Placeholder methods for implementation
+  async createInitialThoughtVertices(interpretation, task) {
+    // TODO: Implement based on interpretation results
+    logger.logOperation('debug', 'INITIAL_VERTICES', 'Creating initial thought vertices');
+  }
+
+  analyzeGraphState() {
+    return {
+      size: this.knowledgeGraph.size,
+      iteration: this.currentIteration,
+      // TODO: Add more sophisticated analysis
+    };
+  }
+
+  parseVoteResponse(response) {
+    try {
+      return JSON.parse(response);
+    } catch {
+      return { vote: 'ENHANCE', confidence: 0.5, reasoning: 'Parse error fallback' };
+    }
+  }
+
+  parseToolResponse(response) {
+    try {
+      return JSON.parse(response);
+    } catch {
+      return { tools: [] };
+    }
+  }
+
+  async executeTool(toolDecision) {
+    // TODO: Implement actual tool execution
+    return `Tool ${toolDecision.name} executed successfully`;
+  }
+
+  async integrateToolResults(toolResults) {
+    // TODO: Integrate tool results into knowledge graph
+    return [];
+  }
+
+  async decideContinuation(graphState, toolDecisions) {
+    // TODO: Implement continuation decision logic
+    return { shouldContinue: this.currentIteration < this.options.maxIterations - 1, hasSolution: false };
+  }
+
+  async synthesizeSolution(graphState, task) {
+    // TODO: Implement solution synthesis
+    return "Solution synthesized from knowledge graph";
+  }
+
+  async synthesizeFinalSolution(task, context) {
+    // TODO: Implement final solution synthesis
+    return "Final solution synthesized";
+  }
+
+  async validateSolution(solution, task, context) {
+    // TODO: Implement MCP cross-validation
+    return { isValid: true, confidence: 0.8 };
+  }
+}
+
+module.exports = { KGoTController }; 

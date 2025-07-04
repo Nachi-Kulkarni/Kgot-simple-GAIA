@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+never attempt to make more thanm 600 lines of code in a single go, generate the code in the smaller chunks of 400-600 chunk size if the required to generate code is in a single file, 

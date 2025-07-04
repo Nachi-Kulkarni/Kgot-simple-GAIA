@@ -1,0 +1,35 @@
+2025-06-28 14:17:04,455 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-06-28 14:17:04,456 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-06-28 14:17:04,456 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-06-28 14:17:04,456 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-06-28 14:17:04,456 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-06-28 14:17:04,456 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-06-28 14:17:04,485 - ScriptGenerator - WARNING - [LLM_INIT_FALLBACK] Failed to initialize OpenRouter LLM: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-06-28 14:17:04,495 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-06-28 14:19:28,010 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-06-28 14:19:28,010 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
+2025-06-28 14:19:28,010 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-06-28 14:24:10,042 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-06-28 14:24:10,042 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
+2025-06-28 14:24:10,042 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-06-28 14:24:31,653 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-06-28 14:24:31,653 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-06-28 14:24:31,653 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-06-28 14:24:31,653 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-06-28 14:24:31,653 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-06-28 14:24:31,653 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-06-28 14:24:31,654 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
+2025-06-28 14:24:31,654 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
+2025-06-28 14:24:31,654 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates

@@ -1,0 +1,24 @@
+2025-06-28 15:12:53,265 — AlitaCodeRunner — INFO — create_code_running_tool:1921 — Creating CodeRunningTool instance
+2025-06-28 15:12:53,266 — AlitaCodeRunner — ERROR — _create_default_orchestrator:263 — Failed to create container orchestrator: asyncio.run() cannot be called from a running event loop
+2025-06-28 15:15:13,848 — AlitaCodeRunner — INFO — __init__:246 — Initialized ExecutionEnvironment
+2025-06-28 15:15:13,850 — AlitaCodeRunner — INFO — __init__:1432 — Initialized ResultCache
+2025-06-28 15:15:13,850 — AlitaCodeRunner — INFO — __init__:909 — Initialized MCPServerGenerator
+2025-06-28 15:15:13,850 — AlitaCodeRunner — INFO — __init__:246 — Initialized ExecutionEnvironment
+2025-06-28 15:15:13,850 — AlitaCodeRunner — INFO — __init__:1173 — Initialized ValidationFramework
+2025-06-28 15:26:56,925 — AlitaCodeRunner — INFO — __init__:248 — Initialized ExecutionEnvironment
+2025-06-28 15:26:56,926 — AlitaCodeRunner — INFO — _create_default_llm_client:572 — Creating Claude 4 Sonnet client for code running
+2025-06-28 15:26:56,960 — AlitaCodeRunner — INFO — __init__:1441 — Initialized ResultCache
+2025-06-28 15:26:56,961 — AlitaCodeRunner — INFO — __init__:918 — Initialized MCPServerGenerator
+2025-06-28 15:26:56,961 — AlitaCodeRunner — INFO — __init__:248 — Initialized ExecutionEnvironment
+2025-06-28 15:26:56,961 — AlitaCodeRunner — INFO — __init__:1182 — Initialized ValidationFramework
+2025-06-28 15:28:17,093 — AlitaCodeRunner — INFO — create_code_running_tool:1931 — Creating CodeRunningTool instance
+2025-06-28 15:28:17,095 — AlitaCodeRunner — INFO — __init__:248 — Initialized ExecutionEnvironment
+2025-06-28 15:28:17,095 — AlitaCodeRunner — INFO — _create_default_llm_client:572 — Creating Claude 4 Sonnet client for code running
+2025-06-28 15:30:26,403 — AlitaCodeRunner — INFO — _create_default_llm_client:572 — Creating Claude 4 Sonnet client for code running
+2025-06-28 15:31:26,214 — AlitaCodeRunner — INFO — _create_default_llm_client:572 — Creating Claude 4 Sonnet client for code running
+2025-06-28 16:47:14,126 — AlitaCodeRunner — INFO — __init__:248 — Initialized ExecutionEnvironment
+2025-06-28 16:47:14,126 — AlitaCodeRunner — INFO — _create_default_llm_client:572 — Creating Claude 4 Sonnet client for code running
+2025-06-28 16:47:14,164 — AlitaCodeRunner — INFO — __init__:1441 — Initialized ResultCache
+2025-06-28 16:47:14,166 — AlitaCodeRunner — INFO — __init__:918 — Initialized MCPServerGenerator
+2025-06-28 16:47:14,166 — AlitaCodeRunner — INFO — __init__:248 — Initialized ExecutionEnvironment
+2025-06-28 16:47:14,166 — AlitaCodeRunner — INFO — __init__:1182 — Initialized ValidationFramework

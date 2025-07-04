@@ -1,0 +1,11 @@
+{"timestamp":"2025-06-27 12:40:28.998","level":"INFO","component":"KGOT_CONTROLLER","operation":"KG_INTERFACE_INIT","message":"Knowledge Graph Interface initialized"}
+{"timestamp":"2025-06-27 12:40:28.998","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_KG_INIT","message":"NetworkX Knowledge Graph initialized"}
+{"timestamp":"2025-06-27 12:40:28.999","level":"INFO","component":"KGOT_CONTROLLER","operation":"KG_MCP_METRICS_RESET","message":"MCP metrics reset"}
+{"timestamp":"2025-06-27 12:40:29.000","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_DB_INIT","message":"NetworkX database initialized"}
+{"timestamp":"2025-06-27 12:40:29.000","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_ENTITY","message":"Entity added successfully"}
+{"timestamp":"2025-06-27 12:40:29.000","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_ENTITY","message":"Entity added successfully"}
+{"timestamp":"2025-06-27 12:40:29.001","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_ENTITY","message":"Entity added successfully"}
+{"timestamp":"2025-06-27 12:40:29.001","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_TRIPLET","message":"Triplet added successfully"}
+{"timestamp":"2025-06-27 12:40:29.001","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_TRIPLET","message":"Triplet added successfully"}
+{"timestamp":"2025-06-27 12:40:29.001","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_ADD_TRIPLET","message":"Triplet added successfully"}
+{"timestamp":"2025-06-27 12:40:29.010","level":"INFO","component":"KGOT_CONTROLLER","operation":"NETWORKX_SNAPSHOT_EXPORT","message":"NetworkX snapshot exported"}

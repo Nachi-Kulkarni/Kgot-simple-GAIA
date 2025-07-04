@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+if you thnk code is too huge to be generated all at once(500+), generate the entire code file in modular approach

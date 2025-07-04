@@ -1,0 +1,10 @@
+2025-06-29 11:53:51,903 — MCPCrossValidation — INFO — create_mcp_cross_validation_engine:1966 — Creating MCP Cross-Validation Engine
+2025-06-29 11:53:51,903 — MCPCrossValidation — INFO — create_mcp_cross_validation_engine:1966 — Creating MCP Cross-Validation Engine
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:215 — Initialized Statistical Significance Analyzer
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:215 — Initialized Statistical Significance Analyzer
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:457 — Initialized K-Fold MCP Validator
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:457 — Initialized K-Fold MCP Validator
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:684 — Initialized Multi-Scenario Test Framework
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:684 — Initialized Multi-Scenario Test Framework
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:1008 — Initialized Validation Metrics Engine
+2025-06-29 11:53:51,904 — MCPCrossValidation — INFO — __init__:1008 — Initialized Validation Metrics Engine

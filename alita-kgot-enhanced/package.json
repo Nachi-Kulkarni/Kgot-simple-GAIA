@@ -1,0 +1,120 @@
+{
+  "name": "alita-kgot-enhanced",
+  "version": "1.0.0",
+  "description": "Enhanced AI Assistant System combining Alita and Knowledge Graph of Thoughts (KGoT) architectures",
+  "main": "index.js",
+  "scripts": {
+    "start": "node alita_core/manager_agent/index.js",
+    "dev": "NODE_ENV=development nodemon alita_core/manager_agent/index.js",
+    "start:manager": "node alita_core/manager_agent/index.js",
+    "start:web": "node alita_core/web_agent/index.js",
+    "start:mcp": "node alita_core/mcp_creation/index.js",
+    "start:kgot": "node kgot_core/controller/index.js",
+    "start:multimodal": "node multimodal/index.js",
+    "start:validation": "node validation/index.js",
+    "start:optimization": "node optimization/index.js",
+    "docker:build": "docker-compose -f config/containers/docker-compose.yml build",
+    "docker:up": "docker-compose -f config/containers/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f config/containers/docker-compose.yml down",
+    "docker:logs": "docker-compose -f config/containers/docker-compose.yml logs -f",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .js,.json",
+    "lint:fix": "eslint . --ext .js,.json --fix",
+    "format": "prettier --write .",
+    "setup": "node scripts/setup/initial-setup.js",
+    "logs:clean": "node scripts/maintenance/clean-logs.js"
+  },
+  "keywords": [
+    "ai",
+    "assistant",
+    "alita",
+    "knowledge-graph",
+    "langchain",
+    "openrouter",
+    "mcp",
+    "multimodal",
+    "orchestration"
+  ],
+  "author": "Alita-KGoT Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/openai": "^0.0.28",
+    "@langchain/core": "^0.1.62",
+    "langchain": "^0.1.36",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5",
+    "winston": "^3.11.0",
+    "neo4j-driver": "^5.15.0",
+    "redis": "^4.6.10",
+    "playwright": "^1.40.1",
+    "axios": "^1.6.2",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.1",
+    "ffmpeg-static": "^5.2.0",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "puppeteer": "^21.6.1",
+    "socket.io": "^4.7.4",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "uuid": "^9.0.1",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "async": "^3.2.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "@types/node": "^20.10.5",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/alita-kgot-enhanced.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/alita-kgot-enhanced/issues"
+  },
+  "homepage": "https://github.com/your-org/alita-kgot-enhanced#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.{js,jsx}",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!**/logs/**"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/tests/**/*.spec.js"
+    ]
+  }
+} 

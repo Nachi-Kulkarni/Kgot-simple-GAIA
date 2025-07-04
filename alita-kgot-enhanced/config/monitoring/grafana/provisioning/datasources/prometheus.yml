@@ -1,0 +1,75 @@
+# Grafana Datasource Configuration for KGoT-Alita Monitoring
+# Automatically provisions Prometheus as the primary data source
+
+apiVersion: 1
+
+datasources:
+  # Primary Prometheus datasource
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    version: 1
+    
+    # JSON data for additional configuration
+    jsonData:
+      httpMethod: POST
+      queryTimeout: 60s
+      timeInterval: 15s
+      
+      # Enable alerting
+      alerting: true
+      
+      # Custom query options
+      customQueryParameters: ''
+      
+      # Enable exemplars
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: jaeger_uid
+    
+    # Secure JSON data (passwords, API keys, etc.)
+    secureJsonData:
+      # Add any secure configuration here if needed
+      
+  # Secondary Prometheus for long-term storage (if needed)
+  - name: Prometheus-LongTerm
+    type: prometheus
+    access: proxy
+    url: http://prometheus-longterm:9090
+    isDefault: false
+    editable: true
+    version: 1
+    
+    jsonData:
+      httpMethod: POST
+      queryTimeout: 120s
+      timeInterval: 60s
+      
+  # Loki for log aggregation (if implemented)
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    editable: true
+    version: 1
+    
+    jsonData:
+      maxLines: 1000
+      
+  # InfluxDB for additional metrics (if needed)
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: alita_kgot
+    isDefault: false
+    editable: true
+    version: 1
+    
+    jsonData:
+      timeInterval: 15s
+      httpMode: GET 
