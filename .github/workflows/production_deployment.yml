@@ -1,0 +1,625 @@
+# KGoT Production Deployment Pipeline
+# ==================================
+#
+# This GitHub Actions workflow implements the complete production deployment
+# pipeline for the KGoT-Alita enhanced system with comprehensive quality gates,
+# security scanning, and automated rollback capabilities.
+#
+# Features:
+# - Multi-stage deployment (build, test, security, deploy)
+# - Blue-green deployment strategy
+# - Automated quality assurance
+# - Security scanning and compliance
+# - Automated rollback on failure
+# - Comprehensive monitoring and alerting
+
+name: KGoT Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+    paths:
+      - 'alita-kgot-enhanced/**'
+      - '.github/workflows/**'
+  
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'alita-kgot-enhanced/**'
+  
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      version:
+        description: 'Version to deploy'
+        required: false
+        default: ''
+      force_deploy:
+        description: 'Force deployment (skip quality gates)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  
+  # Environment-specific configurations
+  STAGING_CLUSTER: ${{ secrets.STAGING_KUBECONFIG }}
+  PRODUCTION_CLUSTER: ${{ secrets.PRODUCTION_KUBECONFIG }}
+  
+  # Security and compliance
+  TRIVY_VERSION: '0.46.0'
+  COSIGN_VERSION: '2.2.0'
+
+jobs:
+  # ============================================================================
+  # PREPARATION STAGE
+  # ============================================================================
+  
+  prepare:
+    name: "🚀 Prepare Deployment"
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.environment.outputs.environment }}
+      deploy_to_staging: ${{ steps.environment.outputs.deploy_to_staging }}
+      deploy_to_production: ${{ steps.environment.outputs.deploy_to_production }}
+      should_run_tests: ${{ steps.changes.outputs.should_run_tests }}
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: "📋 Determine Version"
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ github.event.inputs.version }}" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION="v$(date +%Y%m%d)-${GITHUB_SHA::8}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "🏷️ Version: ${VERSION}"
+      
+      - name: "🎯 Determine Environment"
+        id: environment
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENVIRONMENT="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENVIRONMENT="staging"
+          elif [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            ENVIRONMENT="production"
+          else
+            ENVIRONMENT="staging"
+          fi
+          
+          echo "environment=${ENVIRONMENT}" >> $GITHUB_OUTPUT
+          echo "deploy_to_staging=$([[ "$ENVIRONMENT" == "staging" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "deploy_to_production=$([[ "$ENVIRONMENT" == "production" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "🎯 Target Environment: ${ENVIRONMENT}"
+      
+      - name: "🔍 Detect Changes"
+        id: changes
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "should_run_tests=true" >> $GITHUB_OUTPUT
+          else
+            # Check if code changes require full testing
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            if echo "$CHANGED_FILES" | grep -E '\.(py|js|ts|jsx|tsx)$' > /dev/null; then
+              echo "should_run_tests=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_run_tests=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  # ============================================================================
+  # BUILD STAGE
+  # ============================================================================
+  
+  build:
+    name: "🏗️ Build Images"
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      matrix:
+        service:
+          - kgot-controller
+          - graph-store
+          - manager-agent
+          - web-agent
+          - mcp-creation
+          - monitoring
+          - validation
+          - multimodal
+          - optimization
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🔧 Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3
+      
+      - name: "🔑 Log in to Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: "📝 Extract Metadata"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+          tags: |
+            type=raw,value=${{ needs.prepare.outputs.version }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix={{branch}}-
+      
+      - name: "🏗️ Build and Push Image"
+        uses: docker/build-push-action@v5
+        with:
+          context: alita-kgot-enhanced/${{ matrix.service }}
+          file: alita-kgot-enhanced/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.prepare.outputs.version }}
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ github.sha }}
+
+  # ============================================================================
+  # SECURITY SCANNING STAGE
+  # ============================================================================
+  
+  security_scan:
+    name: "🔒 Security Scan"
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    strategy:
+      matrix:
+        service:
+          - kgot-controller
+          - graph-store
+          - manager-agent
+          - web-agent
+          - mcp-creation
+          - monitoring
+          - validation
+          - multimodal
+          - optimization
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🔧 Install Trivy"
+        run: |
+          sudo apt-get update
+          sudo apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy
+      
+      - name: "🔍 Run Vulnerability Scan"
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ needs.prepare.outputs.version }}"
+          echo "🔍 Scanning image: ${IMAGE}"
+          
+          # Create scan results directory
+          mkdir -p security-reports
+          
+          # Run Trivy scan
+          trivy image \
+            --format sarif \
+            --output security-reports/${{ matrix.service }}-vulnerabilities.sarif \
+            --severity HIGH,CRITICAL \
+            --exit-code 1 \
+            "${IMAGE}"
+      
+      - name: "🔐 Secret Scanning"
+        run: |
+          echo "🔍 Scanning for secrets..."
+          
+          # Scan for hardcoded secrets
+          trivy fs \
+            --format sarif \
+            --output security-reports/${{ matrix.service }}-secrets.sarif \
+            --scanners secret \
+            --exit-code 1 \
+            alita-kgot-enhanced/${{ matrix.service }}/
+      
+      - name: "📊 Upload Security Results"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-reports-${{ matrix.service }}
+          path: security-reports/
+      
+      - name: "🚨 Upload to GitHub Security"
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: security-reports/${{ matrix.service }}-vulnerabilities.sarif
+
+  # ============================================================================
+  # QUALITY ASSURANCE STAGE
+  # ============================================================================
+  
+  quality_assurance:
+    name: "✅ Quality Assurance"
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    if: needs.prepare.outputs.should_run_tests == 'true'
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🐍 Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: "📦 Install Dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+      
+      - name: "🧪 Run Unit Tests"
+        run: |
+          echo "🧪 Running unit tests..."
+          python -m pytest alita-kgot-enhanced/tests/unit/ \
+            --cov=alita-kgot-enhanced \
+            --cov-report=xml \
+            --cov-report=html \
+            --junit-xml=test-results/unit-tests.xml \
+            -v
+      
+      - name: "🔗 Run Integration Tests"
+        run: |
+          echo "🔗 Running integration tests..."
+          python -m pytest alita-kgot-enhanced/tests/integration/ \
+            --junit-xml=test-results/integration-tests.xml \
+            -v
+      
+      - name: "🎭 Run Quality Framework Assessment"
+        run: |
+          echo "🎭 Running comprehensive quality assessment..."
+          cd alita-kgot-enhanced
+          python -c "
+          import asyncio
+          from quality.mcp_quality_framework import MCPQualityAssurance
+          
+          async def run_qa():
+              qa = MCPQualityAssurance()
+              results = await qa.run_comprehensive_assessment()
+              
+              if not results.get('overall_pass', False):
+                  print('❌ Quality assurance failed')
+                  print(f'Failed tests: {results.get(\"failed_tests\", [])}')
+                  exit(1)
+              else:
+                  print('✅ Quality assurance passed')
+          
+          asyncio.run(run_qa())
+          "
+      
+      - name: "📊 Upload Test Results"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: |
+            test-results/
+            htmlcov/
+            coverage.xml
+
+  # ============================================================================
+  # STAGING DEPLOYMENT
+  # ============================================================================
+  
+  deploy_staging:
+    name: "🚀 Deploy to Staging"
+    runs-on: ubuntu-latest
+    needs: [prepare, build, security_scan, quality_assurance]
+    if: |
+      always() && 
+      needs.prepare.outputs.deploy_to_staging == 'true' &&
+      needs.build.result == 'success' &&
+      (needs.security_scan.result == 'success' || github.event.inputs.force_deploy == 'true') &&
+      (needs.quality_assurance.result == 'success' || needs.quality_assurance.result == 'skipped' || github.event.inputs.force_deploy == 'true')
+    
+    environment:
+      name: staging
+      url: https://staging.kgot.dev
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🐍 Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: "📦 Install Deployment Tools"
+        run: |
+          pip install -r requirements.txt
+          pip install kubernetes pyyaml
+      
+      - name: "⚙️ Configure Kubernetes"
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.STAGING_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+      
+      - name: "🚀 Execute Deployment"
+        run: |
+          cd alita-kgot-enhanced
+          python deployment/production_deployment.py \
+            --environment staging \
+            --version "${{ needs.prepare.outputs.version }}" \
+            --registry "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" \
+            --config deployment/pipeline_config.yaml
+      
+      - name: "🔍 Validate Deployment"
+        run: |
+          echo "🔍 Validating staging deployment..."
+          
+          # Wait for deployment to stabilize
+          sleep 60
+          
+          # Run health checks
+          cd alita-kgot-enhanced
+          python -c "
+          import asyncio
+          from deployment.blue_green_manager import BlueGreenDeploymentManager, DeploymentTarget
+          
+          async def validate():
+              manager = BlueGreenDeploymentManager()
+              target = DeploymentTarget(
+                  environment='staging',
+                  namespace='kgot-staging',
+                  domain='staging.kgot.dev',
+                  services=['kgot-controller', 'graph-store', 'manager-agent', 'web-agent'],
+                  resources={}
+              )
+              
+              status = await manager.get_environment_status('staging')
+              print(f'Environment status: {status}')
+              
+              if not status.get('blue') and not status.get('green'):
+                  raise Exception('No environment is active')
+          
+          asyncio.run(validate())
+          "
+      
+      - name: "📊 Start Monitoring"
+        run: |
+          echo "📊 Starting automated monitoring..."
+          cd alita-kgot-enhanced
+          python deployment/rollback_manager.py \
+            --environment staging \
+            --config deployment/pipeline_config.yaml &
+          
+          # Store PID for cleanup
+          echo $! > /tmp/rollback_manager.pid
+
+  # ============================================================================
+  # STAGING VALIDATION
+  # ============================================================================
+  
+  validate_staging:
+    name: "✅ Validate Staging"
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_staging]
+    if: needs.deploy_staging.result == 'success'
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🐍 Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: "📦 Install Dependencies"
+        run: |
+          pip install -r requirements.txt
+          pip install pytest requests
+      
+      - name: "🧪 Run E2E Tests"
+        run: |
+          echo "🧪 Running end-to-end tests against staging..."
+          
+          # Set staging endpoint
+          export KGOT_API_URL="https://api.staging.kgot.dev"
+          export KGOT_WEB_URL="https://staging.kgot.dev"
+          
+          # Run E2E test suite
+          python -m pytest alita-kgot-enhanced/tests/e2e/ \
+            --junit-xml=test-results/e2e-tests.xml \
+            -v \
+            --maxfail=5
+      
+      - name: "📈 Performance Tests"
+        run: |
+          echo "📈 Running performance tests..."
+          
+          # Basic load test
+          python -c "
+          import requests
+          import time
+          import statistics
+          
+          url = 'https://api.staging.kgot.dev/health'
+          response_times = []
+          
+          print('Running basic load test...')
+          for i in range(50):
+              start = time.time()
+              response = requests.get(url, timeout=10)
+              end = time.time()
+              
+              response_times.append(end - start)
+              
+              if response.status_code != 200:
+                  raise Exception(f'Health check failed: {response.status_code}')
+          
+          avg_time = statistics.mean(response_times)
+          p95_time = sorted(response_times)[int(len(response_times) * 0.95)]
+          
+          print(f'Average response time: {avg_time:.3f}s')
+          print(f'95th percentile: {p95_time:.3f}s')
+          
+          if avg_time > 2.0:
+              raise Exception(f'Performance test failed: avg response time {avg_time:.3f}s > 2.0s')
+          
+          print('✅ Performance test passed')
+          "
+      
+      - name: "📊 Upload Validation Results"
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: validation-results
+          path: test-results/
+
+  # ============================================================================
+  # PRODUCTION DEPLOYMENT
+  # ============================================================================
+  
+  deploy_production:
+    name: "🌟 Deploy to Production"
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_staging, validate_staging]
+    if: |
+      needs.prepare.outputs.deploy_to_production == 'true' &&
+      needs.validate_staging.result == 'success'
+    
+    environment:
+      name: production
+      url: https://kgot.dev
+    
+    steps:
+      - name: "📥 Checkout Code"
+        uses: actions/checkout@v4
+      
+      - name: "🐍 Set up Python"
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: "📦 Install Deployment Tools"
+        run: |
+          pip install -r requirements.txt
+          pip install kubernetes pyyaml
+      
+      - name: "⚙️ Configure Kubernetes"
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.PRODUCTION_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+      
+      - name: "🚀 Execute Production Deployment"
+        run: |
+          cd alita-kgot-enhanced
+          python deployment/production_deployment.py \
+            --environment production \
+            --version "${{ needs.prepare.outputs.version }}" \
+            --registry "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" \
+            --config deployment/pipeline_config.yaml
+      
+      - name: "📊 Start Production Monitoring"
+        run: |
+          echo "📊 Starting production monitoring..."
+          cd alita-kgot-enhanced
+          python deployment/rollback_manager.py \
+            --environment production \
+            --config deployment/pipeline_config.yaml &
+
+  # ============================================================================
+  # NOTIFICATION AND CLEANUP
+  # ============================================================================
+  
+  notify:
+    name: "📢 Notify Results"
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_staging, validate_staging, deploy_production]
+    if: always()
+    
+    steps:
+      - name: "📊 Determine Status"
+        id: status
+        run: |
+          if [[ "${{ needs.deploy_production.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "message=🎉 Production deployment successful!" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.validate_staging.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "message=✅ Staging deployment successful!" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "environment=unknown" >> $GITHUB_OUTPUT
+            echo "message=❌ Deployment failed!" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: "💬 Send Slack Notification"
+        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "${{ steps.status.outputs.message }}",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.status == 'success' && 'good' || 'danger' }}",
+                  "fields": [
+                    {"title": "Version", "value": "${{ needs.prepare.outputs.version }}", "short": true},
+                    {"title": "Environment", "value": "${{ steps.status.outputs.environment }}", "short": true},
+                    {"title": "Commit", "value": "${{ github.sha }}", "short": true},
+                    {"title": "Author", "value": "${{ github.actor }}", "short": true}
+                  ]
+                }
+              ]
+            }' \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
+      
+      - name: "🧹 Cleanup"
+        run: |
+          echo "🧹 Cleaning up temporary resources..."
+          
+          # Stop any running background processes
+          if [[ -f /tmp/rollback_manager.pid ]]; then
+            kill $(cat /tmp/rollback_manager.pid) || true
+            rm /tmp/rollback_manager.pid
+          fi 

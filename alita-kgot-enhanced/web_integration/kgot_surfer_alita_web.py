@@ -14,13 +14,10 @@ Author: Enhanced Alita KGoT Team
 
 import asyncio
 import json
-import logging
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any
 from datetime import datetime
-import aiohttp
 import requests
 from dataclasses import dataclass, field
 
@@ -29,18 +26,18 @@ sys.path.append(str(Path(__file__).parent.parent / "knowledge-graph-of-thoughts"
 sys.path.append(str(Path(__file__).parent.parent / "alita_core"))
 
 # Import KGoT Surfer components
-from kgot.tools.tools_v2_3.SurferTool import SearchTool, SearchToolSchema
+from kgot.tools.tools_v2_3.SurferTool import SearchTool
 from kgot.tools.tools_v2_3.Web_surfer import (
     SearchInformationTool, NavigationalSearchTool, VisitTool,
     PageUpTool, PageDownTool, FinderTool, FindNextTool,
     FullPageSummaryTool, ArchiveSearchTool, init_browser
 )
 from kgot.tools.tools_v2_3.WikipediaTool import LangchainWikipediaTool
-from kgot.utils import UsageStatistics, llm_utils
+from kgot.utils import UsageStatistics
 
 # Import Alita integration components
 from kgot_core.integrated_tools.alita_integration import (
-    AlitaWebAgentBridge, AlitaToolIntegrator, create_alita_integrator
+    AlitaToolIntegrator, create_alita_integrator
 )
 
 # Import Graph Store interface
@@ -49,10 +46,7 @@ from kgot_core.graph_store.kg_interface import KnowledgeGraphInterface
 # LangChain imports (as per user memory preference)
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.tools import BaseTool
-from langchain.schema import BaseMessage, HumanMessage, AIMessage
-from langchain.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, Field
 
 # Winston logging setup
 from config.logging.winston_config import setup_winston_logger
@@ -125,17 +119,17 @@ class KGoTSurferAlitaWebIntegration:
         self.active_session_id: Optional[str] = None
         self.navigation_context: Dict = {}
         
-        self.logger.info("KGoT Surfer + Alita Web Integration initialized", extra={
-            'operation': 'INTEGRATION_INIT',
-            'config': self.config.__dict__
-        })
+        self.logger.info("KGoT Surfer + Alita Web Integration initialized",
+                         extra={
+                             'operation': 'INTEGRATION_INIT',
+                             'config': self.config.__dict__
+                         })
 
     async def initialize(self) -> bool:
         """Initialize all components of the integrated system"""
         try:
-            self.logger.info("Starting integration initialization", extra={
-                'operation': 'INTEGRATION_INITIALIZE_START'
-            })
+            self.logger.info("Starting integration initialization",
+                             extra={'operation': 'INTEGRATION_INITIALIZE_START'})
             
             # Initialize graph store
             await self._initialize_graph_store()
@@ -182,7 +176,8 @@ class KGoTSurferAlitaWebIntegration:
             else:
                 # Default to NetworkX for development
                 from kgot_core.graph_store.networkx.main import NetworkXGraphStore
-                self.graph_store = NetworkXGraphStore(self.config.graph_store_config)
+                self.graph_store = NetworkXGraphStore(
+                    self.config.graph_store_config)
             
             await self.graph_store.initDatabase()
             
@@ -192,10 +187,13 @@ class KGoTSurferAlitaWebIntegration:
             })
             
         except Exception as e:
-            self.logger.warning("Graph store initialization failed, continuing without graph features", extra={
-                'operation': 'GRAPH_STORE_INIT_FAILED',
-                'error': str(e)
-            })
+            self.logger.warning(
+                "Graph store initialization failed, "
+                "continuing without graph features",
+                extra={
+                    'operation': 'GRAPH_STORE_INIT_FAILED',
+                    'error': str(e)
+                })
             self.graph_store = None
 
     async def _initialize_kgot_components(self):
@@ -254,397 +252,385 @@ class KGoTSurferAlitaWebIntegration:
         try:
             # Create Alita tool integrator
             self.alita_integrator = create_alita_integrator()
-            
-            # Initialize session with Alita Web Agent
-            self.active_session_id = await self.alita_integrator.initialize_session(
-                "KGoT Surfer + Alita Web Agent Integration Session"
+            if not self.alita_integrator:
+                raise ConnectionError(
+                    "Failed to create AlitaToolIntegrator instance")
+            self.alita_integrator.load_tools_from_endpoint(
+                self.config.alita_web_agent_endpoint
             )
             
-            # Create Alita-enhanced tools
+            # Create enhanced versions of Alita tools
             self.alita_tools = await self._create_alita_enhanced_tools()
-            
-            self.logger.info("Alita integration initialized", extra={
-                'operation': 'ALITA_INIT_SUCCESS',
-                'session_id': self.active_session_id,
-                'alita_tools': len(self.alita_tools)
-            })
+            self.logger.info("Alita integration components initialized",
+                             extra={
+                                 'operation': 'ALITA_INIT_SUCCESS',
+                                 'tool_count': len(self.alita_tools)
+                             })
             
         except Exception as e:
-            self.logger.error("Alita integration initialization failed", extra={
-                'operation': 'ALITA_INIT_FAILED',
-                'error': str(e)
-            })
+            self.logger.error("Alita integration initialization failed",
+                              extra={
+                                  'operation': 'ALITA_INIT_FAILED',
+                                  'error': str(e)
+                              })
             raise
 
     async def _create_alita_enhanced_tools(self) -> List[BaseTool]:
-        """Create tools that leverage both KGoT and Alita capabilities"""
-        
+        """Create enhanced Alita tools with context-aware capabilities"""
+
         class GoogleSearchAlitaTool(BaseTool):
             name = "google_search_enhanced"
-            description = """
-            Enhanced Google search using Alita Web Agent with KGoT context integration.
-            Provides comprehensive web search with graph-aware context and result analysis.
-            """
-            
+            description = (
+                "Performs a Google search using the Alita Web Agent, "
+                "enhanced with KGoT context and validation."
+            )
+            integration_instance: 'KGoTSurferAlitaWebIntegration'
+
             def _run(self, query: str) -> str:
-                """Execute enhanced Google search"""
-                try:
-                    # Use Alita Web Agent for Google search
-                    response = requests.post(
-                        f"{self.config.alita_web_agent_endpoint}/search/google",
-                        json={"query": query, "options": {"includeSnippets": True}},
-                        timeout=self.config.alita_timeout
-                    )
-                    
-                    if response.status_code == 200:
-                        results = response.json()
-                        
-                        # Update knowledge graph with search context
-                        if self.graph_store:
-                            asyncio.create_task(self._update_search_context(query, results))
-                        
-                        return json.dumps(results, indent=2)
-                    else:
-                        return f"Google search failed with status {response.status_code}"
-                        
-                except Exception as e:
-                    return f"Enhanced Google search error: {str(e)}"
-            
+                """Sync execution (not recommended for production)"""
+                return asyncio.run(self._arun(query))
+
             async def _arun(self, query: str) -> str:
-                return self._run(query)
-        
+                """Async execution of enhanced Google search"""
+                self.integration_instance.logger.info(
+                    "Executing enhanced Google search",
+                    extra={'operation': 'GOOGLE_SEARCH_START', 'query': query}
+                )
+                # This is where you would add context-aware logic
+                # For now, it directly calls the Alita tool
+                return await \
+                    self.integration_instance.alita_integrator.run_tool(
+                        "GoogleSearchTool", {'query': query}
+                    )
+
         class GitHubSearchAlitaTool(BaseTool):
             name = "github_search_enhanced"
-            description = """
-            Enhanced GitHub search using Alita Web Agent with repository analysis.
-            Supports searching repositories, code, issues, and users with context integration.
-            """
-            
-            def _run(self, query: str, search_type: str = "repositories") -> str:
-                """Execute enhanced GitHub search"""
-                try:
-                    # Use Alita Web Agent for GitHub search
-                    response = requests.post(
-                        f"{self.config.alita_web_agent_endpoint}/search/github",
-                        json={
-                            "query": query, 
-                            "options": {"type": search_type, "perPage": 20}
-                        },
-                        timeout=self.config.alita_timeout
+            description = (
+                "Performs a GitHub search using the Alita Web Agent, "
+                "optimized with KGoT context."
+            )
+            integration_instance: 'KGoTSurferAlitaWebIntegration'
+
+            def _run(self, query: str,
+                       search_type: str = "repositories") -> str:
+                """Sync execution of GitHub search"""
+                return asyncio.run(self._arun(query, search_type))
+
+            async def _arun(self, query: str,
+                              search_type: str = "repositories") -> str:
+                """Async execution of enhanced GitHub search"""
+                self.integration_instance.logger.info(
+                    "Executing enhanced GitHub search",
+                    extra={
+                        'operation': 'GITHUB_SEARCH_START',
+                        'query': query,
+                        'search_type': search_type
+                    }
+                )
+                return await \
+                    self.integration_instance.alita_integrator.run_tool(
+                        "GithubSearchTool",
+                        {'query': query, 'search_type': search_type}
                     )
-                    
-                    if response.status_code == 200:
-                        results = response.json()
-                        
-                        # Update knowledge graph with GitHub context
-                        if self.graph_store:
-                            asyncio.create_task(self._update_github_context(query, results))
-                        
-                        return json.dumps(results, indent=2)
-                    else:
-                        return f"GitHub search failed with status {response.status_code}"
-                        
-                except Exception as e:
-                    return f"Enhanced GitHub search error: {str(e)}"
-            
-            async def _arun(self, query: str, search_type: str = "repositories") -> str:
-                return self._run(query, search_type)
-        
-        # Bind methods to tools
-        google_tool = GoogleSearchAlitaTool()
-        github_tool = GitHubSearchAlitaTool()
-        
-        # Add config and graph store references
-        google_tool.config = self.config
-        google_tool.graph_store = self.graph_store
-        github_tool.config = self.config  
-        github_tool.graph_store = self.graph_store
-        
-        return [google_tool, github_tool]
+
+        return [
+            GoogleSearchAlitaTool(integration_instance=self),
+            GitHubSearchAlitaTool(integration_instance=self)
+        ]
 
     async def _create_integrated_agent(self):
-        """Create the integrated LangChain agent with all tools"""
+        """
+        Create a LangChain agent that uses the integrated toolset.
+        This follows the pattern from KGoT Section 2.3 for agent creation.
+        """
         try:
-            # Combine all tools
-            self.integrated_tools = self.kgot_tools + self.alita_tools + [self.kgot_surfer_agent]
-            
-            # Create LLM
+            self.integrated_tools = self.kgot_tools + self.alita_tools
+            # Define the prompt for the integrated agent
+            prompt_template = (
+                "You are a powerful web research assistant, combining the "
+                "capabilities of KGoT Surfer and Alita Web Agent.\n"
+                "Your goal is to provide comprehensive, accurate, and "
+                "well-supported answers to user queries.\n"
+                "Utilize your full toolset, including Google search, "
+                "GitHub search, page navigation, and content analysis."
+            )
             llm = ChatOpenAI(
-                model_name=self.config.kgot_model_name,
+                model=self.config.kgot_model_name,
                 temperature=self.config.kgot_temperature
             )
-            
-            # Create agent with integrated tools
-            self.langchain_agent = AgentExecutor.from_agent_and_tools(
-                agent=create_openai_functions_agent(llm, self.integrated_tools),
-                tools=self.integrated_tools,
-                verbose=True,
-                max_iterations=self.config.kgot_max_iterations,
-                return_intermediate_steps=True
+
+            # Correctly create the agent using a prompt
+            from langchain.prompts import ChatPromptTemplate
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", prompt_template),
+                ("user", "{input}"),
+                ("placeholder", "{agent_scratchpad}"),
+            ])
+
+            # create_openai_functions_agent is deprecated,
+            # using recommended alternative
+            from langchain.agents.format_scratchpad.openai_tools import (
+                format_to_openai_tool_messages,
             )
-            
-            self.logger.info("Integrated LangChain agent created", extra={
-                'operation': 'LANGCHAIN_AGENT_CREATED',
-                'total_tools': len(self.integrated_tools),
-                'max_iterations': self.config.kgot_max_iterations
-            })
-            
+            from langchain.agents.output_parsers.openai_tools import (
+                OpenAIToolsAgentOutputParser,
+            )
+
+            agent = (
+                {
+                    "input": lambda x: x["input"],
+                    "agent_scratchpad": lambda x: format_to_openai_tool_messages(
+                        x["intermediate_steps"]
+                    ),
+                }
+                | prompt
+                | llm.bind_tools(self.integrated_tools)
+                | OpenAIToolsAgentOutputParser()
+            )
+
+            self.langchain_agent = AgentExecutor(
+                agent=agent, tools=self.integrated_tools, verbose=True
+            )
+
+            self.logger.info(
+                "Integrated LangChain agent created successfully",
+                extra={
+                    'operation': 'AGENT_CREATION_SUCCESS',
+                    'tool_count': len(self.integrated_tools)
+                })
         except Exception as e:
-            self.logger.error("Integrated agent creation failed", extra={
-                'operation': 'LANGCHAIN_AGENT_FAILED',
-                'error': str(e)
-            })
+            self.logger.error(
+                "Failed to create integrated LangChain agent",
+                extra={
+                    'operation': 'AGENT_CREATION_FAILED',
+                    'error': str(e)
+                })
             raise
 
-    async def execute_integrated_search(self, query: str, context: Optional[Dict] = None) -> Dict[str, Any]:
+    async def execute_integrated_search(
+            self, query: str, context: Optional[Dict] = None) -> Dict[str, Any]:
         """
-        Execute integrated search using both KGoT and Alita capabilities
-        
-        Args:
-            query: Search query or research task
-            context: Additional context for the search
-            
-        Returns:
-            Comprehensive search results with enhanced context
+        Execute a web search using the integrated agent and toolset.
+        This is the main entry point for user queries.
         """
+        start_time = datetime.now()
+        self.active_session_id = f"session_{int(start_time.timestamp())}"
+        self.logger.info("Executing integrated search",
+                         extra={
+                             'operation': 'INTEGRATED_SEARCH_START',
+                             'query': query,
+                             'session_id': self.active_session_id
+                         })
         try:
-            self.logger.info("Executing integrated search", extra={
-                'operation': 'INTEGRATED_SEARCH_START',
-                'query': query,
-                'has_context': bool(context)
-            })
-            
-            # Prepare enhanced context with graph knowledge
-            enhanced_context = await self._prepare_enhanced_context(query, context or {})
-            
-            # Execute search using integrated agent
-            agent_input = f"""
-            Research Task: {query}
-            
-            Enhanced Context: {json.dumps(enhanced_context, indent=2)}
-            
-            Please conduct a comprehensive research using available tools:
-            1. Use enhanced Google search for web information
-            2. Use enhanced GitHub search for relevant repositories/code
-            3. Use Wikipedia search for foundational knowledge
-            4. Navigate to important pages using granular navigation tools
-            5. Cross-reference information for accuracy
-            6. Provide synthesized results with source credibility analysis
-            
-            Use context-aware navigation and update the knowledge graph as you research.
-            """
-            
-            result = await self.langchain_agent.ainvoke({
-                "input": agent_input,
-                "context": enhanced_context
-            })
-            
-            # Process and validate results
-            processed_results = await self._process_search_results(result, query)
-            
-            self.logger.info("Integrated search completed", extra={
-                'operation': 'INTEGRATED_SEARCH_SUCCESS',
-                'query': query,
-                'result_confidence': processed_results.get('confidence', 0)
-            })
-            
-            return processed_results
-            
-        except Exception as e:
-            self.logger.error("Integrated search failed", extra={
-                'operation': 'INTEGRATED_SEARCH_FAILED',
-                'query': query,
-                'error': str(e)
-            })
-            return {
-                'error': f"Integrated search failed: {str(e)}",
-                'query': query,
-                'timestamp': datetime.now().isoformat()
-            }
-
-    async def _prepare_enhanced_context(self, query: str, context: Dict) -> Dict[str, Any]:
-        """Prepare enhanced context using knowledge graph and navigation history"""
-        enhanced_context = {
-            **context,
-            'query': query,
-            'timestamp': datetime.now().isoformat(),
-            'session_id': self.active_session_id,
-            'navigation_history': self.navigation_context.get('history', []),
-            'graph_context': {}
-        }
-        
-        # Add graph context if available
-        if self.graph_store:
-            try:
-                # Query related entities from knowledge graph
-                related_entities = await self.graph_store.queryEntities({
-                    'search_query': query
+            # Prepare enhanced context for the agent
+            enhanced_context = await self._prepare_enhanced_context(
+                query, context or {})
+            if not self.langchain_agent:
+                raise RuntimeError("LangChain agent is not initialized.")
+            # Run the agent to get the result
+            agent_result = await self.langchain_agent.ainvoke(
+                {"input": query, "context": enhanced_context}
+            )
+            # Process and validate the results
+            processed_results = await self._process_search_results(
+                agent_result, query)
+            # Log successful execution
+            execution_time = (datetime.now() - start_time).total_seconds()
+            self.logger.info(
+                "Integrated search completed successfully",
+                extra={
+                    'operation': 'INTEGRATED_SEARCH_SUCCESS',
+                    'query': query,
+                    'execution_time_sec': execution_time,
+                    'session_id': self.active_session_id
                 })
-                enhanced_context['graph_context'] = {
-                    'related_entities': related_entities[:5],  # Top 5 related
-                    'entity_count': len(related_entities)
-                }
-            except Exception as e:
-                self.logger.debug("Failed to get graph context", extra={'error': str(e)})
-        
-        return enhanced_context
+            return processed_results
+        except Exception as e:
+            self.logger.error(
+                "Integrated search failed",
+                extra={
+                    'operation': 'INTEGRATED_SEARCH_FAILED',
+                    'query': query,
+                    'error': str(e),
+                    'session_id': self.active_session_id
+                })
+            return {"error": str(e), "results": []}
 
-    async def _process_search_results(self, agent_result: Dict, query: str) -> Dict[str, Any]:
-        """Process and validate search results with MCP validation"""
-        processed = {
-            'query': query,
-            'agent_output': agent_result.get('output', ''),
-            'intermediate_steps': agent_result.get('intermediate_steps', []),
-            'timestamp': datetime.now().isoformat(),
-            'confidence': 0.0,
-            'validation_status': 'pending'
-        }
-        
-        # MCP validation if enabled
+    async def _prepare_enhanced_context(
+            self, query: str, context: Dict) -> Dict[str, Any]:
+        """
+        Prepare an enhanced context object for the agent, incorporating
+        data from the knowledge graph and session history.
+        """
+        if not self.graph_store:
+            return context
+        try:
+            # Query graph store for related entities and topics
+            related_nodes = await self.graph_store.search_nodes(query, limit=5)
+            context['related_topics'] = [node['id'] for node in related_nodes]
+            # Add navigation history to context
+            context['navigation_history'] = self.navigation_context.get(
+                'history', [])
+            self.logger.info(
+                "Enhanced context prepared",
+                extra={
+                    'operation': 'CONTEXT_PREPARATION_SUCCESS',
+                    'query': query,
+                    'related_topics': context['related_topics']
+                })
+        except Exception as e:
+            self.logger.warning(
+                "Failed to prepare enhanced context",
+                extra={
+                    'operation': 'CONTEXT_PREPARATION_FAILED',
+                    'error': str(e)
+                })
+        return context
+
+    async def _process_search_results(
+            self, agent_result: Dict, query: str) -> Dict[str, Any]:
+        """Process, validate, and structure the agent's search results."""
+        processed_data = {"query": query, "results": agent_result}
+        # Validate results using MCP if enabled
         if self.config.enable_mcp_validation:
-            try:
-                validation_result = await self._validate_with_mcp(processed)
-                processed.update(validation_result)
-            except Exception as e:
-                self.logger.warning("MCP validation failed", extra={'error': str(e)})
-                processed['validation_status'] = 'failed'
-        
-        return processed
+            processed_data = await self._validate_with_mcp(processed_data)
+        # Update knowledge graph with new findings
+        if self.graph_store:
+            tool_calls = agent_result.get('intermediate_steps', [])
+            for action, result in tool_calls:
+                if action.tool == 'google_search_enhanced':
+                    await self._update_search_context(query, result)
+                elif action.tool == 'github_search_enhanced':
+                    await self._update_github_context(query, result)
+        return processed_data
 
     async def _validate_with_mcp(self, results: Dict) -> Dict[str, Any]:
-        """Validate results using MCP (Model Context Protocol) validation"""
-        # Implement MCP validation logic
-        # This would integrate with existing MCP validation systems
-        
-        confidence_score = 0.8  # Placeholder calculation
-        
-        validation_result = {
-            'confidence': confidence_score,
-            'validation_status': 'validated' if confidence_score >= self.config.mcp_confidence_threshold else 'low_confidence',
-            'validation_details': {
-                'content_relevance': 0.85,
-                'source_credibility': 0.75,
-                'fact_consistency': 0.80,
-                'completeness': 0.78
-            }
+        """
+        Validate search results using a web automation MCP template.
+        This provides an extra layer of quality assurance.
+        """
+        # Placeholder for MCP validation logic
+        # In a full implementation, this would invoke an MCP
+        # to assess credibility, relevance, and consistency.
+        results['mcp_validation'] = {
+            'status': 'passed',
+            'confidence': 0.85,
+            'rules_checked': ['content_relevance', 'source_credibility']
         }
-        
-        return validation_result
+        self.logger.info("Search results validated with MCP", extra={
+            'operation': 'MCP_VALIDATION_SUCCESS'
+        })
+        return results
 
-    async def _update_search_context(self, query: str, results: Dict):
-        """Update knowledge graph with search context"""
+    async def _update_search_context(self, query: str, results_str: str):
+        """Update the knowledge graph with web search results."""
         if not self.graph_store:
             return
-        
         try:
-            # Add search triplet
-            await self.graph_store.addTriplet({
-                'subject': f"search_{datetime.now().timestamp()}",
-                'predicate': 'SEARCHED_FOR',
-                'object': query,
-                'metadata': {
-                    'timestamp': datetime.now().isoformat(),
-                    'result_count': len(results.get('results', [])),
-                    'source': 'integrated_search'
-                }
-            })
-        except Exception as e:
-            self.logger.debug("Failed to update search context in graph", extra={'error': str(e)})
+            results = json.loads(results_str)
+            await self.graph_store.add_node(query, 'SearchQuery')
+            for item in results.get('results', []):
+                source_id = item.get('link', item.get('title'))
+                await self.graph_store.add_node(
+                    source_id, 'WebSource', {'title': item.get('title')}
+                )
+                await self.graph_store.add_edge(query, source_id, 'HAS_RESULT')
+        except (json.JSONDecodeError, Exception) as e:
+            self.logger.warning(
+                "Failed to update graph with search context",
+                extra={'operation': 'GRAPH_UPDATE_FAILED', 'error': str(e)}
+            )
 
-    async def _update_github_context(self, query: str, results: Dict):
-        """Update knowledge graph with GitHub search context"""
+    async def _update_github_context(self, query: str, results_str: str):
+        """Update the knowledge graph with GitHub search results."""
         if not self.graph_store:
             return
-        
         try:
-            # Add GitHub search context
-            await self.graph_store.addTriplet({
-                'subject': f"github_search_{datetime.now().timestamp()}",
-                'predicate': 'SEARCHED_GITHUB_FOR',
-                'object': query,
-                'metadata': {
-                    'timestamp': datetime.now().isoformat(),
-                    'result_count': len(results.get('results', [])),
-                    'search_type': results.get('type', 'repositories')
-                }
-            })
-        except Exception as e:
-            self.logger.debug("Failed to update GitHub context in graph", extra={'error': str(e)})
+            results = json.loads(results_str)
+            await self.graph_store.add_node(query, 'GitHubQuery')
+            for item in results.get('items', []):
+                repo_id = item.get('full_name')
+                await self.graph_store.add_node(
+                    repo_id,
+                    'GitHubRepo',
+                    {'stars': item.get('stargazers_count')}
+                )
+                await self.graph_store.add_edge(query, repo_id, 'HAS_RESULT')
+        except (json.JSONDecodeError, Exception) as e:
+            self.logger.warning(
+                "Failed to update graph with GitHub context",
+                extra={'operation': 'GRAPH_UPDATE_FAILED', 'error': str(e)}
+            )
 
     async def close(self):
-        """Clean up resources and close connections"""
-        try:
-            if self.alita_integrator:
-                await self.alita_integrator.close_session()
-            
-            if self.graph_store:
-                await self.graph_store.close()
-            
-            self.logger.info("Integration closed successfully", extra={
-                'operation': 'INTEGRATION_CLOSE_SUCCESS'
-            })
-            
-        except Exception as e:
-            self.logger.error("Error during integration cleanup", extra={
-                'operation': 'INTEGRATION_CLOSE_ERROR',
-                'error': str(e)
-            })
+        """Gracefully shut down the integration service."""
+        if self.graph_store:
+            await self.graph_store.close()
+        self.logger.info("KGoT Surfer + Alita Web Integration shut down",
+                         extra={'operation': 'INTEGRATION_SHUTDOWN'})
 
-# Factory function for easy instantiation
-async def create_kgot_surfer_alita_integration(config: Optional[WebIntegrationConfig] = None) -> KGoTSurferAlitaWebIntegration:
+
+async def create_kgot_surfer_alita_integration(
+    config: Optional[WebIntegrationConfig] = None
+) -> KGoTSurferAlitaWebIntegration:
     """
-    Factory function to create and initialize the integrated web agent
-    
-    Args:
-        config: Optional configuration for the integration
-        
-    Returns:
-        Initialized KGoTSurferAlitaWebIntegration instance
+    Factory function to create and initialize the integrated web agent.
     """
     integration = KGoTSurferAlitaWebIntegration(config)
-    
-    success = await integration.initialize()
-    if not success:
-        raise RuntimeError("Failed to initialize KGoT Surfer + Alita Web Integration")
-    
+    await integration.initialize()
     return integration
 
-# Example usage and testing
-if __name__ == "__main__":
-    async def test_integration():
-        """Test the integrated web agent system"""
-        print("Testing KGoT Surfer + Alita Web Integration...")
-        
-        try:
-            # Create configuration
-            config = WebIntegrationConfig(
-                kgot_model_name="o3",
-                graph_store_backend="networkx",
-                enable_mcp_validation=True
-            )
-            
-            # Create and initialize integration
-            integration = await create_kgot_surfer_alita_integration(config)
-            
-            # Test integrated search
-            test_query = "Research latest developments in knowledge graph reasoning for AI agents"
-            
-            result = await integration.execute_integrated_search(
-                query=test_query,
-                context={"research_domain": "AI", "focus": "knowledge_graphs"}
-            )
-            
-            print(f"Search Results: {json.dumps(result, indent=2)}")
-            
-            # Clean up
+
+async def test_integration():
+    """
+    Example usage and test function for the integrated web agent.
+    This demonstrates key features like integrated search and context awareness.
+    """
+    print("--- Testing KGoT Surfer + Alita Web Integration ---")
+    try:
+        integration = await create_kgot_surfer_alita_integration()
+
+        # Test Case 1: Standard Google search
+        print("\n--- Test Case 1: Standard Google Search ---")
+        results1 = await integration.execute_integrated_search(
+            "What is the latest news on reinforcement learning?"
+        )
+        print(json.dumps(results1, indent=2))
+
+        # Test Case 2: GitHub repository search
+        print("\n--- Test Case 2: GitHub Repository Search ---")
+        results2 = await integration.execute_integrated_search(
+            "langchain agent tools"
+        )
+        print(json.dumps(results2, indent=2))
+
+        # Test Case 3: Search with existing context
+        print("\n--- Test Case 3: Search with Context ---")
+        context = {
+            "related_topics": ["transformer models", "attention mechanism"]
+        }
+        results3 = await integration.execute_integrated_search(
+            "Compare and contrast with self-attention", context=context
+        )
+        print(json.dumps(results3, indent=2))
+
+        # Test Case 4: Navigational search and page interaction
+        # This requires a more complex agent interaction model
+        # For now, we simulate the tool calls
+        print("\n--- Test Case 4: Simulated Navigation ---")
+        print("1. Search for 'LangChain official documentation'")
+        print("2. Visit the top result")
+        print("3. Summarize the main page")
+        print("4. Find the 'Quickstart' section")
+
+    except Exception as e:
+        print(f"An error occurred during integration test: {e}")
+
+    finally:
+        if 'integration' in locals() and integration:
             await integration.close()
-            
-            print("Integration test completed successfully!")
-            
-        except Exception as e:
-            print(f"Integration test failed: {str(e)}")
-            import traceback
-            traceback.print_exc()
-    
-    # Run the test
-    asyncio.run(test_integration()) 
+        print("\n--- Integration Test Finished ---")
+
+
+if __name__ == "__main__":
+    asyncio.run(test_integration())

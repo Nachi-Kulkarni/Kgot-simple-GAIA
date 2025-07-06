@@ -211,7 +211,7 @@ async def test_system_functionality():
             file_path = Path(__file__).parent / config_file
             if file_path.exists():
                 with open(file_path, 'r') as f:
-                    config_data = json.load(f)
+                    _ = json.load(f)
                     print(f"✅ {config_file} loaded successfully")
             else:
                 print(f"❌ {config_file} not found")

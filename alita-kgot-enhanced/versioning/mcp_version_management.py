@@ -26,7 +26,6 @@ from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Tuple, Callable
-from packaging import version
 import semver
 import yaml
 import os
@@ -1252,7 +1251,7 @@ class MCPMigrationManager:
             
             # Handle migration failure
             if migration_plan.auto_rollback_on_failure:
-                rollback_result = await self._execute_rollback(migration_plan)
+                await self._execute_rollback(migration_plan)
                 migration_plan.status = MigrationStatus.ROLLED_BACK
             else:
                 migration_plan.status = MigrationStatus.FAILED
@@ -2278,6 +2277,46 @@ class ABTestingFramework:
     
     # ... existing code ...
 
+
+
+class MCPVersionManager:
+    """
+    Main MCP Version Manager - Orchestrates all version management operations
+    
+    This is the primary interface for MCP version management, combining:
+    - Semantic versioning engine
+    - Backward compatibility checking
+    - Migration management
+    - Rollback capabilities
+    - A/B testing framework
+    """
+    
+    def __init__(self, config: Optional[MCPVersionManagerConfig] = None):
+        """
+        Initialize the MCP Version Manager
+        
+        Args:
+            config: Optional configuration (uses defaults if None)
+        """
+        self.config = config or MCPVersionManagerConfig()
+        self.logger = logging.getLogger('MCPVersionManager')
+        
+        # Initialize component engines
+        self.version_engine = SemanticVersionEngine(self.config)
+        self.compatibility_checker = BackwardCompatibilityChecker(self.config)
+        self.migration_manager = MCPMigrationManager(self.config)
+        self.rollback_manager = MCPRollbackManager(self.config)
+        self.ab_testing = ABTestingFramework(self.config)
+        
+        # Track managed MCPs
+        self.tracked_mcps: Dict[str, Dict[str, Any]] = {}
+        
+        self.logger.info("MCPVersionManager initialized with config", extra={
+            'operation': 'INIT',
+            'automated_migration': self.config.enable_automated_migration,
+            'ab_testing': self.config.enable_ab_testing
+        })
+    
     async def register_mcp(self, mcp_id: str, name: str, current_version: str,
                           package_path: str, repository_url: Optional[str] = None,
                           author: Optional[str] = None, auto_update: bool = False) -> Dict[str, Any]:
@@ -2320,10 +2359,6 @@ class ABTestingFramework:
                 'registered_at': datetime.now()
             }
             
-            # Store in database
-            await self._store_tracked_mcp(mcp_id, name, parsed_version, package_path, 
-                                        repository_url, author, auto_update)
-            
             result = {
                 'success': True,
                 'mcp_id': mcp_id,
@@ -2346,6 +2381,67 @@ class ABTestingFramework:
                 'error': str(e)
             })
             raise
+    
+    async def check_compatibility(self, mcp_id: str, target_version: str) -> CompatibilityReport:
+        """
+        Check backward compatibility for MCP version upgrade
+        
+        Args:
+            mcp_id: MCP identifier
+            target_version: Target version to check compatibility with
+            
+        Returns:
+            Compatibility analysis report
+        """
+        if mcp_id not in self.tracked_mcps:
+            raise ValueError(f"MCP {mcp_id} not registered")
+        
+        current_version = self.tracked_mcps[mcp_id]['current_version']
+        target_parsed = self.version_engine.parse_version_string(target_version)
+        
+        return await self.compatibility_checker.analyze_compatibility(
+            current_version, target_parsed
+        )
+    
+    async def plan_migration(self, mcp_id: str, target_version: str) -> MigrationPlan:
+        """
+        Create migration plan for MCP version upgrade
+        
+        Args:
+            mcp_id: MCP identifier
+            target_version: Target version for migration
+            
+        Returns:
+            Detailed migration plan
+        """
+        if mcp_id not in self.tracked_mcps:
+            raise ValueError(f"MCP {mcp_id} not registered")
+        
+        current_version = self.tracked_mcps[mcp_id]['current_version']
+        target_parsed = self.version_engine.parse_version_string(target_version)
+        
+        return await self.migration_manager.create_migration_plan(
+            mcp_id, current_version, target_parsed
+        )
+    
+    async def create_rollback_point(self, mcp_id: str, description: str = "") -> RollbackPoint:
+        """
+        Create rollback point for MCP
+        
+        Args:
+            mcp_id: MCP identifier
+            description: Optional description for rollback point
+            
+        Returns:
+            Created rollback point
+        """
+        if mcp_id not in self.tracked_mcps:
+            raise ValueError(f"MCP {mcp_id} not registered")
+        
+        mcp_info = self.tracked_mcps[mcp_id]
+        return await self.rollback_manager.create_rollback_point(
+            mcp_id, mcp_info['current_version'], mcp_info['package_path'], description
+        )
 
 # Utility Functions
 
@@ -2457,7 +2553,6 @@ if __name__ == "__main__":
     """
     Main entry point for testing and demonstration
     """
-    import asyncio
     
     # Set logging level for demonstration
     logging.getLogger().setLevel(logging.INFO)

@@ -1786,7 +1786,7 @@ class SequentialErrorResolutionSystem:
         @returns {List[Dict[str, Any]]} - Structured recovery plan
         """
         # Simple extraction - could be enhanced with more sophisticated parsing
-        reasoning = conclusions.get('reasoning', '')
+        # reasoning = conclusions.get('reasoning', '')
         
         # Default recovery plan structure
         default_plan = [

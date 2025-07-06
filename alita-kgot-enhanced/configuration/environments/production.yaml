@@ -1,0 +1,491 @@
+# Production Environment Configuration
+# This file contains production-specific settings for the Alita-KGoT system
+# Security, performance, and reliability are prioritized
+
+metadata:
+  name: "production"
+  description: "Production environment configuration"
+  version: "1.0.0"
+  created_by: "alita-kgot-system"
+  created_at: "2024-01-01T00:00:00Z"
+  tags:
+    - "production"
+    - "secure"
+    - "high-performance"
+
+# KGoT Configuration (Production Optimized)
+kgot:
+  # Reasoning parameters optimized for production
+  num_next_steps_decision: 5  # Balanced reasoning depth
+  reasoning_depth: 4          # Deeper reasoning for accuracy
+  max_retrieve_query_retry: 3 # Reliable retry strategy
+  max_cypher_fixing_retry: 2  # Balanced retry for graph queries
+  
+  # Graph configuration
+  graph_traversal_limit: 200  # Higher limit for complex queries
+  enable_graph_caching: true
+  cache_ttl: 3600            # 1 hour cache
+  
+  # Production features
+  debug_mode: false
+  verbose_logging: false
+  trace_reasoning_steps: false
+  
+  # Performance settings
+  parallel_reasoning: true    # Enable parallel processing
+  batch_size: 20             # Larger batches for efficiency
+  timeout: 120               # 2 minute timeout
+  
+  # Reliability settings
+  circuit_breaker:
+    enabled: true
+    failure_threshold: 5
+    recovery_timeout: 60
+    
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst_limit: 20
+
+# Alita Configuration (Production)
+alita:
+  environment_manager:
+    supported_languages:
+      - "python"
+      - "javascript"
+      - "typescript"
+      - "bash"
+      - "go"
+      - "rust"
+    timeout: 300             # 5 minute timeout
+    cleanup_on_exit: true
+    enable_hot_reload: false  # Disabled in production
+    
+    security:
+      sandbox_enabled: true   # Mandatory in production
+      network_isolation: true
+      filesystem_isolation: true
+    
+  tools:
+    code_runner:
+      sandbox_enabled: true   # Mandatory security
+      resource_limits:
+        memory: "1GB"
+        cpu: "1.0"
+        disk: "2GB"
+        network_bandwidth: "10MB/s"
+      
+      security_policies:
+        allow_network_access: false
+        allow_file_system_write: false
+        allow_subprocess: false
+    
+    file_manager:
+      allowed_paths:
+        - "/app/workspace"
+        - "/app/temp"
+      max_file_size: "50MB"
+      virus_scanning: true
+      content_filtering: true
+    
+    web_browser:
+      headless: true          # Always headless in production
+      timeout: 60
+      enable_devtools: false
+      security_headers: true
+      block_ads: true
+      block_trackers: true
+
+# Model Configuration (Production)
+models:
+  model_providers:
+    openai:
+      api_key: "${OPENAI_API_KEY}"
+      base_url: "https://api.openai.com/v1"
+      timeout: 60
+      max_retries: 3
+      rate_limit: 50          # Requests per minute
+      
+    anthropic:
+      api_key: "${ANTHROPIC_API_KEY}"
+      base_url: "https://api.anthropic.com"
+      timeout: 60
+      max_retries: 3
+      rate_limit: 30
+      
+    azure_openai:
+      api_key: "${AZURE_OPENAI_API_KEY}"
+      endpoint: "${AZURE_OPENAI_ENDPOINT}"
+      api_version: "2024-02-15-preview"
+      timeout: 60
+      max_retries: 3
+  
+  default_models:
+    reasoning: "gpt-4"        # Most capable model
+    coding: "gpt-4"
+    analysis: "claude-3-opus" # Best analysis model
+  
+  fallback_models:
+    reasoning: "gpt-3.5-turbo"
+    coding: "gpt-3.5-turbo"
+    analysis: "claude-3-sonnet"
+  
+  cost_tracking:
+    enabled: true
+    budget_limit: 1000.0     # $1000 daily limit
+    alert_threshold: 0.9     # Alert at 90% of budget
+    auto_fallback: true      # Use cheaper models when budget is low
+
+# Feature Flags (Production)
+features:
+  enhanced_security: true    # Full security enabled
+  performance_monitoring: true
+  advanced_caching: true
+  experimental_features: false # Disabled in production
+  debug_ui: false           # No debug UI in production
+  hot_reload: false         # Disabled in production
+  mock_external_services: false # Use real services
+  
+  # Production-specific features
+  auto_scaling: true
+  load_balancing: true
+  health_monitoring: true
+  disaster_recovery: true
+
+# Service Configuration (Production)
+services:
+  manager_agent:
+    port: 3000
+    host: "0.0.0.0"
+    debug: false
+    auto_restart: true
+    log_level: "INFO"
+    
+    scaling:
+      min_instances: 2
+      max_instances: 10
+      target_cpu: 70
+      target_memory: 80
+    
+    health_check:
+      path: "/health"
+      interval: 30
+      timeout: 10
+      retries: 3
+    
+  kgot_service:
+    port: 8080
+    host: "0.0.0.0"
+    debug: false
+    log_level: "INFO"
+    enable_profiling: false
+    
+    scaling:
+      min_instances: 3
+      max_instances: 15
+      target_cpu: 75
+      target_memory: 85
+    
+  monitoring:
+    port: 9090
+    host: "0.0.0.0"
+    metrics_interval: 60     # 1 minute intervals
+    enable_detailed_metrics: false
+    
+    alerting:
+      enabled: true
+      channels:
+        - "slack"
+        - "email"
+        - "pagerduty"
+
+# Database Configuration (Production)
+database:
+  graph_store:
+    type: "neo4j"
+    cluster_mode: true
+    hosts:
+      - "neo4j-1.internal:7687"
+      - "neo4j-2.internal:7687"
+      - "neo4j-3.internal:7687"
+    database: "alita_kgot_prod"
+    username: "${NEO4J_USERNAME}"
+    password: "${NEO4J_PASSWORD}"
+    pool_size: 50
+    
+    security:
+      encryption: true
+      certificate_path: "/etc/ssl/neo4j/"
+      
+    backup:
+      enabled: true
+      schedule: "0 2 * * *"   # Daily at 2 AM
+      retention_days: 30
+    
+  cache_store:
+    type: "redis"
+    cluster_mode: true
+    hosts:
+      - "redis-1.internal:6379"
+      - "redis-2.internal:6379"
+      - "redis-3.internal:6379"
+    password: "${REDIS_PASSWORD}"
+    ttl: 3600
+    
+    security:
+      encryption: true
+      auth_enabled: true
+
+# Logging Configuration (Production)
+logging:
+  level: "INFO"
+  format: "json"            # Structured logging
+  output:
+    - "stdout"              # For container orchestration
+    - "elasticsearch"       # Centralized logging
+  
+  elasticsearch:
+    hosts:
+      - "elasticsearch-1.internal:9200"
+      - "elasticsearch-2.internal:9200"
+    index_pattern: "alita-kgot-logs-%Y.%m.%d"
+    
+  rotation:
+    max_size: "1GB"
+    backup_count: 30
+  
+  loggers:
+    kgot: "INFO"
+    alita: "INFO"
+    models: "WARN"
+    database: "WARN"
+    security: "INFO"
+
+# Security Configuration (Production)
+security:
+  authentication:
+    enabled: true
+    method: "oauth2"
+    provider: "auth0"
+    
+    oauth2:
+      client_id: "${OAUTH2_CLIENT_ID}"
+      client_secret: "${OAUTH2_CLIENT_SECRET}"
+      issuer: "${OAUTH2_ISSUER}"
+      
+    session:
+      timeout: 3600          # 1 hour
+      secure_cookies: true
+      same_site: "strict"
+    
+  authorization:
+    enabled: true
+    rbac: true              # Role-based access control
+    
+    roles:
+      admin:
+        permissions:
+          - "*"
+      user:
+        permissions:
+          - "read:configurations"
+          - "execute:reasoning"
+      viewer:
+        permissions:
+          - "read:configurations"
+    
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_rotation: true
+    key_rotation_interval: 2592000  # 30 days
+    
+  rate_limiting:
+    enabled: true
+    global_limit: 1000      # Requests per minute
+    per_user_limit: 100     # Requests per minute per user
+    
+  firewall:
+    enabled: true
+    allowed_ips:
+      - "10.0.0.0/8"        # Internal network
+      - "172.16.0.0/12"     # Internal network
+      - "192.168.0.0/16"    # Internal network
+    
+  ssl:
+    enabled: true
+    certificate_path: "/etc/ssl/certs/"
+    private_key_path: "/etc/ssl/private/"
+    protocols:
+      - "TLSv1.2"
+      - "TLSv1.3"
+
+# Monitoring and Observability (Production)
+monitoring:
+  metrics:
+    enabled: true
+    detailed: false         # Avoid metric explosion
+    custom_metrics: true
+    
+    prometheus:
+      enabled: true
+      port: 9091
+      scrape_interval: 30
+      
+  tracing:
+    enabled: true
+    sample_rate: 0.1        # 10% sampling to reduce overhead
+    
+    jaeger:
+      enabled: true
+      agent_host: "jaeger-agent.internal"
+      agent_port: 6831
+      
+  health_checks:
+    enabled: true
+    interval: 30
+    timeout: 10
+    
+    endpoints:
+      - "/health"
+      - "/health/ready"
+      - "/health/live"
+  
+  alerting:
+    enabled: true
+    
+    rules:
+      - name: "high_error_rate"
+        condition: "error_rate > 0.05"
+        severity: "critical"
+        
+      - name: "high_latency"
+        condition: "p95_latency > 5000"
+        severity: "warning"
+        
+      - name: "low_availability"
+        condition: "availability < 0.99"
+        severity: "critical"
+
+# External Integrations (Production)
+integrations:
+  github:
+    enabled: true
+    webhook_secret: "${GITHUB_WEBHOOK_SECRET}"
+    
+  slack:
+    enabled: true
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "#alita-kgot-alerts"
+    
+  email:
+    enabled: true
+    smtp_host: "${SMTP_HOST}"
+    smtp_port: 587
+    username: "${SMTP_USERNAME}"
+    password: "${SMTP_PASSWORD}"
+    
+  pagerduty:
+    enabled: true
+    integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+
+# Resource Limits (Production)
+resources:
+  memory:
+    max_heap: "8GB"
+    max_total: "16GB"
+    
+  cpu:
+    max_cores: 16
+    
+  disk:
+    max_usage: "100GB"
+    temp_cleanup: true
+    cleanup_interval: 3600   # 1 hour
+  
+  network:
+    max_connections: 1000
+    timeout: 30
+
+# Backup and Recovery (Production)
+backup:
+  enabled: true
+  
+  schedule:
+    full_backup: "0 1 * * 0"    # Weekly full backup
+    incremental: "0 */6 * * *"  # Every 6 hours
+    
+  retention:
+    daily: 7
+    weekly: 4
+    monthly: 12
+    
+  storage:
+    type: "s3"
+    bucket: "${BACKUP_S3_BUCKET}"
+    region: "${AWS_REGION}"
+    encryption: true
+    
+recovery:
+  auto_recovery: true
+  max_retries: 5
+  retry_delay: 30
+  
+  disaster_recovery:
+    enabled: true
+    rpo: 3600               # 1 hour Recovery Point Objective
+    rto: 1800               # 30 minutes Recovery Time Objective
+
+# Load Balancing (Production)
+load_balancing:
+  enabled: true
+  algorithm: "round_robin"
+  
+  health_check:
+    enabled: true
+    interval: 10
+    timeout: 5
+    
+  sticky_sessions: false
+  
+# Auto Scaling (Production)
+auto_scaling:
+  enabled: true
+  
+  metrics:
+    - name: "cpu_utilization"
+      target: 70
+      
+    - name: "memory_utilization"
+      target: 80
+      
+    - name: "request_rate"
+      target: 100
+  
+  scale_up:
+    cooldown: 300           # 5 minutes
+    step_size: 2
+    
+  scale_down:
+    cooldown: 600           # 10 minutes
+    step_size: 1
+
+# Environment Variables (Production)
+environment_variables:
+  NODE_ENV: "production"
+  PYTHON_ENV: "production"
+  LOG_LEVEL: "INFO"
+  DEBUG: "false"
+  PRODUCTION_MODE: "true"
+  
+  # Security
+  SECURE_COOKIES: "true"
+  HTTPS_ONLY: "true"
+  
+  # Performance
+  ENABLE_CACHING: "true"
+  ENABLE_COMPRESSION: "true"
+  
+  # Monitoring
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "true"

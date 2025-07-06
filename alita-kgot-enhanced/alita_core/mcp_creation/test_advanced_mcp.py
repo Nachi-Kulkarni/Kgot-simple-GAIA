@@ -96,7 +96,7 @@ async def test_kgot_advanced_mcp_generation():
         
         assert isinstance(advanced_mcp, AdvancedMCPSpec)
         assert 'generation_id' in advanced_mcp.kgot_metadata
-        assert advanced_mcp.kgot_metadata['success'] == True
+        assert advanced_mcp.kgot_metadata['success']
         
         print(f"✅ Advanced MCP generated: {advanced_mcp.name}")
         print(f"   Generation ID: {advanced_mcp.kgot_metadata['generation_id']}")

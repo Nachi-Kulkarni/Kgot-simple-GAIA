@@ -29,16 +29,14 @@ Features:
 @author Enhanced Alita KGoT Team
 @date 2025
 """
-
+import sys
 import asyncio
 import logging
 import json
 import time
-import sys
 import os
 import re
 import hashlib
-# import semver  # Replaced with simple version comparison
 import git
 import requests
 import httpx
@@ -49,6 +47,9 @@ from typing import Dict, List, Optional, Any, Union, Callable, Tuple, Set
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
+from logging import Logger
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import urllib.parse
 import base64
 import zipfile
@@ -60,7 +61,6 @@ import subprocess
 # Statistical analysis for quality metrics
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 # LangChain imports (user's hard rule for agent development)
 try:
@@ -68,7 +68,7 @@ try:
     from langchain.agents import create_openai_functions_agent, AgentExecutor
     from langchain.schema import HumanMessage, SystemMessage
     from langchain.memory import ConversationBufferMemory
-    from pydantic import BaseModel, Field
+    # pydantic import already available from line 74
     LANGCHAIN_AVAILABLE = True
 except ImportError:
     # Fallback for development/testing
@@ -81,12 +81,12 @@ except ImportError:
             pass
         async def _arun(self, *args, **kwargs):
             return self._run(*args, **kwargs)
-    
+
     from pydantic import BaseModel, Field
 
 # OpenRouter integration (user preference over OpenAI)
 try:
-    import openai
+    # openai import removed as unused
     OPENROUTER_AVAILABLE = True
 except ImportError:
     OPENROUTER_AVAILABLE = False
@@ -98,14 +98,12 @@ sys.path.append(str(Path(__file__).parent.parent / "knowledge-graph-of-thoughts"
 # Import existing validation and quality frameworks
 try:
     from validation.kgot_alita_performance_validator import (
-        CrossSystemPerformanceMetrics,
-        PerformanceValidationResult,
-        PerformanceTestType
+        CrossSystemPerformanceMetrics
+        # PerformanceValidationResult, PerformanceTestType removed as unused
     )
-    from validation.mcp_cross_validator import (
-        ValidationMetrics,
-        StatisticalSignificanceAnalyzer
-    )
+    # from validation.mcp_cross_validator import (
+    #     ValidationMetrics, StatisticalSignificanceAnalyzer
+    # ) - removed as unused
     VALIDATION_AVAILABLE = True
 except ImportError:
     VALIDATION_AVAILABLE = False
@@ -938,7 +936,8 @@ class MCPRepositoryConnector:
                     'version': data.get('version'),
                     'mcps': data.get('mcps', [])
                 }
-            except:
+            except Exception as e:
+                logger.warning(f"Failed to extract HTTP API metadata: {e}")
                 return {
                     'name': 'HTTP API Repository',
                     'description': 'HTTP-based MCP repository'
@@ -968,7 +967,8 @@ class MCPRepositoryConnector:
                         'description': data.get('description', metadata['description']),
                         'version': data.get('version')
                     })
-            except:
+            except Exception as e:
+                logger.warning("Failed to extract metadata from %s: %s", path, str(e))
                 pass
         
         return metadata
@@ -3006,7 +3006,8 @@ class MCPVersionManager:
                 return 'patch'
             else:
                 return 'unknown'
-        except:
+        except Exception as e:
+            logger.warning("Failed to classify update type: %s", str(e))
             return 'unknown'
     
     async def _validate_update_safety(self, current_mcp: MCPPackage, 
@@ -4594,8 +4595,8 @@ async def example_marketplace_usage():
         # Repository-specific stats
         if 'repository_stats' in analytics:
             logger.info("Repository Breakdown:")
-            for repo_type, stats in analytics['repository_stats'].items():
-                logger.info("  %s: %d MCPs", repo_type, stats.get('mcp_count', 0))
+            for repo_type, repo_stats in analytics['repository_stats'].items():
+                logger.info("  %s: %d MCPs", repo_type, repo_stats.get('mcp_count', 0))
         
         # Get quality analytics across all sources
         quality_analytics = await marketplace.get_marketplace_quality_analytics()

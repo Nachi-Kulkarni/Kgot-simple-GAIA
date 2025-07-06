@@ -150,46 +150,46 @@ def display_assessment_results(metrics):
     print("-" * 50)
     
     # Section 2.1 - Graph Store Module Reliability
-    print(f"📈 Graph Store Reliability:")
+    print("📈 Graph Store Reliability:")
     print(f"   ├─ Validation Success Rate: {metrics.graph_validation_success_rate:.3f}")
     print(f"   ├─ Consistency Score: {metrics.graph_consistency_score:.3f}")
     print(f"   └─ Performance Stability: {metrics.graph_performance_stability:.3f}")
     
     # Section 2.5 - Error Management Robustness
-    print(f"\n🛡️  Error Management Robustness:")
+    print("\n🛡️  Error Management Robustness:")
     print(f"   ├─ Overall Effectiveness: {metrics.error_management_effectiveness:.3f}")
     print(f"   ├─ Recovery Success Rate: {metrics.error_recovery_success_rate:.3f}")
     print(f"   ├─ Escalation Efficiency: {metrics.error_escalation_efficiency:.3f}")
     print(f"   └─ Handling Coverage: {metrics.error_handling_coverage:.3f}")
     
     # Section 1.3 - Extraction Consistency
-    print(f"\n🔄 Extraction Method Consistency:")
+    print("\n🔄 Extraction Method Consistency:")
     print(f"   ├─ Overall Consistency: {metrics.extraction_method_consistency:.3f}")
     print(f"   ├─ Cross-Backend Agreement: {metrics.cross_backend_agreement:.3f}")
     print(f"   ├─ Query Result Stability: {metrics.query_result_stability:.3f}")
     print(f"   └─ Performance Variance: {metrics.extraction_performance_variance:.3f}")
     
     # Section 2.4 - Stress Resilience
-    print(f"\n💪 Stress Resilience:")
+    print("\n💪 Stress Resilience:")
     print(f"   ├─ Survival Rate: {metrics.stress_test_survival_rate:.3f}")
     print(f"   ├─ Resource Efficiency: {metrics.resource_efficiency_under_load:.3f}")
     print(f"   ├─ Degradation Tolerance: {metrics.performance_degradation_tolerance:.3f}")
     print(f"   └─ Concurrent Stability: {metrics.concurrent_operation_stability:.3f}")
     
     # Section 2.3.3 - Alita Integration Stability
-    print(f"\n🤖 Alita Integration Stability:")
+    print("\n🤖 Alita Integration Stability:")
     print(f"   ├─ Integration Success Rate: {metrics.alita_integration_success_rate:.3f}")
     print(f"   ├─ Refinement Effectiveness: {metrics.alita_refinement_effectiveness:.3f}")
     print(f"   ├─ Error Recovery Rate: {metrics.alita_error_recovery_rate:.3f}")
     print(f"   └─ Cross-System Coordination: {metrics.cross_system_coordination_stability:.3f}")
     
     # Recommendations
-    print(f"\n💡 RECOMMENDATIONS:")
+    print("\n💡 RECOMMENDATIONS:")
     print("-" * 30)
     for i, recommendation in enumerate(metrics.recommendations, 1):
         print(f"{i}. {recommendation}")
     
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 # Mock classes for demonstration purposes
@@ -281,4 +281,4 @@ if __name__ == "__main__":
         
     except Exception as e:
         print(f"\n❌ Assessment failed: {e}")
-        sys.exit(1) 
+        sys.exit(1)

@@ -1,0 +1,463 @@
+# Advanced Configuration Management Schema
+# Defines the structure and validation rules for all system configurations
+
+version: "1.0"
+schema_type: "configuration"
+
+# Global configuration schema
+global:
+  kgot:
+    type: object
+    properties:
+      num_next_steps_decision:
+        type: integer
+        minimum: 1
+        maximum: 10
+        default: 3
+        description: "Number of next steps to consider in decision making"
+      max_retrieve_query_retry:
+        type: integer
+        minimum: 1
+        maximum: 5
+        default: 3
+        description: "Maximum retries for query retrieval operations"
+      max_cypher_fixing_retry:
+        type: integer
+        minimum: 1
+        maximum: 5
+        default: 2
+        description: "Maximum retries for Cypher query fixing"
+      reasoning_depth:
+        type: integer
+        minimum: 1
+        maximum: 20
+        default: 5
+        description: "Maximum depth for reasoning chains"
+      graph_traversal_limit:
+        type: integer
+        minimum: 10
+        maximum: 1000
+        default: 100
+        description: "Maximum nodes to traverse in graph operations"
+      enable_caching:
+        type: boolean
+        default: true
+        description: "Enable caching for query results"
+      cache_ttl:
+        type: integer
+        minimum: 60
+        maximum: 86400
+        default: 3600
+        description: "Cache time-to-live in seconds"
+      parallel_processing:
+        type: boolean
+        default: true
+        description: "Enable parallel processing for operations"
+      max_concurrent_queries:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+        description: "Maximum concurrent queries allowed"
+    required:
+      - num_next_steps_decision
+      - max_retrieve_query_retry
+      - max_cypher_fixing_retry
+
+  alita:
+    type: object
+    properties:
+      environment_manager:
+        type: object
+        properties:
+          supported_languages:
+            type: array
+            items:
+              type: string
+              enum: ["python", "javascript", "typescript", "bash", "java", "cpp", "go", "rust"]
+            minItems: 1
+            default: ["python", "javascript", "typescript", "bash"]
+          timeout:
+            type: integer
+            minimum: 30
+            maximum: 3600
+            default: 300
+            description: "Environment setup timeout in seconds"
+          max_memory:
+            type: string
+            pattern: "^\\d+[KMGT]?B$"
+            default: "1GB"
+            description: "Maximum memory allocation"
+          enable_sandboxing:
+            type: boolean
+            default: true
+            description: "Enable sandboxed execution"
+        required:
+          - supported_languages
+          - timeout
+      tools:
+        type: object
+        properties:
+          code_runner:
+            type: object
+            properties:
+              timeout:
+                type: integer
+                minimum: 10
+                maximum: 600
+                default: 60
+              max_output_size:
+                type: string
+                pattern: "^\\d+[KMGT]?B$"
+                default: "10MB"
+              enable_networking:
+                type: boolean
+                default: false
+          file_manager:
+            type: object
+            properties:
+              max_file_size:
+                type: string
+                pattern: "^\\d+[KMGT]?B$"
+                default: "100MB"
+              allowed_extensions:
+                type: array
+                items:
+                  type: string
+                default: [".py", ".js", ".ts", ".md", ".txt", ".json", ".yaml"]
+              scan_for_secrets:
+                type: boolean
+                default: true
+
+  models:
+    type: object
+    properties:
+      model_providers:
+        type: object
+        patternProperties:
+          "^[a-zA-Z0-9_-]+$":
+            type: object
+            properties:
+              base_url:
+                type: string
+                format: uri
+              api_key_env:
+                type: string
+              models:
+                type: object
+                patternProperties:
+                  "^[a-zA-Z0-9_-]+$":
+                    type: object
+                    properties:
+                      model_id:
+                        type: string
+                      context_length:
+                        type: integer
+                        minimum: 1000
+                        maximum: 1000000
+                      cost_per_token:
+                        type: object
+                        properties:
+                          input:
+                            type: number
+                            minimum: 0
+                          output:
+                            type: number
+                            minimum: 0
+                        required: ["input", "output"]
+                      capabilities:
+                        type: array
+                        items:
+                          type: string
+                          enum: ["text", "reasoning", "code", "agentic", "function_calling", "multimodal"]
+                      recommended_for:
+                        type: array
+                        items:
+                          type: string
+                    required: ["model_id", "context_length", "cost_per_token"]
+            required: ["base_url", "api_key_env", "models"]
+
+  features:
+    type: object
+    properties:
+      advanced_reasoning:
+        type: boolean
+        default: true
+        description: "Enable advanced reasoning capabilities"
+      multimodal_processing:
+        type: boolean
+        default: true
+        description: "Enable multimodal input processing"
+      real_time_collaboration:
+        type: boolean
+        default: false
+        description: "Enable real-time collaboration features"
+      experimental_models:
+        type: boolean
+        default: false
+        description: "Enable experimental model features"
+      enhanced_security:
+        type: boolean
+        default: true
+        description: "Enable enhanced security measures"
+      performance_monitoring:
+        type: boolean
+        default: true
+        description: "Enable performance monitoring"
+
+# Environment-specific configuration schema
+environment:
+  type: object
+  properties:
+    name:
+      type: string
+      enum: ["development", "staging", "production"]
+    overrides:
+      type: object
+      description: "Environment-specific configuration overrides"
+    secrets:
+      type: object
+      properties:
+        encryption_enabled:
+          type: boolean
+          default: true
+        key_rotation_interval:
+          type: integer
+          minimum: 86400
+          default: 2592000  # 30 days
+    monitoring:
+      type: object
+      properties:
+        log_level:
+          type: string
+          enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+          default: "INFO"
+        metrics_enabled:
+          type: boolean
+          default: true
+        tracing_enabled:
+          type: boolean
+          default: false
+    performance:
+      type: object
+      properties:
+        max_concurrent_requests:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 100
+        request_timeout:
+          type: integer
+          minimum: 1
+          maximum: 300
+          default: 30
+        rate_limiting:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: true
+            requests_per_minute:
+              type: integer
+              minimum: 1
+              maximum: 10000
+              default: 1000
+
+# Service-specific configuration schema
+service:
+  type: object
+  properties:
+    name:
+      type: string
+      pattern: "^[a-zA-Z0-9_-]+$"
+    version:
+      type: string
+      pattern: "^\\d+\\.\\d+\\.\\d+$"
+    dependencies:
+      type: array
+      items:
+        type: string
+    health_check:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          default: true
+        endpoint:
+          type: string
+          default: "/health"
+        interval:
+          type: integer
+          minimum: 5
+          maximum: 300
+          default: 30
+        timeout:
+          type: integer
+          minimum: 1
+          maximum: 60
+          default: 5
+    resources:
+      type: object
+      properties:
+        cpu_limit:
+          type: string
+          pattern: "^\\d+m?$"
+        memory_limit:
+          type: string
+          pattern: "^\\d+[KMGT]?i?$"
+        disk_limit:
+          type: string
+          pattern: "^\\d+[KMGT]?i?$"
+
+# Feature flag configuration schema
+feature:
+  type: object
+  properties:
+    name:
+      type: string
+      pattern: "^[a-zA-Z0-9_-]+$"
+    enabled:
+      type: boolean
+      default: false
+    rollout_percentage:
+      type: number
+      minimum: 0
+      maximum: 100
+      default: 0
+    target_groups:
+      type: array
+      items:
+        type: string
+    conditions:
+      type: object
+      properties:
+        user_attributes:
+          type: object
+        environment:
+          type: string
+        time_range:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+    metadata:
+      type: object
+      properties:
+        description:
+          type: string
+        owner:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+# Validation rules
+validation_rules:
+  cross_references:
+    - path: "models.model_providers.*.models.*.recommended_for"
+      reference: "services"
+      description: "Model recommendations must reference valid services"
+  
+  dependencies:
+    - path: "service.dependencies"
+      type: "circular_check"
+      description: "Service dependencies must not create circular references"
+  
+  resource_limits:
+    - path: "service.resources"
+      type: "resource_validation"
+      description: "Resource limits must be within system capacity"
+  
+  feature_flags:
+    - path: "feature.rollout_percentage"
+      type: "percentage_validation"
+      description: "Rollout percentage must be between 0 and 100"
+
+# Configuration templates
+templates:
+  new_service:
+    name: "{{ service_name }}"
+    version: "1.0.0"
+    health_check:
+      enabled: true
+      endpoint: "/health"
+      interval: 30
+      timeout: 5
+    resources:
+      cpu_limit: "500m"
+      memory_limit: "512Mi"
+      disk_limit: "1Gi"
+  
+  new_feature:
+    name: "{{ feature_name }}"
+    enabled: false
+    rollout_percentage: 0
+    metadata:
+      description: "{{ description }}"
+      owner: "{{ owner }}"
+      created_at: "{{ timestamp }}"
+
+# Migration rules for configuration updates
+migrations:
+  "1.0_to_1.1":
+    - action: "add_field"
+      path: "kgot.enable_distributed_processing"
+      default_value: false
+    - action: "rename_field"
+      old_path: "alita.tools.code_runner.max_execution_time"
+      new_path: "alita.tools.code_runner.timeout"
+    - action: "remove_field"
+      path: "deprecated_feature"
+
+# Security policies
+security:
+  sensitive_fields:
+    - "*.api_key*"
+    - "*.password*"
+    - "*.secret*"
+    - "*.token*"
+    - "*.private_key*"
+  
+  encryption_required:
+    - "secrets.*"
+    - "credentials.*"
+  
+  access_control:
+    read_only_fields:
+      - "system.version"
+      - "system.build_info"
+    
+    admin_only_fields:
+      - "security.*"
+      - "system.debug_mode"
+
+# Documentation metadata
+documentation:
+  version: "1.0"
+  last_updated: "2024-01-01"
+  maintainer: "Alita-KGoT Enhanced System"
+  description: "Comprehensive configuration schema for the Alita-KGoT Enhanced system"
+  examples:
+    basic_kgot_config: |
+      kgot:
+        num_next_steps_decision: 3
+        max_retrieve_query_retry: 3
+        max_cypher_fixing_retry: 2
+        reasoning_depth: 5
+    
+    basic_alita_config: |
+      alita:
+        environment_manager:
+          supported_languages: ["python", "javascript"]
+          timeout: 300
+        tools:
+          code_runner:
+            timeout: 60
+            enable_networking: false

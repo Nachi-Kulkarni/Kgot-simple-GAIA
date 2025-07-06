@@ -23,27 +23,14 @@ Key Features:
 import asyncio
 import json
 import logging
-import time
 import uuid
 import websockets
-from abc import ABC, abstractmethod
 from collections import defaultdict, deque
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Tuple, Any, Optional, Union, Callable, Set
+from typing import Dict, List, Any, Optional
 import numpy as np
-import pandas as pd
-from pathlib import Path
-
-# LangChain imports for agent development (per user preference)
-from langchain.agents import AgentExecutor, create_openai_functions_agent
-from langchain.tools import BaseTool, tool
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from langchain_core.callbacks import BaseCallbackHandler
 
 # Winston logging integration
 import sys
@@ -56,18 +43,13 @@ from sequential_decision_trees import (
     SystemSelectionDecisionTree,
     DecisionContext,
     TaskComplexity,
-    SystemType,
-    ResourceConstraint,
-    SystemCoordinationResult
+    SystemType
 )
 
 # Existing validation systems integration
 from mcp_cross_validator import (
     MCPCrossValidationEngine,
-    CrossValidationResult,
-    ValidationMetrics,
-    MCPValidationSpec,
-    TaskType as MCPTaskType
+    ValidationMetrics
 )
 
 # KGoT integration
@@ -292,7 +274,7 @@ class SequentialDecisionAlertManager:
         
         # Cross-system validation issues are high priority
         if (validation_event.event_type == ValidationEventType.CROSS_SYSTEM_VALIDATION and
-            decision_path.total_cost > 5.0):
+                decision_path.total_cost > 5.0):
             return AlertPriority.HIGH
         
         # Use confidence and cost to determine priority
@@ -419,7 +401,6 @@ class ValidationHistoryTracker:
     def _update_metrics_cache(self, validation_event: ValidationEvent) -> None:
         """Update local metrics cache for quick access"""
         system = validation_event.source_system
-        event_type = validation_event.event_type.value
         
         if validation_event.metrics:
             self.system_metrics_cache[system]['consistency'].append(
@@ -539,7 +520,6 @@ class UnifiedValidationDashboard:
                 kgot_controller=self.kgot_controller
             )
             await self.alert_manager.initialize_decision_tree()
-            
             # Initialize history tracker
             self.history_tracker = ValidationHistoryTracker(
                 kg_interface=self.kg_interface,
@@ -918,4 +898,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

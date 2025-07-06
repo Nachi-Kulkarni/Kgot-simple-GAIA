@@ -1,0 +1,254 @@
+# Development Environment Configuration
+# This file contains development-specific overrides for the Alita-KGoT system
+
+metadata:
+  name: "development"
+  description: "Development environment configuration"
+  version: "1.0.0"
+  created_by: "alita-kgot-system"
+  created_at: "2024-01-01T00:00:00Z"
+  tags:
+    - "development"
+    - "local"
+    - "testing"
+
+# KGoT Configuration Overrides
+kgot:
+  # Reasoning parameters optimized for development
+  num_next_steps_decision: 3  # Reduced for faster iteration
+  reasoning_depth: 2          # Shallow reasoning for quick feedback
+  max_retrieve_query_retry: 2 # Fewer retries for faster failure
+  max_cypher_fixing_retry: 1  # Quick failure for debugging
+  
+  # Graph configuration
+  graph_traversal_limit: 50   # Smaller limit for development
+  enable_graph_caching: true
+  cache_ttl: 300             # 5 minutes
+  
+  # Development-specific features
+  debug_mode: true
+  verbose_logging: true
+  trace_reasoning_steps: true
+  
+  # Performance settings
+  parallel_reasoning: false   # Disable for easier debugging
+  batch_size: 5              # Smaller batches
+  timeout: 30                # Shorter timeout
+
+# Alita Configuration Overrides
+alita:
+  environment_manager:
+    supported_languages:
+      - "python"
+      - "javascript"
+      - "bash"
+    timeout: 60              # 1 minute timeout for dev
+    cleanup_on_exit: true
+    enable_hot_reload: true   # Development feature
+    
+  tools:
+    code_runner:
+      sandbox_enabled: false  # Disabled for local development
+      resource_limits:
+        memory: "512MB"
+        cpu: "0.5"
+        disk: "1GB"
+    
+    file_manager:
+      allowed_paths:
+        - "/tmp"
+        - "./workspace"
+        - "./development"
+      max_file_size: "10MB"
+    
+    web_browser:
+      headless: false         # Show browser in development
+      timeout: 30
+      enable_devtools: true
+
+# Model Configuration
+models:
+  model_providers:
+    openai:
+      api_key: "${OPENAI_API_KEY}"
+      base_url: "https://api.openai.com/v1"
+      timeout: 30
+      max_retries: 2
+      
+    anthropic:
+      api_key: "${ANTHROPIC_API_KEY}"
+      base_url: "https://api.anthropic.com"
+      timeout: 30
+      max_retries: 2
+  
+  default_models:
+    reasoning: "gpt-4-turbo-preview"  # Fast model for development
+    coding: "gpt-4"
+    analysis: "claude-3-sonnet"
+  
+  cost_tracking:
+    enabled: true
+    budget_limit: 50.0       # $50 daily limit for development
+    alert_threshold: 0.8     # Alert at 80% of budget
+
+# Feature Flags
+features:
+  enhanced_security: false   # Relaxed security for development
+  performance_monitoring: true
+  advanced_caching: false
+  experimental_features: true # Enable experimental features
+  debug_ui: true            # Development UI features
+  hot_reload: true          # Code hot reloading
+  mock_external_services: true # Use mocks instead of real services
+
+# Service Configuration
+services:
+  manager_agent:
+    port: 3000
+    host: "localhost"
+    debug: true
+    auto_restart: true
+    log_level: "DEBUG"
+    
+  kgot_service:
+    port: 8080
+    host: "localhost"
+    debug: true
+    log_level: "DEBUG"
+    enable_profiling: true
+    
+  monitoring:
+    port: 9090
+    host: "localhost"
+    metrics_interval: 10     # 10 seconds for development
+    enable_detailed_metrics: true
+
+# Database Configuration
+database:
+  graph_store:
+    type: "neo4j"
+    host: "localhost"
+    port: 7687
+    database: "alita_kgot_dev"
+    username: "neo4j"
+    password: "${NEO4J_PASSWORD}"
+    pool_size: 5
+    
+  cache_store:
+    type: "redis"
+    host: "localhost"
+    port: 6379
+    database: 0
+    password: "${REDIS_PASSWORD}"
+    ttl: 300
+
+# Logging Configuration
+logging:
+  level: "DEBUG"
+  format: "detailed"
+  output:
+    - "console"
+    - "file"
+  file_path: "./logs/development.log"
+  rotation:
+    max_size: "100MB"
+    backup_count: 5
+  
+  loggers:
+    kgot: "DEBUG"
+    alita: "DEBUG"
+    models: "INFO"
+    database: "DEBUG"
+
+# Security Configuration (Relaxed for Development)
+security:
+  authentication:
+    enabled: false           # Disabled for local development
+    
+  authorization:
+    enabled: false           # Disabled for local development
+    
+  encryption:
+    enabled: false           # Disabled for local development
+    
+  rate_limiting:
+    enabled: false           # Disabled for local development
+
+# Development Tools
+development:
+  hot_reload:
+    enabled: true
+    watch_paths:
+      - "./src"
+      - "./configuration"
+    ignore_patterns:
+      - "*.pyc"
+      - "__pycache__"
+      - ".git"
+  
+  testing:
+    auto_run_tests: true
+    test_coverage: true
+    mock_external_apis: true
+  
+  debugging:
+    enable_debugger: true
+    breakpoint_on_error: true
+    detailed_stack_traces: true
+
+# Monitoring and Observability
+monitoring:
+  metrics:
+    enabled: true
+    detailed: true
+    custom_metrics: true
+    
+  tracing:
+    enabled: true
+    sample_rate: 1.0         # 100% sampling in development
+    
+  health_checks:
+    enabled: true
+    interval: 30             # 30 seconds
+    timeout: 10
+
+# External Integrations (Development)
+integrations:
+  github:
+    enabled: false           # Disabled for local development
+    
+  slack:
+    enabled: false           # Disabled for local development
+    
+  email:
+    enabled: false           # Disabled for local development
+
+# Resource Limits (Generous for Development)
+resources:
+  memory:
+    max_heap: "2GB"
+    max_total: "4GB"
+    
+  cpu:
+    max_cores: 4
+    
+  disk:
+    max_usage: "10GB"
+    temp_cleanup: true
+
+# Backup and Recovery (Minimal for Development)
+backup:
+  enabled: false             # Disabled for development
+  
+recovery:
+  auto_recovery: true
+  max_retries: 3
+  retry_delay: 5
+
+# Environment Variables
+environment_variables:
+  NODE_ENV: "development"
+  PYTHON_ENV: "development"
+  LOG_LEVEL: "DEBUG"
+  DEBUG: "true"
+  DEVELOPMENT_MODE: "true"

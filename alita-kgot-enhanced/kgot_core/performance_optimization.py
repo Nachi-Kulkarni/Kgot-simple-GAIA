@@ -28,19 +28,13 @@ import asyncio
 import logging
 import time
 import threading
-import multiprocessing
-import json
-import psutil
 import numpy as np
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, Any, Optional, Union, Callable, Awaitable
+from typing import Dict, List, Tuple, Any, Callable
 from enum import Enum
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from queue import Queue, PriorityQueue
-import weakref
-import gc
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 # MPI for distributed processing
 try:
@@ -58,14 +52,7 @@ except ImportError:
     REDIS_AVAILABLE = False
     redis = None
 
-# Performance profiling
-import cProfile
-import pstats
-from memory_profiler import profile as memory_profile
-from line_profiler import LineProfiler
-
 # Asyncio enhancements
-from asyncio_pool import AioPool
 from asyncio_throttle import Throttler
 
 # Winston logging setup compatible with Alita enhanced architecture
@@ -368,6 +355,9 @@ class AsyncExecutionEngine(PerformanceOptimizationInterface):
                         
                         return result, metrics
                         
+                except Exception as e:
+                    logger.error(f"Error in async operation: {str(e)}")
+                    raise
                 finally:
                     self.active_operations -= 1
                     
@@ -634,16 +624,16 @@ class GraphOperationParallelizer(PerformanceOptimizationInterface):
             
             # Apply appropriate parallelization strategy
             if operation_type == 'bulk_query':
-                result = await self._execute_parallel_bulk_queries(operation, context, *args, **kwargs)
+                await self._execute_parallel_bulk_queries(operation, context, *args, **kwargs)
             elif operation_type == 'batch_write':
-                result = await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
+                await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
             elif operation_type == 'graph_traversal':
-                result = await self._execute_parallel_traversal(operation, context, *args, **kwargs)
+                await self._execute_parallel_traversal(operation, context, *args, **kwargs)
             elif operation_type == 'aggregation':
-                result = await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
+                await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
             else:
                 # Fall back to single-threaded execution with caching
-                result = await self._execute_with_caching(operation, context, *args, **kwargs)
+                await self._execute_with_caching(operation, context, *args, **kwargs)
             
             # Update metrics
             metrics.execution_time_ms = (time.time() - start_time) * 1000
@@ -1078,16 +1068,16 @@ class MPIDistributedProcessor(PerformanceOptimizationInterface):
             
             # Apply appropriate parallelization strategy
             if task_type == 'bulk_task':
-                result = await self._execute_parallel_bulk_tasks(operation, context, *args, **kwargs)
+                await self._execute_parallel_bulk_tasks(operation, context, *args, **kwargs)
             elif task_type == 'batch_write':
-                result = await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
+                await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
             elif task_type == 'graph_traversal':
-                result = await self._execute_parallel_traversal(operation, context, *args, **kwargs)
+                await self._execute_parallel_traversal(operation, context, *args, **kwargs)
             elif task_type == 'aggregation':
-                result = await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
+                await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
             else:
                 # Fall back to single-threaded execution with caching
-                result = await self._execute_with_caching(operation, context, *args, **kwargs)
+                await self._execute_with_caching(operation, context, *args, **kwargs)
             
             # Update metrics
             metrics.execution_time_ms = (time.time() - start_time) * 1000
@@ -1444,7 +1434,7 @@ class WorkStealingScheduler(PerformanceOptimizationInterface):
             task = self.task_queue.get()
             if task is None:
                 break
-            result = task()
+            task()
             # Process result
     
     async def optimize(self, 
@@ -1663,16 +1653,16 @@ class CostOptimizationIntegrator(PerformanceOptimizationInterface):
             
             # Apply appropriate cost optimization strategy
             if task_type == 'bulk_task':
-                result = await self._execute_parallel_bulk_tasks(operation, context, *args, **kwargs)
+                await self._execute_parallel_bulk_tasks(operation, context, *args, **kwargs)
             elif task_type == 'batch_write':
-                result = await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
+                await self._execute_parallel_batch_writes(operation, context, *args, **kwargs)
             elif task_type == 'graph_traversal':
-                result = await self._execute_parallel_traversal(operation, context, *args, **kwargs)
+                await self._execute_parallel_traversal(operation, context, *args, **kwargs)
             elif task_type == 'aggregation':
-                result = await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
+                await self._execute_parallel_aggregation(operation, context, *args, **kwargs)
             else:
                 # Fall back to single-threaded execution with caching
-                result = await self._execute_with_caching(operation, context, *args, **kwargs)
+                await self._execute_with_caching(operation, context, *args, **kwargs)
             
             # Update metrics
             metrics.execution_time_ms = (time.time() - start_time) * 1000
@@ -2029,7 +2019,7 @@ class ScalabilityEnhancer(PerformanceOptimizationInterface):
             task = self.task_queue.get()
             if task is None:
                 break
-            result = task()
+            task()
             # Process result
     
     async def optimize(self, 

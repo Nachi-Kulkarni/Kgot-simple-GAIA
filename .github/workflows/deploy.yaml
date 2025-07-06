@@ -1,0 +1,586 @@
+name: KGoT-Alita Unified Production Deployment Pipeline
+
+# Consolidated pipeline merging Tasks 45 and 51
+# Integrates security scanning, configuration management, blue-green deployment, and monitoring
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      force_deploy:
+        description: 'Force deployment even if validation fails'
+        required: false
+        default: false
+        type: boolean
+      config_version:
+        description: 'Specific configuration version to deploy'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  CONFIG_ENCRYPTION_KEY: ${{ secrets.CONFIG_ENCRYPTION_KEY }}
+  CONSUL_TOKEN: ${{ secrets.CONSUL_TOKEN }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  # Stage 1: Preparation and Configuration Validation
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      environment: ${{ steps.env.outputs.environment }}
+      config_version: ${{ steps.config.outputs.version }}
+      deploy_matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION="${GITHUB_SHA:0:8}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Determine target environment
+        id: env
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            ENV="production"
+          else
+            ENV="staging"
+          fi
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "Target environment: $ENV"
+
+      - name: Validate and prepare configuration
+        id: config
+        run: |
+          python3 -m pip install -r alita-kgot-enhanced/requirements.txt
+          
+          # Validate configuration schema
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py validate \
+            --config-file alita-kgot-enhanced/configuration/pipeline_config.yaml \
+            --schema-file alita-kgot-enhanced/configuration/schemas/pipeline_schema.json
+          
+          # Determine configuration version
+          if [[ -n "${{ github.event.inputs.config_version }}" ]]; then
+            CONFIG_VERSION="${{ github.event.inputs.config_version }}"
+          else
+            CONFIG_VERSION=$(python3 alita-kgot-enhanced/configuration/advanced_config_management.py get-version)
+          fi
+          
+          echo "version=$CONFIG_VERSION" >> $GITHUB_OUTPUT
+          echo "Configuration version: $CONFIG_VERSION"
+          
+          # Validate configuration compatibility
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py validate-compatibility \
+            --app-version ${{ steps.version.outputs.version }} \
+            --config-version $CONFIG_VERSION
+
+      - name: Generate deployment matrix
+        id: matrix
+        run: |
+          MATRIX=$(python3 -c "
+          import json
+          services = ['kgot-controller', 'graph-store', 'alita-core', 'mcp-coordinator', 'validation-service']
+          matrix = {'include': [{'service': svc} for svc in services]}
+          print(json.dumps(matrix))
+          ")
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  # Stage 2: Lint and Security Scan
+  lint_and_scan:
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      matrix:
+        scan-type: [code, config, secrets, dependencies]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r alita-kgot-enhanced/requirements.txt
+          pip install bandit safety semgrep
+
+      - name: Code quality scan
+        if: matrix.scan-type == 'code'
+        run: |
+          # Static code analysis
+          bandit -r alita-kgot-enhanced/ -f json -o bandit-report.json || true
+          semgrep --config=auto alita-kgot-enhanced/ --json --output=semgrep-report.json || true
+          
+          # Upload results
+          python3 alita-kgot-enhanced/security/security_scanner.py upload-results \
+            --bandit-report bandit-report.json \
+            --semgrep-report semgrep-report.json
+
+      - name: Configuration security scan
+        if: matrix.scan-type == 'config'
+        run: |
+          # Scan configuration files for security issues
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py security-scan \
+            --config-dir alita-kgot-enhanced/configuration/ \
+            --output config-security-report.json
+          
+          # Check for hardcoded secrets in configs
+          python3 alita-kgot-enhanced/security/secret_scanner.py scan-configs \
+            --config-dir alita-kgot-enhanced/configuration/ \
+            --output config-secrets-report.json
+
+      - name: Secret scan
+        if: matrix.scan-type == 'secrets'
+        run: |
+          # Comprehensive secret scanning
+          python3 alita-kgot-enhanced/security/secret_scanner.py scan-repository \
+            --path . \
+            --output secrets-report.json
+
+      - name: Dependency scan
+        if: matrix.scan-type == 'dependencies'
+        run: |
+          # Check for vulnerable dependencies
+          safety check --json --output safety-report.json || true
+          
+          # Audit npm packages if present
+          if [ -f package.json ]; then
+            npm audit --json > npm-audit-report.json || true
+          fi
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports-${{ matrix.scan-type }}
+          path: '*-report.json'
+
+  # Stage 3: Build and Test
+  build:
+    runs-on: ubuntu-latest
+    needs: [prepare, lint_and_scan]
+    strategy:
+      matrix: ${{ fromJson(needs.prepare.outputs.deploy_matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./alita-kgot-enhanced/docker/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ needs.prepare.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.prepare.outputs.version }}
+            CONFIG_VERSION=${{ needs.prepare.outputs.config_version }}
+
+      - name: Run container security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}:${{ needs.prepare.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-results-${{ matrix.service }}.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results-${{ matrix.service }}.sarif'
+
+  # Stage 4: Unit and Integration Tests
+  test:
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    strategy:
+      matrix:
+        test-type: [unit, integration, configuration]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r alita-kgot-enhanced/requirements.txt
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run unit tests
+        if: matrix.test-type == 'unit'
+        run: |
+          pytest alita-kgot-enhanced/tests/unit/ \
+            --cov=alita-kgot-enhanced \
+            --cov-report=xml \
+            --cov-report=html \
+            --junitxml=unit-test-results.xml
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          # Start test environment
+          docker-compose -f alita-kgot-enhanced/docker/test-compose.yml up -d
+          
+          # Wait for services to be ready
+          python3 alita-kgot-enhanced/tests/wait_for_services.py
+          
+          # Run integration tests
+          pytest alita-kgot-enhanced/tests/integration/ \
+            --junitxml=integration-test-results.xml
+          
+          # Cleanup
+          docker-compose -f alita-kgot-enhanced/docker/test-compose.yml down
+
+      - name: Run configuration tests
+        if: matrix.test-type == 'configuration'
+        run: |
+          # Test configuration management system
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py test \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --output config-test-results.xml
+          
+          # Test configuration rollback scenarios
+          python3 alita-kgot-enhanced/tests/configuration/test_rollback.py
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: '*-test-results.xml'
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: matrix.test-type == 'unit'
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # Stage 5: Deploy to Staging
+  deploy_staging:
+    runs-on: ubuntu-latest
+    needs: [prepare, test]
+    if: needs.prepare.outputs.environment == 'staging' || needs.prepare.outputs.environment == 'production'
+    environment:
+      name: staging
+      url: https://staging.kgot-alita.dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Kubernetes
+        run: |
+          echo "${{ env.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+          kubectl config set-context --current --namespace=kgot-staging
+
+      - name: Deploy configuration to staging
+        run: |
+          # Deploy configuration first
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py deploy \
+            --environment staging \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --validate-before-deploy
+          
+          # Wait for configuration propagation
+          sleep 30
+
+      - name: Deploy application to staging
+        run: |
+          python3 alita-kgot-enhanced/deployment/production_deployment.py deploy \
+            --environment staging \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --strategy blue-green
+
+      - name: Validate staging deployment
+        run: |
+          # Wait for deployment to stabilize
+          sleep 60
+          
+          # Run health checks
+          python3 alita-kgot-enhanced/validation/deployment_validator.py validate \
+            --environment staging \
+            --timeout 300
+          
+          # Validate configuration is properly loaded
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py validate-deployment \
+            --environment staging
+
+  # Stage 6: End-to-End Validation
+  validate_staging:
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_staging]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r alita-kgot-enhanced/requirements.txt
+
+      - name: Run E2E tests
+        run: |
+          # Comprehensive validation suite from Task 18
+          python3 alita-kgot-enhanced/validation/unified_validation_dashboard.py run-e2e \
+            --environment staging \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --output e2e-results.json
+
+      - name: Run performance tests
+        run: |
+          python3 alita-kgot-enhanced/validation/performance_validator.py run \
+            --environment staging \
+            --duration 300 \
+            --output performance-results.json
+
+      - name: Run configuration validation
+        run: |
+          # Validate configuration behavior in live environment
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py validate-live \
+            --environment staging \
+            --output config-validation-results.json
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-results
+          path: '*-results.json'
+
+      - name: Check validation thresholds
+        run: |
+          python3 alita-kgot-enhanced/validation/threshold_checker.py check \
+            --e2e-results e2e-results.json \
+            --performance-results performance-results.json \
+            --config-results config-validation-results.json \
+            --fail-on-threshold-breach
+
+  # Stage 7: Manual Approval Gate (for production)
+  approval:
+    runs-on: ubuntu-latest
+    needs: [prepare, validate_staging]
+    if: needs.prepare.outputs.environment == 'production' && github.event.inputs.force_deploy != 'true'
+    environment:
+      name: production-approval
+    steps:
+      - name: Request manual approval
+        run: |
+          echo "Manual approval required for production deployment"
+          echo "Version: ${{ needs.prepare.outputs.version }}"
+          echo "Config Version: ${{ needs.prepare.outputs.config_version }}"
+
+  # Stage 8: Deploy to Production
+  deploy_production:
+    runs-on: ubuntu-latest
+    needs: [prepare, validate_staging, approval]
+    if: always() && (needs.approval.result == 'success' || (needs.prepare.outputs.environment == 'production' && github.event.inputs.force_deploy == 'true') || needs.prepare.outputs.environment == 'staging')
+    environment:
+      name: production
+      url: https://kgot-alita.dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Kubernetes
+        run: |
+          echo "${{ env.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+          kubectl config set-context --current --namespace=kgot-production
+
+      - name: Deploy configuration to production
+        run: |
+          # Deploy configuration with versioning and rollback capability
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py deploy \
+            --environment production \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --validate-before-deploy \
+            --enable-rollback
+          
+          # Wait for configuration propagation
+          sleep 30
+
+      - name: Deploy application to production
+        run: |
+          python3 alita-kgot-enhanced/deployment/production_deployment.py deploy \
+            --environment production \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --strategy blue-green \
+            --enable-monitoring \
+            --enable-auto-rollback
+
+      - name: Validate production deployment
+        run: |
+          # Wait for deployment to stabilize
+          sleep 120
+          
+          # Run comprehensive health checks
+          python3 alita-kgot-enhanced/validation/deployment_validator.py validate \
+            --environment production \
+            --timeout 600 \
+            --comprehensive
+          
+          # Validate configuration is properly loaded and functional
+          python3 alita-kgot-enhanced/configuration/advanced_config_management.py validate-deployment \
+            --environment production \
+            --comprehensive
+
+      - name: Enable monitoring and alerting
+        run: |
+          # Enable enhanced monitoring for new deployment
+          python3 alita-kgot-enhanced/monitoring/monitoring_setup.py enable \
+            --environment production \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }}
+          
+          # Set up automated rollback triggers
+          python3 alita-kgot-enhanced/deployment/rollback_manager.py setup \
+            --environment production \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }}
+
+  # Stage 9: Post-Deployment Monitoring
+  monitor:
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_production]
+    if: always() && needs.deploy_production.result == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Monitor deployment health
+        run: |
+          # Monitor for 10 minutes post-deployment
+          python3 alita-kgot-enhanced/monitoring/post_deployment_monitor.py monitor \
+            --environment production \
+            --duration 600 \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --auto-rollback-on-failure
+
+      - name: Generate deployment report
+        run: |
+          python3 alita-kgot-enhanced/reporting/deployment_reporter.py generate \
+            --environment production \
+            --version ${{ needs.prepare.outputs.version }} \
+            --config-version ${{ needs.prepare.outputs.config_version }} \
+            --output deployment-report.json
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-report
+          path: deployment-report.json
+
+  # Stage 10: Notification and Cleanup
+  notify:
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy_production, monitor]
+    if: always()
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [[ "${{ needs.deploy_production.result }}" == "success" && "${{ needs.monitor.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=✅ Deployment successful" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy_production.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Deployment failed" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.monitor.result }}" == "failure" ]]; then
+            echo "status=rollback" >> $GITHUB_OUTPUT
+            echo "message=🔄 Deployment rolled back due to monitoring alerts" >> $GITHUB_OUTPUT
+          else
+            echo "status=unknown" >> $GITHUB_OUTPUT
+            echo "message=❓ Deployment status unknown" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{
+              "text": "${{ steps.status.outputs.message }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*KGoT-Alita Deployment*\n${{ steps.status.outputs.message }}\n\n*Environment:* ${{ needs.prepare.outputs.environment }}\n*Version:* ${{ needs.prepare.outputs.version }}\n*Config Version:* ${{ needs.prepare.outputs.config_version }}\n*Commit:* <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                  }
+                }
+              ]
+            }' \
+            ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: Cleanup
+        run: |
+          # Clean up temporary files and resources
+          rm -f kubeconfig
+          
+          # Archive old deployment artifacts if successful
+          if [[ "${{ steps.status.outputs.status }}" == "success" ]]; then
+            python3 alita-kgot-enhanced/deployment/artifact_manager.py archive \
+              --environment ${{ needs.prepare.outputs.environment }} \
+              --version ${{ needs.prepare.outputs.version }}
+          fi

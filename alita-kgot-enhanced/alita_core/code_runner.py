@@ -704,14 +704,14 @@ Improved Code:
                 
                 # Use error management system for recovery
                 try:
-                    error_context = ErrorContext(
-                        error_id=f"refinement_{execution_id}_{iteration}",
-                        error_type=ErrorType.SYSTEM_ERROR,
-                        severity=ErrorSeverity.MEDIUM,
-                        timestamp=datetime.now(),
-                        original_operation=f"code_refinement_iteration_{iteration}",
-                        error_message=str(e)
-                    )
+                    # error_context = ErrorContext(
+                    #     error_id=f"refinement_{execution_id}_{iteration}",
+                    #     error_type=ErrorType.SYSTEM_ERROR,
+                    #     severity=ErrorSeverity.MEDIUM,
+                    #     timestamp=datetime.now(),
+                    #     original_operation=f"code_refinement_iteration_{iteration}",
+                    #     error_message=str(e)
+                    # )
                     
                     recovery_result, recovered = await self.error_management.handle_error(
                         e, f"refinement_iteration_{iteration}", ErrorType.SYSTEM_ERROR

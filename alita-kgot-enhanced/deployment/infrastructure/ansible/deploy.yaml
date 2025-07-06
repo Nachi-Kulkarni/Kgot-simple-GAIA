@@ -1,0 +1,392 @@
+---
+# KGoT Production Deployment - Ansible Playbook
+# =============================================
+#
+# This Ansible playbook handles application deployment and configuration
+# management for the KGoT-Alita enhanced system.
+#
+# Features:
+# - Multi-environment deployment (staging, production)
+# - Service configuration management
+# - Secret management
+# - Health checks and validation
+# - Blue-green deployment support
+
+- name: "KGoT Production Deployment"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  
+  vars:
+    # Default variables - override in inventory or via extra-vars
+    environment: "{{ deployment_environment | default('staging') }}"
+    version: "{{ deployment_version | default('latest') }}"
+    registry_url: "{{ container_registry | default('localhost:5000') }}"
+    domain: "{{ base_domain | default('kgot.local') }}"
+    
+    # Environment-specific configurations
+    environments:
+      staging:
+        namespace: "kgot-staging"
+        replicas:
+          controller: 2
+          graph_store: 2
+          manager_agent: 1
+          web_agent: 2
+          monitoring: 1
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+      
+      production:
+        namespace: "kgot-production"
+        replicas:
+          controller: 3
+          graph_store: 3
+          manager_agent: 2
+          web_agent: 4
+          monitoring: 2
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+    
+    # Service definitions
+    services:
+      - name: "kgot-controller"
+        port: 8080
+        health_path: "/health"
+        config_path: "/app/config"
+      - name: "graph-store"
+        port: 8080
+        health_path: "/health"
+        config_path: "/app/config"
+      - name: "manager-agent"
+        port: 8080
+        health_path: "/health"
+        config_path: "/app/config"
+      - name: "web-agent"
+        port: 8080
+        health_path: "/health"
+        config_path: "/app/config"
+      - name: "monitoring"
+        port: 8080
+        health_path: "/health"
+        config_path: "/app/config"
+    
+    # Current environment configuration
+    current_env: "{{ environments[environment] }}"
+    
+  vars_files:
+    - "vars/{{ environment }}.yaml"
+    - "vars/secrets.yaml"
+  
+  tasks:
+    - name: "Validate environment"
+      assert:
+        that:
+          - environment in ["staging", "production"]
+          - version is defined
+          - version != ""
+        fail_msg: "Invalid environment or version specified"
+    
+    - name: "Display deployment information"
+      debug:
+        msg:
+          - "Deploying KGoT version {{ version }} to {{ environment }}"
+          - "Registry: {{ registry_url }}"
+          - "Namespace: {{ current_env.namespace }}"
+          - "Domain: {{ domain }}"
+    
+    - name: "Check Kubernetes connection"
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Namespace
+        name: "{{ current_env.namespace }}"
+      register: namespace_check
+      failed_when: false
+    
+    - name: "Create namespace if it doesn't exist"
+      kubernetes.core.k8s:
+        name: "{{ current_env.namespace }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+        definition:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "kgot-alita"
+              app.kubernetes.io/environment: "{{ environment }}"
+              app.kubernetes.io/managed-by: "ansible"
+      when: namespace_check.resources | length == 0
+    
+    - name: "Create configuration ConfigMap"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "kgot-config"
+            namespace: "{{ current_env.namespace }}"
+            labels:
+              app.kubernetes.io/name: "kgot-alita"
+              app.kubernetes.io/component: "config"
+          data:
+            environment: "{{ environment }}"
+            domain: "{{ domain }}"
+            registry: "{{ registry_url }}"
+            version: "{{ version }}"
+            log_level: "{{ environment == 'production' | ternary('INFO', 'DEBUG') }}"
+            monitoring_enabled: "{{ enable_monitoring | default(true) | string }}"
+            config.yaml: |
+              environment: "{{ environment }}"
+              services:
+                controller:
+                  replicas: {{ current_env.replicas.controller }}
+                  resources: {{ current_env.resources | to_nice_yaml | indent(4) }}
+                graph_store:
+                  replicas: {{ current_env.replicas.graph_store }}
+                  resources: {{ current_env.resources | to_nice_yaml | indent(4) }}
+                manager_agent:
+                  replicas: {{ current_env.replicas.manager_agent }}
+                  resources: {{ current_env.resources | to_nice_yaml | indent(4) }}
+                web_agent:
+                  replicas: {{ current_env.replicas.web_agent }}
+                  resources: {{ current_env.resources | to_nice_yaml | indent(4) }}
+                monitoring:
+                  replicas: {{ current_env.replicas.monitoring }}
+                  resources: {{ current_env.resources | to_nice_yaml | indent(4) }}
+    
+    - name: "Create application secrets"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "kgot-secrets"
+            namespace: "{{ current_env.namespace }}"
+            labels:
+              app.kubernetes.io/name: "kgot-alita"
+              app.kubernetes.io/component: "secrets"
+          type: Opaque
+          data:
+            db_password: "{{ db_password | b64encode }}"
+            jwt_secret: "{{ jwt_secret | b64encode }}"
+            api_key: "{{ api_key | b64encode }}"
+      when: 
+        - db_password is defined
+        - jwt_secret is defined
+        - api_key is defined
+    
+    - name: "Create registry credentials secret"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "registry-credentials"
+            namespace: "{{ current_env.namespace }}"
+            labels:
+              app.kubernetes.io/name: "kgot-alita"
+              app.kubernetes.io/component: "registry"
+          type: kubernetes.io/dockerconfigjson
+          data:
+            .dockerconfigjson: "{{ registry_auth | b64encode }}"
+      when: registry_auth is defined
+    
+    - name: "Deploy services"
+      include_tasks: "tasks/deploy_service.yaml"
+      vars:
+        service_name: "{{ item.name }}"
+        service_port: "{{ item.port }}"
+        service_health_path: "{{ item.health_path }}"
+        service_config_path: "{{ item.config_path }}"
+        service_replicas: "{{ current_env.replicas[item.name.replace('-', '_')] }}"
+        service_resources: "{{ current_env.resources }}"
+      loop: "{{ services }}"
+      loop_control:
+        label: "{{ item.name }}"
+    
+    - name: "Wait for services to be ready"
+      include_tasks: "tasks/wait_for_service.yaml"
+      vars:
+        service_name: "{{ item.name }}"
+      loop: "{{ services }}"
+      loop_control:
+        label: "{{ item.name }}"
+    
+    - name: "Create ingress configuration"
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: "kgot-ingress"
+            namespace: "{{ current_env.namespace }}"
+            labels:
+              app.kubernetes.io/name: "kgot-alita"
+              app.kubernetes.io/component: "ingress"
+            annotations:
+              kubernetes.io/ingress.class: "nginx"
+              nginx.ingress.kubernetes.io/rewrite-target: /
+              nginx.ingress.kubernetes.io/ssl-redirect: "{{ environment == 'production' | string }}"
+              cert-manager.io/cluster-issuer: "letsencrypt-prod"
+          spec:
+            tls:
+              - hosts:
+                  - "{{ domain }}"
+                  - "api.{{ domain }}"
+                secretName: "kgot-tls"
+            rules:
+              - host: "{{ domain }}"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: "web-agent"
+                          port:
+                            number: 80
+              - host: "api.{{ domain }}"
+                http:
+                  paths:
+                    - path: /
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: "kgot-controller"
+                          port:
+                            number: 80
+    
+    - name: "Run health checks"
+      include_tasks: "tasks/health_check.yaml"
+      vars:
+        service_name: "{{ item.name }}"
+        service_health_path: "{{ item.health_path }}"
+      loop: "{{ services }}"
+      loop_control:
+        label: "{{ item.name }}"
+    
+    - name: "Deployment summary"
+      debug:
+        msg:
+          - "✅ KGoT deployment completed successfully!"
+          - "Environment: {{ environment }}"
+          - "Version: {{ version }}"
+          - "Namespace: {{ current_env.namespace }}"
+          - "Services deployed: {{ services | map(attribute='name') | list }}"
+          - "Domain: {{ domain }}"
+
+# Include task files for modular operations
+- name: "Post-deployment validation"
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  
+  vars:
+    environment: "{{ deployment_environment | default('staging') }}"
+    current_env: "{{ environments[environment] }}"
+  
+  tasks:
+    - name: "Validate deployment health"
+      uri:
+        url: "http://{{ item.name }}.{{ current_env.namespace }}.svc.cluster.local:{{ item.port }}{{ item.health_path }}"
+        method: GET
+        timeout: 10
+      register: health_check
+      until: health_check.status == 200
+      retries: 5
+      delay: 10
+      loop: "{{ services }}"
+      loop_control:
+        label: "{{ item.name }}"
+      when: validate_health | default(true)
+    
+    - name: "Check resource utilization"
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: "{{ current_env.namespace }}"
+        label_selectors:
+          - "app.kubernetes.io/name=kgot-alita"
+      register: pod_status
+    
+    - name: "Display pod status"
+      debug:
+        msg:
+          - "Pod: {{ item.metadata.name }}"
+          - "Status: {{ item.status.phase }}"
+          - "Ready: {{ item.status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | first | default('Unknown') }}"
+      loop: "{{ pod_status.resources }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+    
+    - name: "Generate deployment report"
+      copy:
+        content: |
+          # KGoT Deployment Report
+          
+          **Deployment Information:**
+          - Environment: {{ environment }}
+          - Version: {{ version }}
+          - Timestamp: {{ ansible_date_time.iso8601 }}
+          - Namespace: {{ current_env.namespace }}
+          
+          **Services Deployed:**
+          {% for service in services %}
+          - {{ service.name }}: {{ current_env.replicas[service.name.replace('-', '_')] }} replicas
+          {% endfor %}
+          
+          **Health Status:**
+          {% for pod in pod_status.resources %}
+          - {{ pod.metadata.name }}: {{ pod.status.phase }}
+          {% endfor %}
+          
+          **Resource Allocation:**
+          - CPU Requests: {{ current_env.resources.requests.cpu }}
+          - Memory Requests: {{ current_env.resources.requests.memory }}
+          - CPU Limits: {{ current_env.resources.limits.cpu }}
+          - Memory Limits: {{ current_env.resources.limits.memory }}
+          
+          **Access URLs:**
+          - Web Interface: https://{{ domain }}
+          - API Endpoint: https://api.{{ domain }}
+          - Monitoring: https://grafana.{{ domain }} (if enabled)
+          
+        dest: "/tmp/kgot-deployment-{{ environment }}-{{ version }}-{{ ansible_date_time.epoch }}.md"
+      delegate_to: localhost
+    
+    - name: "Send deployment notification"
+      uri:
+        url: "{{ slack_webhook_url }}"
+        method: POST
+        body_format: json
+        body:
+          text: |
+            🚀 KGoT Deployment Completed
+            
+            **Environment:** {{ environment }}
+            **Version:** {{ version }}
+            **Status:** ✅ Success
+            **Services:** {{ services | length }}
+            **Domain:** {{ domain }}
+            
+            All services are healthy and running.
+        headers:
+          Content-Type: "application/json"
+      when: 
+        - slack_webhook_url is defined
+        - send_notifications | default(true)
+      ignore_errors: true 

@@ -26,3 +26,13 @@ pydantic>=2.5.0                  # Data validation for error management
 typing-extensions>=4.8.0         # Extended typing support for error handling
 aiosqlite
 semver
+bandit 
+safety
+coverage
+pandas
+numpy 
+scikit-learn 
+pyyaml 
+watchdog 
+prometheus-client
+statsmodels

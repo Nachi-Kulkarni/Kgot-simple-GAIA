@@ -42,36 +42,29 @@ import psutil
 import numpy as np
 import redis
 from abc import ABC, abstractmethod
+
+# Redis availability check
+try:
+    import redis
+    REDIS_AVAILABLE = True
+except ImportError:
+    REDIS_AVAILABLE = False
 from typing import Dict, List, Tuple, Any, Optional, Union, Callable, Awaitable
 from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from queue import Queue, PriorityQueue
-import weakref
-import gc
-import os
-import sys
-from pathlib import Path
-import hashlib
 import statistics
-from collections import defaultdict, deque
-import asyncio
-import aiohttp
-import aioredis
+from collections import deque
 
 # Core system imports - integration with existing KGoT Enhanced Alita architecture
 try:
     from .performance_optimization import (
-        PerformanceOptimizer, OptimizationStrategy, OptimizationContext, 
-        PerformanceMetrics, AsyncExecutionEngine, GraphOperationParallelizer,
-        MPIDistributedProcessor, WorkStealingScheduler, ScalabilityEnhancer
+        PerformanceOptimizer, OptimizationStrategy, OptimizationContext
     )
     from .containerization import (
-        ContainerOrchestrator, DeploymentEnvironment, ContainerConfig,
-        ResourceMetrics, ContainerState, ResourceManager
+        ContainerOrchestrator
     )
-    from .error_management import ErrorManager, ErrorSeverity
 except ImportError:
     # Fallback for testing or standalone usage
     logging.warning("Could not import core KGoT modules - using standalone mode")

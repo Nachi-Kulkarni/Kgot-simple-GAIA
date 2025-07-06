@@ -1,0 +1,274 @@
+# KGoT Production Deployment Pipeline Configuration
+# ==============================================
+
+version: "1.0"
+
+# Environment configurations for multi-stage deployment
+environments:
+  staging:
+    registry_url: "${STAGING_REGISTRY:-localhost:5000}"
+    cluster_config: "${STAGING_KUBECONFIG:-~/.kube/staging-config}"
+    namespace: "kgot-staging"
+    domain: "staging.kgot.local"
+    replicas:
+      controller: 2
+      graph_store: 2
+      manager_agent: 1
+      web_agent: 2
+      monitoring: 1
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+  
+  production:
+    registry_url: "${PROD_REGISTRY:-localhost:5000}"
+    cluster_config: "${PROD_KUBECONFIG:-~/.kube/prod-config}"
+    namespace: "kgot-production"
+    domain: "kgot.production"
+    replicas:
+      controller: 3
+      graph_store: 3
+      manager_agent: 2
+      web_agent: 4
+      monitoring: 2
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+      limits:
+        cpu: "1000m"
+        memory: "1Gi"
+
+# Blue-Green deployment configuration
+deployment:
+  strategy: "blue-green"
+  timeout: 600  # 10 minutes
+  health_check_timeout: 300  # 5 minutes
+  readiness_probe:
+    initial_delay: 30
+    period: 10
+    timeout: 5
+    failure_threshold: 3
+  liveness_probe:
+    initial_delay: 60
+    period: 30
+    timeout: 10
+    failure_threshold: 3
+
+# Automated rollback configuration
+rollback:
+  enabled: true
+  error_threshold: 0.05  # 5% error rate triggers rollback
+  response_time_threshold: 2.0  # 2x baseline response time
+  monitoring_window: 300  # 5 minutes post-deployment monitoring
+  health_check_failures: 3  # Consecutive health check failures
+  automatic: true
+  manual_approval_required: false
+  
+  # Rollback triggers
+  triggers:
+    error_rate:
+      threshold: 0.05
+      window: 120  # 2 minutes
+    response_time:
+      threshold_multiplier: 2.0
+      baseline_window: 600  # 10 minutes
+    memory_usage:
+      threshold: 0.9  # 90%
+      window: 180  # 3 minutes
+    cpu_usage:
+      threshold: 0.85  # 85%
+      window: 180  # 3 minutes
+    disk_usage:
+      threshold: 0.95  # 95%
+    service_health:
+      consecutive_failures: 3
+      check_interval: 30
+
+# Security scanning and compliance
+security:
+  enabled: true
+  vulnerability_scanning:
+    enabled: true
+    severity_threshold: "MEDIUM"  # UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL
+    scanners:
+      - trivy
+      - clair
+    fail_on_vulnerabilities: true
+  
+  secret_scanning:
+    enabled: true
+    patterns:
+      - "api_key"
+      - "password"
+      - "secret"
+      - "token"
+      - "private_key"
+    exclude_paths:
+      - "tests/"
+      - "*.test.js"
+      - "*.spec.py"
+  
+  compliance:
+    enable_rbac: true
+    network_policies: true
+    pod_security_standards: "restricted"
+    audit_logging: true
+
+# Quality assurance configuration
+quality:
+  enabled: true
+  test_suites:
+    unit_tests:
+      enabled: true
+      coverage_threshold: 0.8  # 80%
+      timeout: 300
+    integration_tests:
+      enabled: true
+      timeout: 600
+      parallel: true
+    e2e_tests:
+      enabled: true
+      timeout: 1200
+      environments: ["staging"]
+    performance_tests:
+      enabled: true
+      baseline_file: "performance_baseline.json"
+      deviation_threshold: 0.1  # 10%
+    security_tests:
+      enabled: true
+      timeout: 600
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  metrics:
+    prometheus:
+      enabled: true
+      scrape_interval: "15s"
+      retention: "30d"
+    custom_metrics:
+      - deployment_duration
+      - rollback_frequency
+      - error_rates
+      - response_times
+  
+  logging:
+    level: "INFO"
+    format: "json"
+    winston:
+      enabled: true
+      file_logging: true
+      console_logging: true
+  
+  alerting:
+    enabled: true
+    channels:
+      - slack
+      - email
+      - pagerduty
+    rules:
+      - alert: "HighErrorRate"
+        expr: "rate(http_requests_total{status=~'5..'}[5m]) > 0.05"
+        for: "2m"
+        severity: "critical"
+      - alert: "DeploymentFailed"
+        expr: "kgot_deployments_total{status='failure'} > 0"
+        for: "0m"
+        severity: "critical"
+
+# Infrastructure as Code settings
+infrastructure:
+  terraform:
+    enabled: true
+    backend: "s3"  # or "gcs", "azure", "local"
+    state_file: "terraform.tfstate"
+    plan_file: "terraform.plan"
+  
+  ansible:
+    enabled: true
+    inventory: "inventory/hosts.yaml"
+    playbook: "playbooks/deploy.yaml"
+    vault_password_file: ".vault_pass"
+
+# CI/CD pipeline configuration
+cicd:
+  provider: "github-actions"  # or "gitlab-ci", "jenkins"
+  triggers:
+    - push:
+        branches: ["main", "release/*"]
+    - pull_request:
+        branches: ["main"]
+    - schedule:
+        cron: "0 2 * * 1"  # Weekly Monday 2 AM
+  
+  stages:
+    - build
+    - test
+    - security_scan
+    - deploy_staging
+    - validation
+    - deploy_production
+    - monitoring
+  
+  parallel_jobs: 4
+  cache:
+    enabled: true
+    ttl: "24h"
+    paths:
+      - "node_modules/"
+      - ".pip-cache/"
+      - "target/"
+
+# Notification settings
+notifications:
+  slack:
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channels:
+      success: "#deployments"
+      failure: "#alerts"
+      rollback: "#incidents"
+  
+  email:
+    smtp_server: "${SMTP_SERVER}"
+    from: "deployments@kgot.local"
+    to:
+      - "devops@kgot.local"
+      - "engineering@kgot.local"
+  
+  pagerduty:
+    integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+    severity_mapping:
+      critical: "critical"
+      warning: "warning"
+      info: "info"
+
+# Resource management
+resources:
+  limits:
+    max_concurrent_deployments: 2
+    max_deployment_duration: 3600  # 1 hour
+    max_rollback_attempts: 3
+  
+  cleanup:
+    old_images:
+      retention_days: 30
+      max_count: 10
+    failed_deployments:
+      retention_days: 7
+    logs:
+      retention_days: 90
+
+# Feature flags for pipeline capabilities
+features:
+  canary_deployment: true
+  automated_testing: true
+  security_scanning: true
+  performance_monitoring: true
+  cost_optimization: true
+  multi_region_deployment: false
+  disaster_recovery: true 

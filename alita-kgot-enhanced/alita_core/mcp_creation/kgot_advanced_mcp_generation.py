@@ -524,16 +524,17 @@ class KGoTAdvancedMCPGenerator:
         })
         
         if not self.validation_engine:
-            return {'validation_status': 'skipped', 'reason': 'no_validation_engine'}
+            return {"status": "skipped", "reason": "Validation engine not available"}
         
         try:
-            # Create validation specification
-            validation_spec = MCPValidationSpec(
-                mcp_id=mcp_spec.name,
-                capabilities=mcp_spec.capabilities,
-                task_type=mcp_spec.kgot_metadata.get('task_type', 'general'),
-                validation_requirements=['functionality', 'performance', 'knowledge_consistency']
-            )
+            # Perform cross-validation
+            # validation_spec = MCPValidationSpec(
+            #     name=mcp_spec.name,
+            #     description=mcp_spec.description,
+            #     capabilities=mcp_spec.capabilities,
+            #     knowledge_sources=mcp_spec.knowledge_sources,
+            #     validation_strategy=ValidationStrategy.KNOWLEDGE_CONSISTENCY.value
+            # )
             
             # Perform validation (placeholder - would integrate with actual validation engine)
             validation_result = {

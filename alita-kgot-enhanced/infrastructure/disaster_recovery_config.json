@@ -1,0 +1,24 @@
+{
+  "backup_frequency_minutes": 15,
+  "backup_retention_days": 30,
+  "backup_storage_path": "/var/backups/kgot",
+  "remote_backup_enabled": true,
+  "remote_backup_bucket": "kgot-disaster-recovery-backups",
+  
+  "neo4j_uri": "bolt://localhost:7687",
+  "neo4j_user": "neo4j",
+  "neo4j_password": "password",
+  "neo4j_database": "neo4j",
+  
+  "vector_index_path": "/var/lib/kgot/vector_index",
+  
+  "recovery_test_frequency_days": 90,
+  "rto_target_minutes": 60,
+  "rpo_target_minutes": 15,
+  
+  "validation_enabled": true,
+  "validation_timeout_minutes": 30,
+  
+  "monitoring_enabled": true,
+  "alert_webhook_url": null
+}

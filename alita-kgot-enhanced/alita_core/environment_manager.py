@@ -43,6 +43,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections import defaultdict
 import shutil
 import yaml
 import re
@@ -1743,7 +1744,6 @@ class EnvironmentManager:
         
         try:
             # Create mock error context and profile for recovery
-            from ..kgot_core.error_management import ErrorContext, ErrorType, ErrorSeverity
             
             error_context = ErrorContext(
                 error_id=f"env_creation_{int(time.time())}",
@@ -2043,4 +2043,4 @@ async def main():
         traceback.print_exc()
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

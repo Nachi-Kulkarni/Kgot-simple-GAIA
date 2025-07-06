@@ -22,6 +22,7 @@ Integration Features:
 import logging
 import json
 import asyncio
+import time
 from typing import Dict, List, Optional, Any, Callable, Tuple
 from dataclasses import dataclass
 from datetime import datetime
@@ -794,4 +795,4 @@ if __name__ == "__main__":
         print("KGoT-Alita Error Integration test completed!")
     
     # Run test if executed directly
-    asyncio.run(test_integration()) 
+    asyncio.run(test_integration())

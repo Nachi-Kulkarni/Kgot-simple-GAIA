@@ -1,0 +1,33 @@
+# alita-kgot-enhanced/config/monitoring/alert_rules.yml
+
+- name: "High Failure Rate"
+  mcp_pattern: ".*" # Applies to all MCPs
+  metric: "failure_rate"
+  threshold: 0.20 # 20%
+  window_seconds: 300 # 5 minutes
+  min_failures: 3
+  description: "MCP has a failure rate over 20% in the last 5 minutes with at least 3 failures."
+
+- name: "High P95 Latency"
+  mcp_pattern: ".*"
+  metric: "latency_p95"
+  threshold: 5000 # 5 seconds
+  window_seconds: 600 # 10 minutes
+  min_failures: 0
+  description: "MCP 95th percentile latency is over 5 seconds in the last 10 minutes."
+
+- name: "Specific API Failure"
+  mcp_pattern: "^api_client_mcp$" # Specific to one MCP
+  metric: "http_503_errors"
+  threshold: 3 # 3 errors
+  window_seconds: 300 # 5 minutes
+  min_failures: 3
+  description: "The API Client MCP has received more than 3 '503 Service Unavailable' errors in the last 5 minutes."
+
+- name: "Increasing Latency Trend"
+  mcp_pattern: ".*"
+  metric: "latency_trend"
+  threshold: 0.5 # A positive slope indicating significant increase
+  window_seconds: 3600 # 1 hour
+  min_failures: 0
+  description: "MCP latency is showing a significant increasing trend over the last hour." 

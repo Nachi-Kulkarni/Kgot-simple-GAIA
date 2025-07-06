@@ -290,17 +290,20 @@ class PerformanceMonitor:
                 await self._check_performance_alerts(metrics)
                 
                 # Log metrics summary
-                self.logger.debug(f"Metrics collected: CPU {metrics.cpu_usage:.1f}%, "
-                                f"Memory {metrics.memory_usage:.1f}%, "
-                                f"Error rate {metrics.error_rate:.2f}%", extra={
-                    'operation': 'METRICS_COLLECTION',
-                    'metadata': {
-                        'cpu_usage': metrics.cpu_usage,
-                        'memory_usage': metrics.memory_usage,
-                        'error_rate': metrics.error_rate,
-                        'throughput': metrics.throughput
+                self.logger.debug(
+                    f"Metrics collected: CPU {metrics.cpu_usage:.1f}%, "
+                    f"Memory {metrics.memory_usage:.1f}%, "
+                    f"Error rate {metrics.error_rate:.2f}%",
+                    extra={
+                        'operation': 'METRICS_COLLECTION',
+                        'metadata': {
+                            'cpu_usage': metrics.cpu_usage,
+                            'memory_usage': metrics.memory_usage,
+                            'error_rate': metrics.error_rate,
+                            'throughput': metrics.throughput
+                        }
                     }
-                })
+                )
                 
                 # Wait for next collection interval
                 await asyncio.sleep(self.monitoring_interval)
@@ -392,7 +395,7 @@ class PerformanceMonitor:
             try:
                 start_time = time.time()
                 async with httpx.AsyncClient(timeout=5.0) as client:
-                    response = await client.get(url)
+                    _ = await client.get(url)
                 end_time = time.time()
                 
                 latency_results[service_name] = (end_time - start_time) * 1000  # Convert to milliseconds
@@ -418,7 +421,7 @@ class PerformanceMonitor:
             try:
                 start_time = time.time()
                 async with httpx.AsyncClient(timeout=10.0) as client:
-                    response = await client.get(url)
+                    _ = await client.get(url)
                 end_time = time.time()
                 
                 response_times[endpoint_name] = (end_time - start_time) * 1000
@@ -3169,7 +3172,7 @@ class SequentialResourceOptimizer:
         
         # Analyze system state to determine optimization priorities
         system_health = current_context['system_health']
-        current_metrics = current_context['current_metrics']
+        # current_metrics = current_context['current_metrics']
         
         priorities = []
         
@@ -3422,7 +3425,7 @@ class SequentialResourceOptimizer:
                 hours = int(horizon_hours)
                 # This would call the predictive planner
                 return f"Workload forecast for {hours} hours: moderate increase expected"
-            except:
+            except Exception:
                 return "Unable to generate forecast"
         
         return [analyze_system_performance, get_resource_allocation_state, analyze_cost_benefit, get_workload_forecast]
@@ -4149,7 +4152,6 @@ async def get_optimization_history(limit: int = 10):
 
 # Main entry pointc
 if __name__ == "__main__":
-    import uvicorn
     
     # Configure logging
     logging.basicConfig(

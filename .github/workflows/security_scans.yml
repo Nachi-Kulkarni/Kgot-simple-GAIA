@@ -1,0 +1,50 @@
+name: Security Scans
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - requirements.txt
+  pull_request:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write  # allows GitHub to display SARIF results
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install scanning tools
+        run: >-
+          pip install --no-cache-dir bandit safety
+
+      - name: Run Bandit (SAST)
+        run: >-
+          bandit -r alita-kgot-enhanced -f sarif -o bandit-results.sarif
+
+      - name: Run Safety (SCA)
+        run: >-
+          safety check -r requirements.txt --json > safety-results.json
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            bandit-results.sarif
+            safety-results.json
+
+      - name: Upload Bandit SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: bandit-results.sarif 
