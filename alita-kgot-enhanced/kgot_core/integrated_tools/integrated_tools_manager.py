@@ -41,8 +41,8 @@ sys.path.insert(0, kgot_tools_path)
 class ModelConfiguration:
     """Configuration for specific AI model assignments per capability"""
     vision_model: str = "openai/o3"  # OpenAI o3 for vision tasks
-    orchestration_model: str = "google/gemini-2.5-pro"  # Gemini 2.5 Pro for orchestration and complex reasoning
-    web_agent_model: str = "anthropic/claude-4-sonnet"  # Claude 4 Sonnet for web interaction
+    orchestration_model: str = "x-ai/grok-4"  # Gemini 2.5 Pro for orchestration and complex reasoning
+    web_agent_model: str = "anthropic/claude-sonnet-4"  # Claude 4 Sonnet for web interaction
     temperature: float = 0.3
     max_tokens: int = 32000  # Increased for complex GAIA tokens and long reasoning chains
     timeout: int = 60  # Increased timeout for complex operations
@@ -295,6 +295,17 @@ class AlitaIntegratedToolsManager:
                 'description': metadata.description
             })
         
+        # Create tool registry for JavaScript bridge compatibility
+        tool_registry = {}
+        for tool_name, metadata in self.tool_metadata.items():
+            tool_registry[tool_name] = {
+                'name': tool_name,
+                'model': metadata.model_assignment,
+                'description': metadata.description,
+                'category': metadata.category,
+                'tool_type': metadata.tool_type
+            }
+        
         configuration = {
             'manager_info': {
                 'version': '1.0.0',
@@ -302,6 +313,7 @@ class AlitaIntegratedToolsManager:
                 'timestamp': datetime.now().isoformat()
             },
             'model_configuration': asdict(self.model_config),
+            'tool_registry': tool_registry,
             'categories': categories,
             'metadata': {
                 'total_tools': len(self.tools_registry),
@@ -388,8 +400,8 @@ if __name__ == "__main__":
     # Create custom model configuration
     config = ModelConfiguration(
         vision_model="openai/o3",
-        orchestration_model="google/gemini-2.5-pro", 
-        web_agent_model="anthropic/claude-4-sonnet"
+        orchestration_model="x-ai/grok-4", 
+        web_agent_model="anthropic/claude-sonnet-4"
     )
     
     # Create manager

@@ -44,7 +44,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 # Relative import to reuse ExecutionRecord dataclass
-from .mcp_learning_engine import ExecutionRecord, PerformancePrediction
+# Delayed import to avoid circular dependency
+# ExecutionRecord and PerformancePrediction will be imported when needed
 
 # ---------------------------------------------------------------------------
 # Logging setup – re-use Winston-compatible root config if present
@@ -84,7 +85,9 @@ class PredictorConfig:
 # ---------------------------------------------------------------------------
 
 
-def _records_to_dataframe(records: List[ExecutionRecord]) -> pd.DataFrame:
+def _records_to_dataframe(records: List['ExecutionRecord']) -> pd.DataFrame:
+    # Import here to avoid circular dependency
+    from .mcp_learning_engine import ExecutionRecord
     """Convert raw execution records to a pandas DataFrame with engineered features."""
 
     records_dicts: List[Dict[str, Any]] = []
@@ -145,7 +148,9 @@ class MCPPerformancePredictorML:
     # Public API
     # ------------------------------------------------------------------
 
-    def train(self, records: List[ExecutionRecord]) -> Dict[str, float]:
+    def train(self, records: List['ExecutionRecord']) -> Dict[str, float]:
+        # Import here to avoid circular dependency
+        from .mcp_learning_engine import ExecutionRecord
         """Train all underlying models and return basic evaluation metrics."""
 
         if not records:
@@ -289,4 +294,4 @@ class MCPPerformancePredictorML:
             "task_complexity": task_complexity,
             "num_params": len(params),
             "mean_param_val": float(np.mean(numeric_vals)) if numeric_vals else 0.0,
-        } 
+        }

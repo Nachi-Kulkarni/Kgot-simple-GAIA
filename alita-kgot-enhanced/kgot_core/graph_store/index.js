@@ -72,6 +72,13 @@ logger.info('KGoT Graph Store Module loaded', {
   implementation: 'based_on_kgot_research_paper'
 });
 
+console.log('🔧 [KGoT Graph Store] Module initialization started');
+console.log('📊 [KGoT Graph Store] Version: 1.0.0');
+console.log('🏗️ [KGoT Graph Store] Implementation: KGoT Research Paper Section 2.1');
+console.log('🔌 [KGoT Graph Store] Available backends: NetworkX, Neo4j');
+console.log('📁 [KGoT Graph Store] Log file: ./alita-kgot-enhanced/logs/kgot/graph_store.log');
+console.log('✅ [KGoT Graph Store] Module initialization completed');
+
 /**
  * Default factory instance for convenience
  */
@@ -105,9 +112,15 @@ const defaultFactory = new KnowledgeGraphFactory({
  * });
  */
 async function createKnowledgeGraph(backend = 'networkx', options = {}) {
+  console.log(`🚀 [KGoT Graph Store] Creating knowledge graph with backend: ${backend}`);
+  console.log(`⚙️ [KGoT Graph Store] Options:`, JSON.stringify(options, null, 2));
+  
   try {
-    return await defaultFactory.createKnowledgeGraph(backend, options);
+    const graph = await defaultFactory.createKnowledgeGraph(backend, options);
+    console.log(`✅ [KGoT Graph Store] Knowledge graph created successfully with ${backend} backend`);
+    return graph;
   } catch (error) {
+    console.error(`❌ [KGoT Graph Store] Failed to create knowledge graph with ${backend} backend:`, error.message);
     logger.error('Failed to create knowledge graph', {
       operation: 'CREATE_KG_FAILED',
       backend,
@@ -134,9 +147,15 @@ async function createKnowledgeGraph(backend = 'networkx', options = {}) {
  * });
  */
 async function createProductionGraph(options = {}) {
+  console.log('🏭 [KGoT Graph Store] Creating production knowledge graph');
+  console.log('🔧 [KGoT Graph Store] Production options:', JSON.stringify(options, null, 2));
+  
   try {
-    return await defaultFactory.createProductionKnowledgeGraph(options);
+    const graph = await defaultFactory.createProductionKnowledgeGraph(options);
+    console.log('✅ [KGoT Graph Store] Production knowledge graph created successfully');
+    return graph;
   } catch (error) {
+    console.error('❌ [KGoT Graph Store] Failed to create production knowledge graph:', error.message);
     logger.error('Failed to create production knowledge graph', {
       operation: 'CREATE_PRODUCTION_KG_FAILED',
       error: error.message
@@ -158,9 +177,15 @@ async function createProductionGraph(options = {}) {
  * });
  */
 async function createDevelopmentGraph(options = {}) {
+  console.log('🛠️ [KGoT Graph Store] Creating development knowledge graph');
+  console.log('⚙️ [KGoT Graph Store] Development options:', JSON.stringify(options, null, 2));
+  
   try {
-    return await defaultFactory.createDevelopmentKnowledgeGraph(options);
+    const graph = await defaultFactory.createDevelopmentKnowledgeGraph(options);
+    console.log('✅ [KGoT Graph Store] Development knowledge graph created successfully');
+    return graph;
   } catch (error) {
+    console.error('❌ [KGoT Graph Store] Failed to create development knowledge graph:', error.message);
     logger.error('Failed to create development knowledge graph', {
       operation: 'CREATE_DEVELOPMENT_KG_FAILED',
       error: error.message
@@ -183,7 +208,10 @@ async function createDevelopmentGraph(options = {}) {
  * // }
  */
 function getAvailableBackends() {
-  return defaultFactory.getAvailableBackends();
+  console.log('📋 [KGoT Graph Store] Retrieving available backends');
+  const backends = defaultFactory.getAvailableBackends();
+  console.log('📊 [KGoT Graph Store] Available backends:', JSON.stringify(backends, null, 2));
+  return backends;
 }
 
 /**
@@ -197,7 +225,10 @@ function getAvailableBackends() {
  * const devBackend = getRecommendedBackend('development'); // 'networkx'
  */
 function getRecommendedBackend(useCase) {
-  return defaultFactory.getRecommendedBackend(useCase);
+  console.log(`🎯 [KGoT Graph Store] Getting recommended backend for use case: ${useCase}`);
+  const backend = defaultFactory.getRecommendedBackend(useCase);
+  console.log(`💡 [KGoT Graph Store] Recommended backend for ${useCase}: ${backend}`);
+  return backend;
 }
 
 /**
@@ -229,4 +260,4 @@ module.exports = {
   
   // Logger for module-level operations
   logger
-}; 
+};

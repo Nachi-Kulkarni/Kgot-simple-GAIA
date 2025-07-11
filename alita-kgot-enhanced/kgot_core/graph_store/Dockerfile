@@ -2,7 +2,7 @@
 # Handles graph data persistence with Neo4j and RDF4j connectivity
 
 # === Build Stage ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,10 +18,10 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev --legacy-peer-deps
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app
@@ -43,7 +43,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
 # Copy configuration files
-COPY ../../config ./config
+COPY config ./config
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/kgot logs/graph_store data snapshots && \
@@ -69,4 +69,4 @@ ENV LOG_LEVEL=info
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the graph store service
-CMD ["node", "index.js"] 
+CMD ["node", "kgot_core/graph_store/index.js"] 

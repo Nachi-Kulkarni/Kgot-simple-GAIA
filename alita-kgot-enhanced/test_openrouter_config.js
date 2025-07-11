@@ -30,7 +30,7 @@ async function testOpenRouterConfig() {
     console.log('📋 Environment Variables Check:');
     console.log(`   OPENROUTER_API_KEY: ${process.env.OPENROUTER_API_KEY ? '✅ Set' : '❌ Missing'}`);
     console.log(`   OPENROUTER_BASE_URL: ${process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1'}`);
-    console.log(`   DEFAULT_MODEL: ${process.env.DEFAULT_MODEL || 'anthropic/claude-4-sonnet'}`);
+    console.log(`   DEFAULT_MODEL: ${process.env.DEFAULT_MODEL || 'anthropic/claude-sonnet-4'}`);
     console.log('');
 
     // Create Alita Web Agent with OpenRouter config
@@ -38,7 +38,7 @@ async function testOpenRouterConfig() {
       port: 3999, // Test port
       openrouterApiKey: process.env.OPENROUTER_API_KEY,
       openrouterBaseUrl: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-      modelName: process.env.DEFAULT_MODEL || 'anthropic/claude-4-sonnet',
+      modelName: process.env.DEFAULT_MODEL || 'anthropic/claude-sonnet-4',
       temperature: 0.1,
       // Optional: Skip other services for testing
       googleApiKey: process.env.GOOGLE_API_KEY,

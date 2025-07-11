@@ -1,0 +1,71 @@
+2025-07-10 16:45:46,205 - __main__ - INFO - Logging setup complete - Level: INFO
+2025-07-10 16:45:46,205 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Memory Manager initialized
+2025-07-10 16:45:46,205 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Setting up FastAPI application
+2025-07-10 16:45:46,207 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - FastAPI application setup complete
+2025-07-10 16:45:46,217 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain Sequential Manager initialized
+2025-07-10 16:45:46,217 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Started memory cleanup task
+2025-07-10 16:45:46,217 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Starting LangChain Sequential Manager server
+2025-07-10 16:45:46,264 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Initializing LangChain agent
+2025-07-10 16:45:46,569 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Creating agent tools
+2025-07-10 16:45:46,575 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Agent tools created successfully
+2025-07-10 16:45:46,582 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain agent initialized successfully
+2025-07-10 16:46:08,732 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Created new conversation
+2025-07-10 16:46:08,733 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Complexity assessment completed
+2025-07-10 16:46:08,779 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - ERROR - Error in chat endpoint
+2025-07-10 16:48:13,590 - __main__ - INFO - Logging setup complete - Level: INFO
+2025-07-10 16:48:13,591 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Memory Manager initialized
+2025-07-10 16:48:13,591 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Setting up FastAPI application
+2025-07-10 16:48:13,592 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - FastAPI application setup complete
+2025-07-10 16:48:13,603 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain Sequential Manager initialized
+2025-07-10 16:48:13,604 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Started memory cleanup task
+2025-07-10 16:48:13,604 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Starting LangChain Sequential Manager server
+2025-07-10 16:48:13,626 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Initializing LangChain agent
+2025-07-10 16:48:13,745 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Creating agent tools
+2025-07-10 16:48:13,751 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Agent tools created successfully
+2025-07-10 16:48:13,759 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain agent initialized successfully
+2025-07-10 16:48:58,847 - __main__ - INFO - Logging setup complete - Level: INFO
+2025-07-10 16:48:58,848 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Memory Manager initialized
+2025-07-10 16:48:58,848 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Setting up FastAPI application
+2025-07-10 16:48:58,849 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - FastAPI application setup complete
+2025-07-10 16:48:58,860 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain Sequential Manager initialized
+2025-07-10 16:48:58,860 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Started memory cleanup task
+2025-07-10 16:48:58,860 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Starting LangChain Sequential Manager server
+2025-07-10 16:48:58,885 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Initializing LangChain agent
+2025-07-10 16:48:59,002 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Creating agent tools
+2025-07-10 16:48:59,007 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Agent tools created successfully
+2025-07-10 16:48:59,014 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain agent initialized successfully
+2025-07-10 16:49:09,178 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Created new conversation
+2025-07-10 16:49:09,178 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Complexity assessment completed
+2025-07-10 16:49:09,187 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - ERROR - Error in chat endpoint
+2025-07-10 16:49:44,624 - __main__ - INFO - Logging setup complete - Level: INFO
+2025-07-10 16:49:44,624 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Memory Manager initialized
+2025-07-10 16:49:44,624 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Setting up FastAPI application
+2025-07-10 16:49:44,625 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - FastAPI application setup complete
+2025-07-10 16:49:44,636 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain Sequential Manager initialized
+2025-07-10 16:49:44,636 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Started memory cleanup task
+2025-07-10 16:49:44,636 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Starting LangChain Sequential Manager server
+2025-07-10 16:49:44,659 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Initializing LangChain agent
+2025-07-10 16:49:44,772 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Creating agent tools
+2025-07-10 16:49:44,778 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Agent tools created successfully
+2025-07-10 16:49:44,784 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain agent initialized successfully
+2025-07-10 16:50:02,515 - __main__ - INFO - Logging setup complete - Level: INFO
+2025-07-10 16:50:02,516 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Memory Manager initialized
+2025-07-10 16:50:02,516 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Setting up FastAPI application
+2025-07-10 16:50:02,517 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - FastAPI application setup complete
+2025-07-10 16:50:02,528 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain Sequential Manager initialized
+2025-07-10 16:50:02,528 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Started memory cleanup task
+2025-07-10 16:50:02,528 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Starting LangChain Sequential Manager server
+2025-07-10 16:50:02,547 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Initializing LangChain agent
+2025-07-10 16:50:02,747 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Creating agent tools
+2025-07-10 16:50:02,752 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Agent tools created successfully
+2025-07-10 16:50:02,758 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - LangChain agent initialized successfully
+2025-07-10 16:50:11,647 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Created new conversation
+2025-07-10 16:50:11,648 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Complexity assessment completed
+2025-07-10 16:50:11,795 - openai._base_client - INFO - Retrying request to /chat/completions in 0.460063 seconds
+2025-07-10 16:50:12,286 - openai._base_client - INFO - Retrying request to /chat/completions in 0.796168 seconds
+2025-07-10 16:50:13,124 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - ERROR - Error in chat endpoint
+2025-07-10 16:51:42,854 - alita_core.manager_agent.langchain_sequential_manager.MemoryManager - INFO - Created new conversation
+2025-07-10 16:51:42,855 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - INFO - Complexity assessment completed
+2025-07-10 16:51:42,938 - openai._base_client - INFO - Retrying request to /chat/completions in 0.399601 seconds
+2025-07-10 16:51:43,393 - openai._base_client - INFO - Retrying request to /chat/completions in 0.807271 seconds
+2025-07-10 16:51:44,246 - alita_core.manager_agent.langchain_sequential_manager.LangChainSequentialManager - ERROR - Error in chat endpoint

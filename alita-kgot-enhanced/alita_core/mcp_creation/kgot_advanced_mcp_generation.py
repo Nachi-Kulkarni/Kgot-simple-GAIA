@@ -32,13 +32,26 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 
 # Import existing system components
-from ..mcp_brainstorming import MCPBrainstormingEngine, KnowledgeGraphIntegrator
-from ...kgot_core.knowledge_extraction import (
-    KnowledgeExtractionManager, ExtractionContext, ExtractionMetrics, 
-    ExtractionMethod, BackendType
-)
-from ...validation.mcp_cross_validator import MCPCrossValidationEngine, MCPValidationSpec
-from ...config.logging.winston_config import loggers
+try:
+    from ..mcp_brainstorming import MCPBrainstormingEngine, KnowledgeGraphIntegrator
+    from ...kgot_core.knowledge_extraction import (
+        KnowledgeExtractionManager, ExtractionContext, ExtractionMetrics, 
+        ExtractionMethod, BackendType
+    )
+    from ...validation.mcp_cross_validator import MCPCrossValidationEngine, MCPValidationSpec
+    from ...config.logging.winston_config import loggers
+except ImportError:
+    # Fallback for when running as script
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from alita_core.mcp_brainstorming import MCPBrainstormingEngine, KnowledgeGraphIntegrator
+    from kgot_core.knowledge_extraction import (
+        KnowledgeExtractionManager, ExtractionContext, ExtractionMetrics, 
+        ExtractionMethod, BackendType
+    )
+    from validation.mcp_cross_validator import MCPCrossValidationEngine, MCPValidationSpec
+    from config.logging.winston_config import loggers
 
 # Initialize logger
 logger = loggers.mcpCreation
@@ -755,7 +768,7 @@ def create_advanced_mcp_generator(
     llm_client = ChatOpenAI(
         openai_api_key=api_key,
         openai_api_base="https://openrouter.ai/api/v1",
-        model="anthropic/claude-4-sonnet",
+        model="anthropic/claude-sonnet-4",
         temperature=0.3
     )
     
@@ -1148,7 +1161,7 @@ def create_kgot_mcp_generator_agent(
     llm_client = ChatOpenAI(
         openai_api_key=api_key,
         openai_api_base="https://openrouter.ai/api/v1",
-        model="anthropic/claude-4-sonnet",
+        model="anthropic/claude-sonnet-4",
         temperature=0.3
     )
     
@@ -1191,4 +1204,4 @@ async def main():
         logger.error(f"Example execution failed: {str(e)}")
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

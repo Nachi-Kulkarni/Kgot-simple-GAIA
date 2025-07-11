@@ -1,0 +1,14 @@
+# Global ignore patterns for alita-kgot-enhanced build context
+.git
+__pycache__
+logs
+logs/**
+node_modules
+**/node_modules
+data
+data/**
+venv
+.venv
+*.pdf
+*.md
+*.log 

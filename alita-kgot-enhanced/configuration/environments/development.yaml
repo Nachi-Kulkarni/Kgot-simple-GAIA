@@ -69,22 +69,11 @@ alita:
 # Model Configuration
 models:
   model_providers:
-    openai:
-      api_key: "${OPENAI_API_KEY}"
-      base_url: "https://api.openai.com/v1"
-      timeout: 30
-      max_retries: 2
-      
-    anthropic:
-      api_key: "${ANTHROPIC_API_KEY}"
-      base_url: "https://api.anthropic.com"
-      timeout: 30
-      max_retries: 2
   
   default_models:
-    reasoning: "gpt-4-turbo-preview"  # Fast model for development
-    coding: "gpt-4"
-    analysis: "claude-3-sonnet"
+    reasoning: "grok-4"  # Fast model for development
+    coding: "claude-sonnet-4"
+    analysis: "grok-4"
   
   cost_tracking:
     enabled: true

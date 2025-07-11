@@ -123,7 +123,7 @@ class KGoTVisualAnalyzerTestSuite:
         # Test default configuration
         default_config = VisualAnalysisConfig()
         assert default_config.vision_model == "openai/o3"
-        assert default_config.orchestration_model == "google/gemini-2.5-pro"
+        assert default_config.orchestration_model == "x-ai/grok-4"
         assert default_config.graph_backend == "networkx"
         
         # Test custom configuration
@@ -271,7 +271,7 @@ async def demonstrate_usage():
     print("\n=== Example 3: Configuration Options ===")
     advanced_config = VisualAnalysisConfig(
         vision_model="openai/o3",           # Specified for vision tasks
-        orchestration_model="google/gemini-2.5-pro",  # For complex reasoning
+        orchestration_model="x-ai/grok-4",  # For complex reasoning
         graph_backend="neo4j",              # Production graph store
         temperature=0.2,                    # Lower for more factual analysis
         confidence_threshold=0.8,           # Higher threshold for relationships

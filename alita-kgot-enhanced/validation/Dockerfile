@@ -2,7 +2,7 @@
 # Provides testing, benchmarking, and quality assurance capabilities
 
 # === Build Stage ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -15,13 +15,13 @@ RUN apk add --no-cache \
     git
 
 # Copy package files
-COPY package*.json ./
+COPY validation/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev --legacy-peer-deps
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python for validation scripts
 RUN apk add --no-cache \
@@ -44,14 +44,14 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy application source
-COPY . .
+COPY validation/ .
 
 # Copy configuration files
-COPY ../config ./config
+COPY config ./config
 
 # Install Python packages for validation and testing
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY validation/requirements.txt ./
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/validation results/benchmarks results/qa results/tests && \
@@ -81,4 +81,4 @@ ENV PYTHONPATH=/app
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the validation service
-CMD ["node", "index.js"] 
+CMD ["node", "index.js"]

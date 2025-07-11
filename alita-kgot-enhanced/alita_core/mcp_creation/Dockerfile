@@ -2,7 +2,7 @@
 # Supports LangChain-based AI agent development and MCP generation
 
 # === Build Stage ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -14,14 +14,14 @@ RUN apk add --no-cache \
     g++ \
     git
 
-# Copy package files
-COPY package*.json ./
+# Copy package files from mcp_creation directory
+COPY alita_core/mcp_creation/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python for LangChain support
 RUN apk add --no-cache \
@@ -43,15 +43,15 @@ WORKDIR /app
 # Copy node_modules from builder stage
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy application source
-COPY . .
+# Copy application source from mcp_creation directory
+COPY alita_core/mcp_creation/ .
 
 # Copy configuration files
-COPY ../../config ./config
+COPY config ./config
 
 # Install LangChain and related Python packages
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/alita logs/mcp_creation mcp_storage generated_mcps && \
@@ -81,4 +81,4 @@ ENV PYTHONPATH=/app
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the MCP creation service
-CMD ["node", "index.js"] 
+CMD ["node", "index.js"]

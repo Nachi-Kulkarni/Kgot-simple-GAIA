@@ -25,7 +25,7 @@ graph TB
     A --> F[Environment Setup Generator]
     A --> G[KGoT Python Tool Bridge]
     
-    B --> H[Gemini-2.5-Pro<br/>Orchestration]
+    B --> H[grok-4<br/>Orchestration]
     C --> I[Claude-4-Sonnet<br/>Web Agent]
     D --> I
     E --> J[Template Cache]
@@ -85,7 +85,7 @@ The system uses specialized models for different tasks:
 
 ```python
 # Model assignments per user rules
-ORCHESTRATION_MODEL = "google/gemini-2.5-pro"    # Main reasoning & coordination
+ORCHESTRATION_MODEL = "x-ai/grok-4"    # Main reasoning & coordination
 WEB_AGENT_MODEL = "anthropic/claude-4-sonnet"    # Web browsing & GitHub analysis
 VISION_MODEL = "openai/o3"                       # Vision & multimodal tasks
 ```
@@ -101,7 +101,7 @@ config = ScriptGenerationConfig(
     openrouter_base_url="https://openrouter.ai/api/v1",
     
     # Model specialization
-    orchestration_model="google/gemini-2.5-pro",
+    orchestration_model="x-ai/grok-4",
     webagent_model="anthropic/claude-4-sonnet", 
     vision_model="openai/o3",
     
@@ -568,7 +568,7 @@ asyncio.run(health_check())
 
 The system automatically routes tasks to optimal models:
 
-- **Complex reasoning**: Gemini-2.5-Pro (orchestration)
+- **Complex reasoning**: grok-4 (orchestration)
 - **Web analysis**: Claude-4-Sonnet (web agent capabilities)
 - **Vision tasks**: O3 (advanced visual processing)
 

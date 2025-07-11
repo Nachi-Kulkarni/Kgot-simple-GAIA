@@ -17,8 +17,8 @@ This module provides:
 
 Model Specialization (@modelsrule.mdc):
 - o3(vision): Visual analysis, image processing, and visual content understanding
-- claude-4-sonnet(webagent): Reasoning, consistency checking, knowledge validation, contradiction detection
-- gemini-2.5-pro(orchestration): Coordination, confidence scoring, statistical analysis, and orchestration
+- claude-sonnet-4(webagent): Reasoning, consistency checking, knowledge validation, contradiction detection
+- grok-4(orchestration): Coordination, confidence scoring, statistical analysis, and orchestration
 
 Key Components:
 1. ModalityConsistencyChecker: Cross-modal consistency validation
@@ -276,14 +276,14 @@ class ModalityConsistencyChecker:
                  vision_client: Optional[Any] = None):
         """
         Initialize the modality consistency checker
-        Uses @modelsrule.mdc: claude-4-sonnet(webagent) for reasoning, o3(vision) for visual tasks
+        Uses @modelsrule.mdc: claude-sonnet-4(webagent) for reasoning, o3(vision) for visual tasks
         
-        @param {Any} llm_client - LLM client for reasoning (claude-4-sonnet)
+        @param {Any} llm_client - LLM client for reasoning (claude-sonnet-4)
         @param {KGoTVisualAnalyzer} visual_analyzer - Visual analysis component
         @param {float} similarity_threshold - Threshold for consistency determination
         @param {Any} vision_client - Specialized vision client (o3-vision)
         """
-        self.llm_client = llm_client  # claude-4-sonnet for reasoning
+        self.llm_client = llm_client  # claude-sonnet-4 for reasoning
         self.vision_client = vision_client or llm_client  # o3(vision) for visual tasks
         self.visual_analyzer = visual_analyzer or KGoTVisualAnalyzer()
         self.similarity_threshold = similarity_threshold
@@ -2243,8 +2243,8 @@ class KGoTAlitaCrossModalValidator:
         
         # Get specialized clients based on @modelsrule.mdc
         vision_client = self.llm_clients.get('vision', llm_client)  # o3(vision)
-        webagent_client = self.llm_clients.get('webagent', llm_client)  # claude-4-sonnet
-        orchestration_client = self.llm_clients.get('orchestration', llm_client)  # gemini-2.5-pro
+        webagent_client = self.llm_clients.get('webagent', llm_client)  # claude-sonnet-4
+        orchestration_client = self.llm_clients.get('orchestration', llm_client)  # grok-4
         
         # Initialize core components with appropriate models
         self.consistency_checker = ModalityConsistencyChecker(
@@ -2270,10 +2270,10 @@ class KGoTAlitaCrossModalValidator:
             'has_knowledge_validator': self.knowledge_validator is not None,
             'has_contradiction_detector': self.contradiction_detector is not None,
             'model_assignments': {
-                'consistency_checking': 'claude-4-sonnet(webagent)',
-                'knowledge_validation': 'claude-4-sonnet(webagent)', 
-                'contradiction_detection': 'claude-4-sonnet(webagent)',
-                'confidence_scoring': 'gemini-2.5-pro(orchestration)',
+                'consistency_checking': 'claude-sonnet-4(webagent)',
+                'knowledge_validation': 'claude-sonnet-4(webagent)', 
+                'contradiction_detection': 'claude-sonnet-4(webagent)',
+                'confidence_scoring': 'grok-4(orchestration)',
                 'vision_processing': 'o3(vision)'
             },
             'config': self.config
@@ -2285,8 +2285,8 @@ class KGoTAlitaCrossModalValidator:
         Main entry point for comprehensive cross-modal validation
         Uses @modelsrule.mdc specialized models for optimal performance:
         - o3(vision) for image/visual processing
-        - claude-4-sonnet(webagent) for reasoning and analysis
-        - gemini-2.5-pro(orchestration) for coordination and confidence scoring
+        - claude-sonnet-4(webagent) for reasoning and analysis
+        - grok-4(orchestration) for coordination and confidence scoring
         
         @param {CrossModalValidationSpec} validation_spec - Specification for validation
         @returns {ValidationResult} - Complete validation results
@@ -2947,19 +2947,19 @@ class KGoTAlitaCrossModalValidator:
         @returns {Dict[str, str]} - Current model assignments by component
         """
         return {
-            'consistency_checking': 'claude-4-sonnet(webagent)',
-            'knowledge_validation': 'claude-4-sonnet(webagent)', 
-            'contradiction_detection': 'claude-4-sonnet(webagent)',
-            'confidence_scoring': 'gemini-2.5-pro(orchestration)',
+            'consistency_checking': 'claude-sonnet-4(webagent)',
+            'knowledge_validation': 'claude-sonnet-4(webagent)', 
+            'contradiction_detection': 'claude-sonnet-4(webagent)',
+            'confidence_scoring': 'grok-4(orchestration)',
             'vision_processing': 'o3(vision)',
-            'orchestration': 'gemini-2.5-pro(orchestration)'
+            'orchestration': 'grok-4(orchestration)'
         }
 
 
 def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]) -> KGoTAlitaCrossModalValidator:
     """
     Factory function to create KGoT-Alita Cross-Modal Validator with configuration
-    Uses @modelsrule.mdc models: o3(vision), claude-4-sonnet(webagent), gemini-2.5-pro(orchestration)
+    Uses @modelsrule.mdc models: o3(vision), claude-sonnet-4(webagent), grok-4(orchestration)
     
     @param {Dict[str, Any]} config - Configuration for validator components
     @returns {KGoTAlitaCrossModalValidator} - Configured validator instance
@@ -2974,23 +2974,23 @@ def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]) -> KGoTAlita
             
             # o3(vision) for vision-related tasks
             vision_client = ChatOpenAI(
-                model_name='openai/o3-mini',  # o3(vision) model
+                model_name='openai/o3',  # o3(vision) model
                 temperature=config.get('temperature', 0.3),
                 openai_api_base='https://openrouter.ai/api/v1',
                 openai_api_key=config.get('openrouter_api_key', os.getenv('OPENROUTER_API_KEY'))
             )
             
-            # claude-4-sonnet(webagent) for web agent and reasoning tasks
+            # claude-sonnet-4(webagent) for web agent and reasoning tasks
             webagent_client = ChatOpenAI(
-                model_name='anthropic/claude-4-sonnet',  # claude-4-sonnet(webagent) model
+                model_name='anthropic/claude-sonnet-4',  # claude-sonnet-4(webagent) model
                 temperature=config.get('temperature', 0.3),
                 openai_api_base='https://openrouter.ai/api/v1',
                 openai_api_key=config.get('openrouter_api_key', os.getenv('OPENROUTER_API_KEY'))
             )
             
-            # gemini-2.5-pro(orchestration) for orchestration and coordination
+            # grok-4(orchestration) for orchestration and coordination
             orchestration_client = ChatOpenAI(
-                model_name='google/gemini-2.5-pro',  # gemini-2.5-pro(orchestration) model
+                model_name='x-ai/grok-4',  # grok-4(orchestration) model
                 temperature=config.get('temperature', 0.3),
                 openai_api_base='https://openrouter.ai/api/v1',
                 openai_api_key=config.get('openrouter_api_key', os.getenv('OPENROUTER_API_KEY'))
@@ -3007,8 +3007,8 @@ def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]) -> KGoTAlita
                 'operation': 'LLM_CLIENTS_INIT',
                 'models': {
                     'vision': 'openai/o3-mini',
-                    'webagent': 'anthropic/claude-4-sonnet', 
-                    'orchestration': 'google/gemini-2.5-pro'
+                    'webagent': 'anthropic/claude-sonnet-4', 
+                    'orchestration': 'x-ai/grok-4'
                 }
             })
             
@@ -3047,8 +3047,8 @@ if __name__ == "__main__":
             'openrouter_api_key': 'your-openrouter-api-key',  # Set your OpenRouter API key
             # The factory will automatically create specialized clients:
             # - o3(vision) for visual tasks
-            # - claude-4-sonnet(webagent) for reasoning and web agent tasks  
-            # - gemini-2.5-pro(orchestration) for orchestration and coordination
+            # - claude-sonnet-4(webagent) for reasoning and web agent tasks  
+            # - grok-4(orchestration) for orchestration and coordination
         }
         
         # Create validator with specialized model clients

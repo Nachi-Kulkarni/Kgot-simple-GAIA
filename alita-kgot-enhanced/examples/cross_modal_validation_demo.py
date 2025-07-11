@@ -4,8 +4,8 @@ KGoT-Alita Cross-Modal Validator Demo with @modelsrule.mdc Models
 
 This demo shows how to use the specialized models:
 - o3(vision) for visual analysis and image processing
-- claude-4-sonnet(webagent) for reasoning and web agent tasks  
-- gemini-2.5-pro(orchestration) for orchestration and coordination
+- claude-sonnet-4(webagent) for reasoning and web agent tasks  
+- grok-4(orchestration) for orchestration and coordination
 
 @author: Enhanced Alita KGoT Team
 @version: 1.0.0
@@ -135,8 +135,8 @@ def analyze_vehicle_scene(image, metadata):
     print("\n⚡ Running cross-modal validation...")
     print("   This uses all three specialized models:")
     print("   • o3(vision) for image analysis")
-    print("   • claude-4-sonnet(webagent) for reasoning")  
-    print("   • gemini-2.5-pro(orchestration) for coordination")
+    print("   • claude-sonnet-4(webagent) for reasoning")  
+    print("   • grok-4(orchestration) for coordination")
     
     try:
         result = await validator.validate_cross_modal_input(validation_spec)
@@ -218,13 +218,13 @@ async def demo_model_specialization():
     print("   • Visual content extraction and description")
     print("   • Optimized for computer vision tasks")
     print()
-    print("🤖 claude-4-sonnet(webagent) - Reasoning Excellence:")
+    print("🤖 claude-sonnet-4(webagent) - Reasoning Excellence:")
     print("   • Advanced reasoning and logical analysis")
     print("   • Consistency checking across modalities")
     print("   • Knowledge validation and factual verification")
     print("   • Contradiction detection and resolution")
     print()
-    print("🎯 gemini-2.5-pro(orchestration) - Coordination Master:")
+    print("🎯 grok-4(orchestration) - Coordination Master:")
     print("   • Complex workflow orchestration")
     print("   • Statistical analysis and confidence scoring")
     print("   • Multi-component coordination and integration")

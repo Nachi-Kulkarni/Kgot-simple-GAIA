@@ -1,0 +1,9 @@
+# Python dependencies for Alita MCP Creation Service
+# Basic dependencies for MCP generation and AI integration
+
+requests>=2.31.0
+flask>=2.3.0
+jsonschema>=4.19.0
+pyyaml>=6.0.1
+click>=8.1.0
+colorama>=0.4.6

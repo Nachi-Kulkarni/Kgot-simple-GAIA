@@ -85,7 +85,7 @@ Configuration dataclass for AI model assignments.
 @dataclass
 class ModelConfiguration:
     vision_model: str = "openai/o3"
-    orchestration_model: str = "google/gemini-2.5-pro"
+    orchestration_model: str = "x-ai/grok-4"
     web_agent_model: str = "anthropic/claude-4-sonnet"
     temperature: float = 0.3
     max_tokens: int = 32000
@@ -225,7 +225,7 @@ class KGoTToolBridge {
     // Model configurations
     this.modelConfigurations = {
       vision: 'openai/o3',
-      orchestration: 'google/gemini-2.5-pro',
+      orchestration: 'x-ai/grok-4',
       webAgent: 'anthropic/claude-4-sonnet'
     };
   }
@@ -334,7 +334,7 @@ from integrated_tools_manager import create_integrated_tools_manager, ModelConfi
 
 config = ModelConfiguration(
     vision_model="openai/o3",
-    orchestration_model="google/gemini-2.5-pro",
+    orchestration_model="x-ai/grok-4",
     web_agent_model="anthropic/claude-4-sonnet"
 )
 
@@ -439,7 +439,7 @@ metrics = manager.usage_statistics.get_statistics()
     }
   },
   "models": {
-    "google/gemini-2.5-pro": {
+    "x-ai/grok-4": {
       "requests": 50,
       "avg_response_time": 3.2,
       "success_rate": 0.92
@@ -500,7 +500,7 @@ custom_tool = MyCustomTool()
 metadata = ToolMetadata(
     tool_name='my_tool',
     tool_type='custom',
-    model_assignment='google/gemini-2.5-pro',
+    model_assignment='x-ai/grok-4',
     description='My custom tool',
     category='development',
     input_schema={'type': 'object'},

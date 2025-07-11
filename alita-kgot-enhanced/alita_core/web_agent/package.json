@@ -14,15 +14,11 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
+    "helmet": "^7.0.0",
     "express-rate-limit": "^7.1.5",
-    "langchain": "^0.1.20",
-    "@langchain/openai": "^0.0.18",
-    "@langchain/core": "^0.1.34",
-    "axios": "^1.6.5",
-    "cheerio": "^1.0.0-rc.12",
+    "axios": "^1.6.0",
+    "jsdom": "^23.0.1",
     "@octokit/rest": "^20.0.2",
-    "playwright": "^1.40.1",
     "winston": "^3.11.0",
     "dotenv": "^16.3.1",
     "joi": "^17.11.0",
@@ -61,4 +57,4 @@
     "url": "https://github.com/alita-kgot-enhanced/web-agent/issues"
   },
   "homepage": "https://github.com/alita-kgot-enhanced/web-agent#readme"
-} 
+}

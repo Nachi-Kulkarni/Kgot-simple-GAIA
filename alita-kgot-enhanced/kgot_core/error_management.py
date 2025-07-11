@@ -54,7 +54,10 @@ from pydantic import BaseModel, ValidationError
 
 # Winston-compatible logging setup for KGoT error management
 logger = logging.getLogger('KGoTErrorManagement')
-handler = logging.FileHandler('./logs/kgot/error_management.log')
+import os
+log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs', 'kgot')
+os.makedirs(log_dir, exist_ok=True)
+handler = logging.FileHandler(os.path.join(log_dir, 'error_management.log'))
 formatter = logging.Formatter('%(asctime)s — %(name)s — %(levelname)s — %(funcName)s:%(lineno)d — %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -1050,4 +1053,4 @@ if __name__ == "__main__":
         error_system.cleanup()
     
     # Run test if executed directly
-    asyncio.run(test_error_management()) 
+    asyncio.run(test_error_management())

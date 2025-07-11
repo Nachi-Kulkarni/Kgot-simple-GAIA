@@ -6,19 +6,27 @@ services:
   # Alita Manager Agent - Orchestrates overall system operations
   alita-manager:
     build:
-      context: ../../alita_core/manager_agent
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: alita_core/manager_agent/Dockerfile
     container_name: alita-manager-agent
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
       - NEO4J_URI=bolt://neo4j:7687
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PORT=8000
     volumes:
       - ../../logs/alita:/app/logs
       - ../../config:/app/config:ro
+    ports:
+      - "8000:8000"
     depends_on:
       - neo4j
       - redis
@@ -26,7 +34,7 @@ services:
       - alita-kgot-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -34,13 +42,17 @@ services:
   # Alita Web Agent - Handles web interactions and scraping
   alita-web:
     build:
-      context: ../../alita_core/web_agent
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: alita_core/web_agent/Dockerfile
     container_name: alita-web-agent
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     volumes:
       - ../../logs/alita:/app/logs
@@ -58,13 +70,16 @@ services:
   # Alita MCP Creation Service - Generates and manages MCPs
   alita-mcp:
     build:
-      context: ../../alita_core/mcp_creation
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: alita_core/mcp_creation/Dockerfile
     container_name: alita-mcp-creation
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ../../logs/alita:/app/logs
       - ../../config:/app/config:ro
@@ -83,16 +98,21 @@ services:
   # KGoT Controller - Manages knowledge graph operations
   kgot-controller:
     build:
-      context: ../../kgot_core/controller
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: kgot_core/controller/Dockerfile
     container_name: kgot-controller
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
       - NEO4J_URI=bolt://neo4j:7687
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ../../logs/kgot:/app/logs
       - ../../config:/app/config:ro
@@ -106,16 +126,19 @@ services:
   # KGoT Graph Store - Manages graph data persistence
   kgot-graph-store:
     build:
-      context: ../../kgot_core/graph_store
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: kgot_core/graph_store/Dockerfile
     container_name: kgot-graph-store
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - JWT_SECRET=${JWT_SECRET}
       - NEO4J_URI=bolt://neo4j:7687
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
       - RDF4J_URL=http://rdf4j:8080
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ../../logs/kgot:/app/logs
       - ../../config:/app/config:ro
@@ -130,13 +153,16 @@ services:
   # KGoT Integrated Tools - Tool execution and management
   kgot-tools:
     build:
-      context: ../../kgot_core/integrated_tools
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: kgot_core/integrated_tools/Dockerfile
     container_name: kgot-integrated-tools
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
       - PYTHON_EXECUTOR_URL=http://python-executor:5000
     volumes:
       - ../../logs/kgot:/app/logs
@@ -181,10 +207,9 @@ services:
       retries: 5
 
   # RDF4J Triplestore
+
   rdf4j:
-    build:
-      context: ../../../knowledge-graph-of-thoughts/containers/rdf4j/rdf4j_image
-      dockerfile: Dockerfile
+    image: eclipse/rdf4j-workbench:latest
     container_name: rdf4j-alita-kgot
     environment:
       - JAVA_OPTS=-Xmx2g
@@ -221,26 +246,54 @@ services:
       timeout: 3s
       retries: 5
 
-  # === Extension Services ===
+  # === Federation Services ===
 
-  # Python Code Executor (from existing KGoT)
-  python-executor:
+  # Simple Federation Server - Local MCP federation for development
+  federation-server:
     build:
-      context: ../../../knowledge-graph-of-thoughts/containers/python/files
+      context: ../../federation
       dockerfile: Dockerfile
-    container_name: python-executor-alita-kgot
+    container_name: federation-server
     environment:
-      - PYTHONPATH=/app
+      - SIMPLE_MCP_HOST=0.0.0.0
+      - SIMPLE_MCP_PORT=8080
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SIMPLE_MCP_SERVERS=${SIMPLE_MCP_SERVERS}
+      - SEQUENTIAL_THINKING_MCP_ENDPOINT=${SEQUENTIAL_THINKING_MCP_ENDPOINT}
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
-      - python-workspace:/app/workspace
-      - ../../logs/system:/app/logs
+      - ../../logs/federation:/app/logs
+      - federation-data:/app/data
     ports:
-      - "5000:5000"
+      - "8081:8080"
     networks:
       - alita-kgot-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # === Extension Services ===
+
+  # Python Code Executor (from existing KGoT)
+  python-executor:
+    image: python:3.11-slim
+    container_name: python-executor-alita-kgot
+    command: ["sh", "-c", "python -m http.server 5000"]
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - python-workspace:/app/workspace
+      - ../../logs/system:/app/logs
+    ports:
+      - "5001:5000"
+    networks:
+      - alita-kgot-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -248,13 +301,16 @@ services:
   # Multimodal Processing Service
   multimodal-processor:
     build:
-      context: ../../multimodal
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: multimodal/Dockerfile
     container_name: multimodal-processor
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ../../logs/multimodal:/app/logs
       - ../../config:/app/config:ro
@@ -266,12 +322,18 @@ services:
   # Validation Service
   validation-service:
     build:
-      context: ../../validation
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: validation/Dockerfile
     container_name: validation-service
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - JWT_SECRET=${JWT_SECRET}
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - ../../logs/validation:/app/logs
       - ../../config:/app/config:ro
@@ -283,13 +345,16 @@ services:
   # Optimization Service
   optimization-service:
     build:
-      context: ../../optimization
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: optimization/Dockerfile
     container_name: optimization-service
     environment:
       - NODE_ENV=production
-      - LOG_LEVEL=info
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - ../../logs/optimization:/app/logs
       - ../../config:/app/config:ro
@@ -344,7 +409,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.30.0.0/16
 
 # === Volume Configuration ===
 volumes:
@@ -374,9 +439,11 @@ volumes:
     driver: local
   optimization-data:
     driver: local
+  federation-data:
+    driver: local
   playwright-cache:
     driver: local
   grafana-data:
     driver: local
   prometheus-data:
-    driver: local 
+    driver: local

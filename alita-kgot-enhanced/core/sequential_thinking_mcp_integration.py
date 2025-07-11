@@ -28,7 +28,24 @@ from dataclasses import dataclass, asdict
 import httpx
 
 # Import logging configuration [[memory:1383804]]
-from ..config.logging.winston_config import get_logger
+try:
+    # Preferred import when the package context is available
+    from ..config.logging.logger import get_logger  # type: ignore
+except (ImportError, ValueError):
+    # Fallback to allow execution when the module is run as a script or
+    # when the parent package is not recognised by the Python interpreter.
+    # We dynamically append the project root (two levels up) so that the
+    # absolute import `config.logging.logger` can be resolved.
+    import os
+    import sys
+
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(CURRENT_DIR))
+
+    if PROJECT_ROOT not in sys.path:
+        sys.path.append(PROJECT_ROOT)
+
+    from config.logging.logger import get_logger  # type: ignore
 
 # Create logger instance
 logger = get_logger('sequential_thinking_mcp')

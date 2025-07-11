@@ -1,0 +1,182 @@
+---
+# Deploy individual KGoT service
+# =============================
+
+- name: "Create {{ service_name }} deployment"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ service_name }}"
+        namespace: "{{ current_env.namespace }}"
+        labels:
+          app.kubernetes.io/name: "{{ service_name }}"
+          app.kubernetes.io/component: "service"
+          app.kubernetes.io/part-of: "kgot-alita"
+          app.kubernetes.io/environment: "{{ environment }}"
+      spec:
+        replicas: "{{ service_replicas }}"
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: "{{ service_name }}"
+        template:
+          metadata:
+            labels:
+              app.kubernetes.io/name: "{{ service_name }}"
+              app.kubernetes.io/component: "service"
+              app.kubernetes.io/part-of: "kgot-alita"
+              app.kubernetes.io/environment: "{{ environment }}"
+          spec:
+            containers:
+              - name: "{{ service_name }}"
+                image: "{{ registry_url }}/{{ service_name }}:{{ version }}"
+                ports:
+                  - containerPort: "{{ service_port }}"
+                    protocol: TCP
+                env:
+                  # Core API Keys
+                  - name: OPENROUTER_API_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: openrouter_api_key
+
+                  - name: GOOGLE_API_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: google_api_key
+                  
+                  # Database credentials
+                  - name: NEO4J_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: neo4j_password
+                  - name: REDIS_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: redis_password
+                  
+                  # Security tokens
+                  - name: JWT_SECRET
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: jwt_secret
+                  - name: SESSION_SECRET
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: session_secret
+                  
+                  # External service keys
+                  - name: GITHUB_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: github_token
+                        optional: true
+                  - name: SERPAPI_API_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: SERPAPI_API_KEY
+                        optional: true
+                  
+                  # AWS credentials
+                  - name: AWS_ACCESS_KEY_ID
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: aws_access_key_id
+                        optional: true
+                  - name: AWS_SECRET_ACCESS_KEY
+                    valueFrom:
+                      secretKeyRef:
+                        name: kgot-secrets
+                        key: aws_secret_access_key
+                        optional: true
+                  
+                  # Configuration from ConfigMap
+                  - name: ENVIRONMENT
+                    valueFrom:
+                      configMapKeyRef:
+                        name: kgot-config
+                        key: environment
+                  - name: DOMAIN
+                    valueFrom:
+                      configMapKeyRef:
+                        name: kgot-config
+                        key: domain
+                  - name: LOG_LEVEL
+                    valueFrom:
+                      configMapKeyRef:
+                        name: kgot-config
+                        key: log_level
+                  
+                  # Service-specific environment variables
+                  - name: SERVICE_NAME
+                    value: "{{ service_name }}"
+                  - name: SERVICE_PORT
+                    value: "{{ service_port }}"
+                  - name: CONFIG_PATH
+                    value: "{{ service_config_path }}"
+                
+                resources: "{{ service_resources }}"
+                
+                readinessProbe:
+                  httpGet:
+                    path: "{{ service_health_path }}"
+                    port: "{{ service_port }}"
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+                
+                livenessProbe:
+                  httpGet:
+                    path: "{{ service_health_path }}"
+                    port: "{{ service_port }}"
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+                
+                volumeMounts:
+                  - name: config-volume
+                    mountPath: "{{ service_config_path }}"
+                    readOnly: true
+            
+            volumes:
+              - name: config-volume
+                configMap:
+                  name: kgot-config
+            
+            imagePullSecrets:
+              - name: registry-credentials
+
+- name: "Create {{ service_name }} service"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ service_name }}"
+        namespace: "{{ current_env.namespace }}"
+        labels:
+          app.kubernetes.io/name: "{{ service_name }}"
+          app.kubernetes.io/component: "service"
+          app.kubernetes.io/part-of: "kgot-alita"
+      spec:
+        selector:
+          app.kubernetes.io/name: "{{ service_name }}"
+        ports:
+          - port: 80
+            targetPort: "{{ service_port }}"
+            protocol: TCP
+        type: ClusterIP

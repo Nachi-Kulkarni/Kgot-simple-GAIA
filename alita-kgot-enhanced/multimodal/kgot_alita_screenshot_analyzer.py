@@ -10,8 +10,8 @@ Implementation of Task 27: Implement KGoT-Alita Screenshot Analyzer
 
 Model Configuration (as per modelsrule):
 - o3 for vision tasks (screenshot analysis, UI classification, accessibility)
-- claude-4-sonnet for web agent tasks (browser automation)
-- gemini-2.5-pro for orchestration (complex reasoning)
+- claude-sonnet-4 for web agent tasks (browser automation)
+- grok-4 for orchestration (complex reasoning)
 - All models accessed via OpenRouter endpoints
 
 This module provides:
@@ -205,8 +205,8 @@ class ScreenshotAnalysisConfig:
     vision_model: str = "openai/o3"  # o3 for vision tasks
     ui_classification_model: str = "openai/o3"  # o3 for UI element classification  
     accessibility_model: str = "openai/o3"  # o3 for accessibility analysis
-    web_agent_model: str = "anthropic/claude-4-sonnet"  # claude-4-sonnet for web agent tasks (using 3.5 as placeholder)
-    orchestration_model: str = "google/gemini-2.5-pro"  # gemini-2.5-pro for orchestration
+    web_agent_model: str = "anthropic/claude-sonnet-4"  # claude-sonnet-4 for web agent tasks (using 3.5 as placeholder)
+    orchestration_model: str = "x-ai/grok-4"  # grok-4 for orchestration
     openrouter_base_url: str = "https://openrouter.ai/api/v1"  # OpenRouter endpoint
     temperature: float = 0.2
     max_tokens: int = 32000
@@ -2134,8 +2134,8 @@ def create_kgot_alita_screenshot_analyzer(config: Optional[ScreenshotAnalysisCon
     
     Uses modelsrule configuration by default:
     - o3 for vision tasks (screenshot analysis, UI classification, accessibility)  
-    - claude-4-sonnet for web agent tasks (browser automation)
-    - gemini-2.5-pro for orchestration (complex reasoning)
+    - claude-sonnet-4 for web agent tasks (browser automation)
+    - grok-4 for orchestration (complex reasoning)
     - OpenRouter endpoints for all models
     
     Args:
@@ -2157,8 +2157,8 @@ if __name__ == "__main__":
         config = ScreenshotAnalysisConfig(
             # Models are auto-configured per modelsrule:
             # vision_model="openai/o3" 
-            # web_agent_model="anthropic/claude-3.5-sonnet"
-            # orchestration_model="google/gemini-2.5-pro"
+            # web_agent_model="anthropic/claude-sonnet-4"
+            # orchestration_model="x-ai/grok-4"
             graph_backend="networkx",
             wcag_compliance_target="AA"
         )

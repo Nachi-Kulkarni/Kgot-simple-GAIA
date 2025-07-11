@@ -31,6 +31,7 @@ class AlitaKGoTSetup {
       'logs/multimodal',
       'logs/validation',
       'logs/optimization',
+      'logs/federation',
       'uploads',
       'temp',
       'data/neo4j',
@@ -114,7 +115,15 @@ class AlitaKGoTSetup {
     const requiredVars = [
       'OPENROUTER_API_KEY',
       'NEO4J_PASSWORD', 
-      'REDIS_PASSWORD'
+      'REDIS_PASSWORD',
+      'JWT_SECRET'
+    ];
+    
+    const optionalVars = [
+      'GOOGLE_API_KEY',
+      'SERPAPI_API_KEY',
+      'SIMPLE_MCP_SERVERS',
+      'SEQUENTIAL_THINKING_MCP_ENDPOINT'
     ];
     
     const missingVars = [];
@@ -125,10 +134,23 @@ class AlitaKGoTSetup {
     }
     
     if (missingVars.length > 0) {
-      console.log(`  ⚠️  Please configure these environment variables in .env:`);
+      console.log(`  ⚠️  Please configure these required environment variables in .env:`);
       missingVars.forEach(varName => console.log(`     - ${varName}`));
     } else {
       console.log('  ✓ All required environment variables are set');
+    }
+    
+    // Check optional variables
+    const missingOptionalVars = [];
+    for (const varName of optionalVars) {
+      if (!process.env[varName] || process.env[varName].includes('your_')) {
+        missingOptionalVars.push(varName);
+      }
+    }
+    
+    if (missingOptionalVars.length > 0) {
+      console.log(`  ℹ️  Optional environment variables (configure as needed):`);
+      missingOptionalVars.forEach(varName => console.log(`     - ${varName}`));
     }
   }
 
@@ -187,6 +209,7 @@ scrape_configs:
     console.log('   - Manager Agent: npm run start:manager');
     console.log('   - Web Agent: npm run start:web');
     console.log('   - KGoT Controller: npm run start:kgot');
+    console.log('   - Federation Server: npm run start:federation');
     console.log('');
     console.log('🔗 Access Points:');
     console.log('   - Manager Agent: http://localhost:3000');
@@ -208,4 +231,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = AlitaKGoTSetup; 
+module.exports = AlitaKGoTSetup;

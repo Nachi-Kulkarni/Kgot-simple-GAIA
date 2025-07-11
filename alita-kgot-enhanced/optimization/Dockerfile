@@ -2,7 +2,7 @@
 # Provides cost optimization, performance tuning, and resource management
 
 # === Build Stage ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,10 +18,10 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev --legacy-peer-deps
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python for optimization algorithms
 RUN apk add --no-cache \
@@ -47,11 +47,11 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY . .
 
 # Copy configuration files
-COPY ../config ./config
+COPY config ./config
 
 # Install Python packages for optimization algorithms
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/optimization data/metrics data/profiles data/history && \
@@ -81,4 +81,4 @@ ENV PYTHONPATH=/app
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the optimization service
-CMD ["node", "index.js"] 
+CMD ["node", "/app/optimization/index.js"]

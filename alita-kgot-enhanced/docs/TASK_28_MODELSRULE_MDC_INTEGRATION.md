@@ -22,8 +22,8 @@ Following the user's @modelsrule.mdc specification, the validator now uses three
 - **Specialized For**: Complex reasoning, consistency checking, contradiction detection
 - **Usage**: Primary reasoning engine for validation workflows
 
-#### **3. gemini-2.5-pro(orchestration) - Coordination Mastery**
-- **Model ID**: `google/gemini-2.5-pro`  
+#### **3. grok-4(orchestration) - Coordination Mastery**
+- **Model ID**: `x-ai/grok-4`  
 - **Specialized For**: System coordination, workflow management, confidence scoring
 - **Usage**: Main orchestration and statistical analysis
 
@@ -36,7 +36,7 @@ def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]):
     llm_clients = {
         'vision_client': ChatOpenAI(model="openai/o3", ...),
         'webagent_client': ChatOpenAI(model="anthropic/claude-4-sonnet", ...),
-        'orchestration_client': ChatOpenAI(model="google/gemini-2.5-pro", ...)
+        'orchestration_client': ChatOpenAI(model="x-ai/grok-4", ...)
     }
 ```
 
@@ -44,7 +44,7 @@ def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]):
 - **ModalityConsistencyChecker**: Uses claude-4-sonnet + o3(vision)
 - **KGoTKnowledgeValidator**: Uses claude-4-sonnet for reasoning
 - **ContradictionDetector**: Uses claude-4-sonnet for logical analysis  
-- **ConfidenceScorer**: Uses gemini-2.5-pro for orchestration
+- **ConfidenceScorer**: Uses grok-4 for orchestration
 
 ## Performance Improvements
 
@@ -58,7 +58,7 @@ def create_kgot_alita_cross_modal_validator(config: Dict[str, Any]):
 - ✅ **3x specialized models** for optimal task performance
 - ✅ **Enhanced visual processing** with o3(vision) capabilities
 - ✅ **Superior reasoning** with claude-4-sonnet analysis
-- ✅ **Advanced orchestration** with gemini-2.5-pro coordination
+- ✅ **Advanced orchestration** with grok-4 coordination
 
 ## Configuration and Usage
 
@@ -99,7 +99,7 @@ for component, model in validator.get_model_assignments().items():
 ### Model Optimization Benefits
 - **Visual Processing (o3)**: Superior image analysis and visual understanding
 - **Reasoning (claude-4-sonnet)**: Advanced logical analysis and knowledge validation
-- **Orchestration (gemini-2.5-pro)**: Enhanced workflow coordination and confidence scoring
+- **Orchestration (grok-4)**: Enhanced workflow coordination and confidence scoring
 
 ### Technical Advantages
 - Task-appropriate model utilization for optimal performance
@@ -120,7 +120,7 @@ for component, model in validator.get_model_assignments().items():
 ### Model Assignments
 - **o3(vision)**: Visual processing and image analysis
 - **claude-4-sonnet(webagent)**: Reasoning, consistency, and contradiction analysis
-- **gemini-2.5-pro(orchestration)**: Workflow coordination and confidence scoring
+- **grok-4(orchestration)**: Workflow coordination and confidence scoring
 
 ### Getting Started
 ```python

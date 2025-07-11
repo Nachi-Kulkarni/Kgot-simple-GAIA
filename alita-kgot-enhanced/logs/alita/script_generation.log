@@ -33,3 +33,87 @@
 2025-06-28 14:24:31,654 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
 2025-06-28 14:24:31,654 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
 2025-06-28 14:24:31,654 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:05:07,483 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-07-10 22:05:07,483 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [SCRIPT_GENERATE_START] Starting script generation
+2025-07-10 22:05:07,483 - ScriptGenerator - INFO - [MCP_SESSION_INIT] Initializing MCP Brainstorming session
+2025-07-10 22:05:07,484 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:05:07,538 - ScriptGenerator - ERROR - [MCP_SESSION_FAILED] Failed to initialize MCP Brainstorming session: Session initialization failed: {"detail":"Not Found"}
+2025-07-10 22:05:07,539 - ScriptGenerator - INFO - [STEP_1_SUBTASKS] Step 1: Receiving subtask descriptions
+2025-07-10 22:05:07,539 - ScriptGenerator - INFO - [MCP_SUBTASK_REQUEST] Requesting subtask descriptions from MCP Brainstorming
+2025-07-10 22:05:07,545 - ScriptGenerator - ERROR - [MCP_SUBTASK_FAILED] Failed to receive subtask descriptions: Subtask request failed: {"detail":"Not Found"}
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [MCP_FALLBACK_SUBTASKS] Creating fallback subtasks
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [STEP_3_ENVIRONMENT] Step 3: Generating environment specification
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [ENV_SPEC_GENERATE] Generating environment specification
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [ENV_SPEC_SUCCESS] Environment specification generated successfully
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [STEP_4_LANGCHAIN] Step 4: Intelligent script generation with LangChain
+2025-07-10 22:05:07,545 - ScriptGenerator - WARNING - [AGENT_INIT_SKIPPED] LLM not available, agent executor will be disabled
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: python_script
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template python_script
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [STEP_5_KGOT] Step 5: Enhancing with KGoT Python Tool
+2025-07-10 22:05:07,545 - ScriptGenerator - INFO - [KGOT_ENHANCE_CODE] Enhancing code generation with KGoT
+2025-07-10 22:05:07,547 - ScriptGenerator - WARNING - [KGOT_ENHANCE_WARNING] KGoT code generation had issues: KGoT tool communication failed: Cannot connect to host localhost:16000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 16000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 16000)]
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [KGOT_FALLBACK] Using fallback code generation
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [STEP_6_SCRIPTS] Step 6: Generating setup and cleanup scripts
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [SETUP_SCRIPT_GENERATE] Generating setup script for create_a_python_script_that_fe
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: environment_setup
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template environment_setup
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [SETUP_SCRIPT_SUCCESS] Setup script generated for create_a_python_script_that_fe
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [CLEANUP_SCRIPT_GENERATE] Generating cleanup script for create_a_python_script_that_fe
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: cleanup_script
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template cleanup_script
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [CLEANUP_SCRIPT_SUCCESS] Cleanup script generated for create_a_python_script_that_fe
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [STEP_7_FINALIZE] Step 7: Finalizing generated script
+2025-07-10 22:05:07,547 - ScriptGenerator - INFO - [SCRIPT_GENERATE_SUCCESS] Script generation completed successfully
+2025-07-10 22:05:07,548 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:05:07,548 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:07:06,088 - ScriptGenerator - WARNING - [CONFIG_VALIDATION] OpenRouter API key not provided, falling back to local models
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [MCP_BRIDGE_INIT] Initializing MCP Brainstorming Bridge
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [GITHUB_PROCESSOR_INIT] Initializing GitHub Links Processor
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [ENV_GENERATOR_INIT] Initializing Environment Setup Generator
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [KGOT_BRIDGE_INIT] Initializing KGoT Python Tool Bridge
+2025-07-10 22:07:06,088 - ScriptGenerator - WARNING - [LLM_INIT_WARNING] OPENROUTER_API_KEY not found in environment
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [SCRIPT_TOOL_INIT] Alita Script Generation Tool initialized
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [SCRIPT_GENERATE_START] Starting script generation
+2025-07-10 22:07:06,088 - ScriptGenerator - INFO - [MCP_SESSION_INIT] Initializing MCP Brainstorming session
+2025-07-10 22:07:06,089 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:07:06,097 - ScriptGenerator - ERROR - [MCP_SESSION_FAILED] Failed to initialize MCP Brainstorming session: Session initialization failed: {"detail":"Not Found"}
+2025-07-10 22:07:06,097 - ScriptGenerator - INFO - [STEP_1_SUBTASKS] Step 1: Receiving subtask descriptions
+2025-07-10 22:07:06,097 - ScriptGenerator - INFO - [MCP_SUBTASK_REQUEST] Requesting subtask descriptions from MCP Brainstorming
+2025-07-10 22:07:06,099 - ScriptGenerator - ERROR - [MCP_SUBTASK_FAILED] Failed to receive subtask descriptions: Subtask request failed: {"detail":"Not Found"}
+2025-07-10 22:07:06,099 - ScriptGenerator - INFO - [MCP_FALLBACK_SUBTASKS] Creating fallback subtasks
+2025-07-10 22:07:06,099 - ScriptGenerator - INFO - [STEP_3_ENVIRONMENT] Step 3: Generating environment specification
+2025-07-10 22:07:06,099 - ScriptGenerator - INFO - [ENV_SPEC_GENERATE] Generating environment specification
+2025-07-10 22:07:06,099 - ScriptGenerator - INFO - [ENV_SPEC_SUCCESS] Environment specification generated successfully
+2025-07-10 22:07:06,099 - ScriptGenerator - INFO - [STEP_4_LANGCHAIN] Step 4: Intelligent script generation with LangChain
+2025-07-10 22:07:06,099 - ScriptGenerator - WARNING - [AGENT_INIT_SKIPPED] LLM not available, agent executor will be disabled
+2025-07-10 22:07:06,100 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: python_script
+2025-07-10 22:07:06,100 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template python_script
+2025-07-10 22:07:06,100 - ScriptGenerator - INFO - [STEP_5_KGOT] Step 5: Enhancing with KGoT Python Tool
+2025-07-10 22:07:06,100 - ScriptGenerator - INFO - [KGOT_ENHANCE_CODE] Enhancing code generation with KGoT
+2025-07-10 22:07:06,101 - ScriptGenerator - WARNING - [KGOT_ENHANCE_WARNING] KGoT code generation had issues: KGoT tool communication failed: Cannot connect to host localhost:16000 ssl:default [Multiple exceptions: [Errno 61] Connect call failed ('::1', 16000, 0, 0), [Errno 61] Connect call failed ('127.0.0.1', 16000)]
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [KGOT_FALLBACK] Using fallback code generation
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [STEP_6_SCRIPTS] Step 6: Generating setup and cleanup scripts
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [SETUP_SCRIPT_GENERATE] Generating setup script for create_a_python_script_that_fe
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: environment_setup
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template environment_setup
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [SETUP_SCRIPT_SUCCESS] Setup script generated for create_a_python_script_that_fe
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [CLEANUP_SCRIPT_GENERATE] Generating cleanup script for create_a_python_script_that_fe
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [TEMPLATE_ENGINE_INIT] Initializing RAG-MCP Template Engine
+2025-07-10 22:07:06,101 - ScriptGenerator - INFO - [TEMPLATE_GENERATE] Generating from template: cleanup_script
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [TEMPLATE_GENERATE_SUCCESS] Successfully generated content from template cleanup_script
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [CLEANUP_SCRIPT_SUCCESS] Cleanup script generated for create_a_python_script_that_fe
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [STEP_7_FINALIZE] Step 7: Finalizing generated script
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [SCRIPT_GENERATE_SUCCESS] Script generation completed successfully
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates
+2025-07-10 22:07:06,102 - ScriptGenerator - INFO - [TEMPLATE_LOAD_SUCCESS] Loaded 6 default templates

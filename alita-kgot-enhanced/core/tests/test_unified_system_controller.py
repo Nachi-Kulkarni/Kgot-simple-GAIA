@@ -22,7 +22,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from unified_system_controller import (
+from ..unified_system_controller import (
     UnifiedSystemController, TaskComplexity, RoutingStrategy, 
     SystemStatus, TaskContext, SystemMetrics, ExecutionResult
 )
@@ -648,4 +648,4 @@ def pytest_configure(config):
 
 if __name__ == "__main__":
     # Run tests
-    pytest.main([__file__, "-v", "--tb=short"]) 
+    pytest.main([__file__, "-v", "--tb=short"])

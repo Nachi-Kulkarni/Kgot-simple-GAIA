@@ -1583,7 +1583,7 @@ class EnvironmentManager:
             
             # Use OpenRouter API for LLM integration (per user memory)
             llm_client = ChatOpenAI(
-                model="google/gemini-2.5-pro",  # For orchestration per user rules
+                model="x-ai/grok-4",  # For orchestration per user rules
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
                 temperature=0.1
@@ -1591,7 +1591,7 @@ class EnvironmentManager:
             
             logger.info("Initialized OpenRouter LLM client", extra={
                 'operation': 'LLM_CLIENT_INIT',
-                'model': "google/gemini-2.5-pro"
+                'model': "x-ai/grok-4"
             })
             
             return llm_client

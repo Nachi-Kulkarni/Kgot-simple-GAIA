@@ -1,50 +1,7 @@
-# RAG-MCP Coordinator Validation Requirements
-# Task 17 Implementation Dependencies
-
-# Core Scientific Computing
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
-
-# Machine Learning and Statistics
-scikit-learn>=1.3.0
-
-# LangChain Framework (per user memory requirement)
-langchain>=0.1.0
-langchain-community>=0.0.20
-langchain-core>=0.1.0
-langchain-experimental>=0.0.50
-
-# OpenRouter/OpenAI Integration (per user memory requirement) 
-openai>=1.12.0
-
-# Data Validation and Serialization
-pydantic>=2.0.0
-pydantic-core>=2.0.0
-
-# Async HTTP Client
-aiohttp>=3.8.0
-httpx>=0.25.0
-
-# Configuration Management
-python-dotenv>=1.0.0
-pyyaml>=6.0
-
-# Logging Enhancement
-colorlog>=6.7.0
-
-# Development and Testing
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
-pytest-mock>=3.11.0
-black>=23.0.0
-isort>=5.12.0
-
-# Optional: Jupyter for development
-jupyter>=1.0.0
-ipython>=8.0.0
-
-# Optional: Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
-plotly>=5.15.0 
+# Validation Service Python Dependencies - Minimal
+requests>=2.25.0
+flask>=2.0.0
+jsonschema>=3.2.0
+pyyaml>=5.4.0
+click>=8.0.0
+colorama>=0.4.4

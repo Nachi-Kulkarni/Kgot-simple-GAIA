@@ -108,7 +108,7 @@ config = ScreenshotAnalysisConfig(
     ui_classification_model="openai/o3",  # o3 for UI element classification
     accessibility_model="openai/o3",  # o3 for accessibility analysis
     web_agent_model="anthropic/claude-3.5-sonnet",  # claude-4-sonnet for web agent tasks
-    orchestration_model="google/gemini-2.5-pro",  # gemini-2.5-pro for orchestration
+    orchestration_model="x-ai/grok-4",  # grok-4 for orchestration
     openrouter_base_url="https://openrouter.ai/api/v1",  # OpenRouter endpoint
     
     # Graph Storage

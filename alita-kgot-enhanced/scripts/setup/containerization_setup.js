@@ -404,25 +404,76 @@ echo "✅ All services stopped successfully!"
      * Create environment template file
      */
     async createEnvironmentTemplate() {
-        const envTemplate = `# KGoT-Alita Environment Configuration
+        const envTemplate = `# Alita-KGoT Enhanced System Environment Configuration
 # Copy this file to .env and update with your values
 
-# Database Passwords
-NEO4J_PASSWORD=your_neo4j_password_here
-REDIS_PASSWORD=your_redis_password_here
+# === Core System ===
+NODE_ENV=development
+PORT=3000
+HOST=localhost
+JWT_SECRET=your_jwt_secret_here_minimum_32_characters
+SESSION_SECRET=your_session_secret_here
 
-# API Keys
-OPENROUTER_API_KEY=your_openrouter_api_key_here
-
-# Logging
+# === Application Configuration ===
+APP_NAME="Alita-KGoT Enhanced"
+APP_VERSION=1.0.0
+DEBUG=true
 LOG_LEVEL=info
 
-# Monitoring
-GRAFANA_PASSWORD=admin
+# === Database Configuration ===
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=your_neo4j_password_here
+REDIS_URL=redis://localhost:6379
+REDIS_PASSWORD=your_redis_password_here
+RDF4J_SERVER_URL=http://localhost:8080/rdf4j-server
+RDF4J_REPOSITORY_ID=kgot-repository
 
-# Container Resources
+# === Security Configuration ===
+ENCRYPTION_KEY=your_encryption_key_here
+API_RATE_LIMIT=1000
+CORS_ORIGIN=http://localhost:3000
+CSRF_SECRET=your_csrf_secret_here
+SECURE_COOKIES=false
+SAME_SITE=lax
+
+# === Monitoring Configuration ===
+PROMETHEUS_PORT=9090
+GRAFANA_PORT=3000
+GRAFANA_PASSWORD=admin
+METRICS_ENABLED=true
+HEALTH_CHECK_INTERVAL=30000
+
+# === Model Configuration ===
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+
+GOOGLE_API_KEY=your_google_api_key_here
+SERPAPI_API_KEY=your_SERPAPI_API_KEY_here
+
+# === Execution Configuration ===
+PYTHON_EXECUTOR_URL=http://localhost:8001
+PYTHON_EXECUTOR_TIMEOUT=30000
+MAX_CONCURRENT_EXECUTIONS=5
+EXECUTION_MEMORY_LIMIT=512MB
+
+# === Federation Configuration ===
+SIMPLE_MCP_SERVERS=http://localhost:8080,http://localhost:8081
+SEQUENTIAL_THINKING_MCP_ENDPOINT=http://localhost:8082
+
+# === Docker Configuration ===
+DOCKER_HOST=unix:///var/run/docker.sock
+DOCKER_REGISTRY=localhost:5000
 CONTAINER_MEMORY_LIMIT=2g
 CONTAINER_CPU_LIMIT=2
+DOCKER_NETWORK=alita-kgot-network
+DOCKER_COMPOSE_PROJECT_NAME=alita-kgot
+DOCKER_BUILDKIT=1
+COMPOSE_DOCKER_CLI_BUILD=1
+
+# === Development Configuration ===
+HOT_RELOAD=true
+WATCH_FILES=true
+DEV_SERVER_PORT=3001
 `;
         
         await fs.writeFile(this.envFile, envTemplate);
@@ -473,4 +524,4 @@ if (require.main === module) {
     main();
 }
 
-module.exports = { ContainerizationSetup }; 
+module.exports = { ContainerizationSetup };

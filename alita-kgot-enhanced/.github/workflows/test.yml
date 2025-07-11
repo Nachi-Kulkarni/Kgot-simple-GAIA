@@ -1,0 +1,78 @@
+name: Tool Validation Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tool validation tests
+      run: npm test -- tests/tool-validation.test.js
+      env:
+        NODE_ENV: test
+    
+    - name: Run all tests
+      run: npm test
+      env:
+        NODE_ENV: test
+    
+    - name: Check for tool schema validation
+      run: |
+        echo "Checking for proper tool.argsSchema usage..."
+        if grep -r "tool\.schema" alita_core/ --exclude-dir=node_modules; then
+          echo "❌ Found tool.schema usage - should be tool.argsSchema"
+          exit 1
+        else
+          echo "✅ No tool.schema usage found - using tool.argsSchema correctly"
+        fi
+    
+    - name: Validate Zod version compatibility
+      run: |
+        echo "Checking Zod version..."
+        node -e "console.log('Zod version:', require('zod/package.json').version)"
+        
+    - name: Test tool creation
+      run: |
+        echo "Testing tool creation and validation..."
+        node -e "
+        const { z } = require('zod');
+        const { StructuredTool } = require('langchain/tools');
+        
+        const testTool = new StructuredTool({
+          name: 'test_validation',
+          description: 'Test tool for CI validation',
+          schema: z.object({ input: z.string() }),
+          func: async ({ input }) => input
+        });
+        
+        console.log('✅ Tool created successfully');
+        console.log('Tool name:', testTool.name);
+        console.log('Has argsSchema:', !!testTool.argsSchema);
+        console.log('argsSchema type:', typeof testTool.argsSchema);
+        
+        if (!testTool.argsSchema) {
+          throw new Error('Tool missing argsSchema');
+        }
+        
+        console.log('✅ Tool validation passed');
+        "

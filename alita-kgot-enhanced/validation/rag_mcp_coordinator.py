@@ -724,7 +724,7 @@ class MCPValidationLayer:
         self.llm_client = llm_client or ChatOpenAI(
             openai_api_key=config.get('openrouter_api_key'),
             openai_api_base="https://openrouter.ai/api/v1",
-            model_name=config.get('validation_model', 'anthropic/claude-4-sonnet'),
+            model_name=config.get('validation_model', 'anthropic/claude-sonnet-4'),
             temperature=0.1
         )
         
@@ -2242,7 +2242,7 @@ def create_rag_mcp_coordinator(config_path: Optional[str] = None,
     llm_client = ChatOpenAI(
         openai_api_key=config.get('openrouter_api_key'),
         openai_api_base="https://openrouter.ai/api/v1",
-        model_name=config.get('llm_model', 'anthropic/claude-4-sonnet'),
+        model_name=config.get('llm_model', 'anthropic/claude-sonnet-4'),
         temperature=0.1
     )
     
@@ -2291,7 +2291,7 @@ def get_default_config() -> Dict[str, Any]:
         'validation': {
             'validation_timeout': 10,
             'confidence_threshold': 0.6,
-            'validation_model': 'anthropic/claude-4-sonnet'
+            'validation_model': 'anthropic/claude-sonnet-4'
         },
         'fallback': {
             'fallback_similarity_threshold': 0.3,

@@ -442,7 +442,7 @@ class MCPVersionManagerConfig:
     
     # OpenRouter AI integration [[memory:1383810]]
     ai_endpoint: str = "https://openrouter.ai/api/v1"
-    ai_model: str = "anthropic/claude-4-sonnet"
+    ai_model: str = "anthropic/claude-sonnet-4"
     ai_enabled: bool = OPENROUTER_AVAILABLE
     ai_api_key: Optional[str] = None
     

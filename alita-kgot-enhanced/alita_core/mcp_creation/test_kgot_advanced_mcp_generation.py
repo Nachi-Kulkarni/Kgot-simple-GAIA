@@ -11,7 +11,7 @@ import asyncio
 import json
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
-from kgot_advanced_mcp_generation import (
+from .kgot_advanced_mcp_generation import (
     KnowledgeDrivenMCPDesigner,
     ControllerStructuredReasoner,
     KGoTAdvancedMCPGenerator,
@@ -470,4 +470,4 @@ if __name__ == "__main__":
             print(result.stderr)
     except Exception as e:
         print(f"Note: Could not run pytest automatically: {e}")
-        print("To run full test suite: python -m pytest test_kgot_advanced_mcp_generation.py -v") 
+        print("To run full test suite: python -m pytest test_kgot_advanced_mcp_generation.py -v")

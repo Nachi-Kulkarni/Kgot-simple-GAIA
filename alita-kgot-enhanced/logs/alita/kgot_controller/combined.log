@@ -1,0 +1,99 @@
+{"timestamp":"2025-07-07 17:56:39.531","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-07 17:56:39.548","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-07 17:56:39.596","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-07 17:56:39.597","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-07 18:24:55.841","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-07 18:24:55.843","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-07 18:24:55.844","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-07 18:24:55.844","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 10:21:04.445","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 10:21:04.450","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 10:21:04.454","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 10:21:04.455","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:44:05.940","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 15:44:05.940","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:44:05.949","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:44:05.950","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:49:34.948","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 15:49:34.948","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:49:34.949","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:49:34.949","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:50:49.826","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 15:50:49.826","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:50:49.827","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:50:49.827","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.863","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 15:54:06.863","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.864","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.864","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.864","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.868","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.869","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.869","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.869","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.869","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.869","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.870","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.870","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.870","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 15:54:06.870","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.657","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 15:55:29.658","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.658","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.658","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.659","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.663","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.664","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.665","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.665","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 15:55:29.665","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.524","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 16:02:40.525","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.536","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.538","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.540","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.768","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.773","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.773","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.773","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.773","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.774","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.774","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.774","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.774","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 16:02:40.775","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.051","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-10 19:51:34.052","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.053","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.054","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.054","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.065","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.068","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.068","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.068","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.068","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.069","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.070","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.070","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.070","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-10 19:51:34.070","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.187","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT","message":"Initializing KGoT Controller"}
+{"timestamp":"2025-07-11 11:24:22.187","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.197","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.198","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_INIT","message":"Initializing dual-LLM architecture","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.199","level":"INFO","component":"KGOT_CONTROLLER","operation":"DUAL_LLM_SUCCESS","message":"Dual-LLM architecture initialized successfully","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.224","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.225","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.226","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.226","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.227","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.227","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_SETUP","message":"Setting up KGoT tool registry","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.227","level":"INFO","component":"KGOT_CONTROLLER","operation":"TOOL_REGISTRY_READY","message":"Registered 6 core KGoT tools","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.232","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_INIT","message":"Initializing knowledge graph structure","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.232","level":"INFO","component":"KGOT_CONTROLLER","operation":"KNOWLEDGE_GRAPH_READY","message":"Knowledge graph structure initialized","metadata":{}}
+{"timestamp":"2025-07-11 11:24:22.232","level":"INFO","component":"KGOT_CONTROLLER","operation":"KGOT_INIT_SUCCESS","message":"KGoT Controller initialized successfully","metadata":{}}

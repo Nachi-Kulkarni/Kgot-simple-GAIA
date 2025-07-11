@@ -634,21 +634,21 @@ class LangChainSequentialManager:
                 "openrouter": {
                     "base_url": "https://openrouter.ai/api/v1",
                     "models": {
-                        "claude-4-sonnet": {
-                            "model_id": "anthropic/claude-4-sonnet-thinking"
+                        "claude-sonnet-4": {
+                            "model_id": "anthropic/claude-sonnet-4-thinking"
                         },
                         "o3": {
                             "model_id": "openai/o3"
                         },
-                        "gemini-2.5-pro": {
-                            "model_id": "google/gemini-2.5-pro"
+                        "grok-4": {
+                            "model_id": "x-ai/grok-4"
                         }
                     }
                 }
             },
             "alita_config": {
                 "manager_agent": {
-                    "primary_model": "claude-4-sonnet",
+                    "primary_model": "claude-sonnet-4",
                     "timeout": 30,
                     "max_retries": 3,
                     "temperature": 0.1
@@ -770,7 +770,8 @@ class LangChainSequentialManager:
                     "conversation_id": conversation_id,
                     "complexity_analysis": complexity_analysis,
                     "thinking_result": thinking_result,
-                    "context_summary": self.memory_manager.get_context_summary(conversation_id)
+                    "context_summary": self.memory_manager.get_context_summary(conversation_id),
+                    "chat_history": memory.chat_memory.messages if memory else []
                 }
                 
                 # Execute agent with memory
@@ -1172,7 +1173,7 @@ class LangChainSequentialManager:
             self.llm = ChatOpenAI(
                 base_url=openrouter_config.get("base_url", "https://openrouter.ai/api/v1"),
                 api_key=api_key,
-                model=openrouter_config.get("models", {}).get(manager_config.get("primary_model", "claude-4-sonnet-thinking"), {}).get("model_id", "anthropic/claude-4-sonnet-thinking"),
+                model=openrouter_config.get("models", {}).get(manager_config.get("primary_model", "claude-sonnet-4-thinking"), {}).get("model_id", "anthropic/claude-sonnet-4-thinking"),
                 temperature=manager_config.get("temperature", 0.1),
                 timeout=manager_config.get("timeout", 30),
                 max_retries=manager_config.get("max_retries", 3)
@@ -1238,7 +1239,7 @@ Always use sequential thinking for complex tasks involving multiple systems, err
             self.logger.info("LangChain agent initialized successfully", extra={
                 'operation': 'AGENT_INIT_SUCCESS',
                 'tools_count': len(tools),
-                'llm_model': manager_config.get("primary_model", "claude-4-sonnet")
+                'llm_model': manager_config.get("primary_model", "claude-sonnet-4")
             })
             
         except Exception as e:
@@ -1559,4 +1560,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -1,0 +1,48 @@
+2025-07-06 22:12:27,082 - RAGMCPTest - INFO - 🚀 Starting RAG-MCP Coordinator Verification Tests
+2025-07-06 22:12:27,082 - RAGMCPTest - INFO - 📋 Running test: import_verification
+2025-07-06 22:12:27,082 - RAGMCPTest - INFO - 🔍 Testing imports and dependencies...
+2025-07-06 22:12:27,211 - RAGMCPTest - INFO -   ✅ numpy - Available
+2025-07-06 22:12:27,629 - RAGMCPTest - INFO -   ✅ pandas - Available
+2025-07-06 22:12:27,636 - RAGMCPTest - INFO -   ✅ scipy - Available
+2025-07-06 22:12:27,694 - RAGMCPTest - INFO -   ✅ langchain - Available
+2025-07-06 22:12:27,695 - RAGMCPTest - INFO -   ✅ langchain_community - Available
+2025-07-06 22:12:28,140 - RAGMCPTest - INFO -   ✅ openai - Available
+2025-07-06 22:12:28,141 - RAGMCPTest - INFO -   ✅ pydantic - Available
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ RAG-MCP Coordinator imports - Success
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - ✅ Test import_verification: PASSED
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - 📋 Running test: directory_setup
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - 📁 Testing directory structure...
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Directory exists: ./logs/validation/
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Directory exists: ./data/
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Directory exists: ./config/
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Directory exists: ../kgot_core/
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Directory exists: ../alita_core/
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - ✅ Test directory_setup: PASSED
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - 📋 Running test: basic_functionality
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO - ⚙️ Testing basic functionality...
+2025-07-06 22:12:29,358 - RAGMCPTest - INFO -   ✅ Default configuration loaded
+2025-07-06 22:12:29,358 - RAGMCPTest - ERROR -   ❌ Basic functionality test failed: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+2025-07-06 22:12:29,359 - RAGMCPTest - INFO - ❌ Test basic_functionality: FAILED
+2025-07-06 22:12:29,359 - RAGMCPTest - INFO - 📋 Running test: integration_tests
+2025-07-06 22:12:29,359 - RAGMCPTest - INFO - 🔗 Testing system integrations...
+2025-07-06 22:12:29,361 - RAGMCPTest - INFO -   ✅ MCP Cross-Validator import successful
+2025-07-06 22:12:29,362 - RAGMCPTest - INFO -   ✅ KGoT Error Management import successful
+2025-07-06 22:12:29,362 - RAGMCPTest - INFO -   ✅ Node.js Brainstorming Engine found
+2025-07-06 22:12:29,362 - RAGMCPTest - INFO - ✅ Test integration_tests: PASSED
+2025-07-06 22:12:29,362 - RAGMCPTest - INFO - 📋 Running test: configuration_test
+2025-07-06 22:12:29,362 - RAGMCPTest - INFO - ⚙️ Testing configuration management...
+2025-07-06 22:12:29,366 - MCPCrossValidation - INFO - Creating MCP Cross-Validation Engine
+2025-07-06 22:12:29,366 - MCPCrossValidation - INFO - Initialized Statistical Significance Analyzer
+2025-07-06 22:12:29,366 - MCPCrossValidation - INFO - Initialized K-Fold MCP Validator
+2025-07-06 22:12:29,366 - MCPCrossValidation - INFO - Initialized Multi-Scenario Test Framework
+2025-07-06 22:12:29,366 - MCPCrossValidation - INFO - Initialized Validation Metrics Engine
+2025-07-06 22:12:29,366 - KGoTErrorManagement - INFO - Initialized Syntax Error Manager
+2025-07-06 22:12:29,366 - KGoTErrorManagement - INFO - Initialized API Error Manager
+2025-07-06 22:12:29,369 - RAGMCPTest - ERROR -   ❌ Configuration test failed: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
+2025-07-06 22:12:29,369 - RAGMCPTest - INFO - ❌ Test configuration_test: FAILED
+2025-07-06 22:12:29,370 - RAGMCPTest - INFO - 📋 Running test: end_to_end_test
+2025-07-06 22:12:29,370 - RAGMCPTest - INFO - 🔄 Testing end-to-end pipeline...
+2025-07-06 22:12:29,370 - RAGMCPTest - ERROR -   ❌ No coordinator available for end-to-end test
+2025-07-06 22:12:29,370 - RAGMCPTest - INFO - ❌ Test end_to_end_test: FAILED
+2025-07-06 22:12:29,370 - RAGMCPTest - INFO - 📊 Generating test report...
+2025-07-06 22:12:29,370 - RAGMCPTest - INFO - 📄 Test report saved to: ./logs/validation/rag_mcp_test_report.txt

@@ -572,7 +572,7 @@ class IterativeRefinementEngine:
         logger.info("Creating Claude 4 Sonnet client for code running")
         
         return ChatOpenAI(
-            model="anthropic/claude-4-sonnet",  # Using Claude 4 Sonnet for code running per user requirements
+            model="anthropic/claude-sonnet-4",  # Using Claude 4 Sonnet for code running per user requirements
             openai_api_base="https://openrouter.ai/api/v1",
             openai_api_key=os.getenv("OPENROUTER_API_KEY", "mock_key_for_testing"),
             temperature=0.1,  # Low temperature for consistent code generation and refinement

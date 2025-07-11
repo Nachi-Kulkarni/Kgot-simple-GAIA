@@ -78,7 +78,7 @@ def create_default_config():
             "confidence_threshold": 0.7,
             "max_validation_queries": 5,
             "timeout_seconds": 30,
-            "llm_model": "anthropic/claude-4-sonnet"
+            "llm_model": "anthropic/claude-sonnet-4"
         },
         "intelligent_fallback": {
             "similarity_threshold": 0.4,
@@ -135,8 +135,8 @@ def create_env_template():
 
 # OpenRouter API Configuration (Required)
 # Get your API key from: https://openrouter.ai/keys
-OPENAI_API_KEY=your_openrouter_api_key_here
-OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # Optional: Custom Configuration
 RAG_MCP_CONFIG_PATH=./config/rag_mcp_config.json
@@ -254,7 +254,7 @@ def print_next_steps():
 1. **Configure API Keys**:
    - Copy .env.template to .env
    - Add your OpenRouter API key
-   - Configure OPENAI_BASE_URL if needed
+   - Configure OPENROUTER_BASE_URL if needed
 
 2. **Test Installation**:
    python test_rag_mcp_coordinator.py
@@ -336,4 +336,4 @@ def main():
 
 if __name__ == "__main__":
     exit_code = main()
-    sys.exit(exit_code) 
+    sys.exit(exit_code)

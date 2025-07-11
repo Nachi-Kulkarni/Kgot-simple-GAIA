@@ -195,20 +195,20 @@ async def main():
 
     # Real models from OpenRouter, ordered from least to most complex
     models = {
-        "claude-3-haiku": LLMClient(
-            model_name="anthropic/claude-3-haiku",
+        "claude-sonnet-4": LLMClient(
+            model_name="anthropic/claude-sonnet-4",
             cost_per_input_token=0.00000025,
             cost_per_output_token=0.00000125,
             client=ChatOpenAI(temperature=0.1, max_tokens=4096)
         ),
-        "claude-3-sonnet": LLMClient(
-            model_name="anthropic/claude-3-sonnet",
+        "claude-sonnet-4": LLMClient(
+            model_name="anthropic/claude-sonnet-4",
             cost_per_input_token=0.000003,
             cost_per_output_token=0.000015,
             client=ChatOpenAI(temperature=0.1, max_tokens=4096)
         ),
-        "claude-3-opus": LLMClient(
-            model_name="anthropic/claude-3-opus",
+        "grok-4": LLMClient(
+            model_name="anthropic/grok-4",
             cost_per_input_token=0.000015,
             cost_per_output_token=0.000075,
             client=ChatOpenAI(temperature=0.1, max_tokens=4096)

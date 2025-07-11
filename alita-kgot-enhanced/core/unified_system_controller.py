@@ -38,7 +38,14 @@ import httpx
 from pydantic import BaseModel, Field
 
 # Import configuration and logging [[memory:1383804]]
-from ..config.logging.winston_config import get_logger
+try:
+    from ..config.logging.winston_config import get_logger
+except ImportError:
+    # Fallback for when running as script
+    import sys
+    import os
+    sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+    from config.logging.winston_config import get_logger
 
 # Import enhanced shared state utilities
 from .shared_state_utilities import (
@@ -56,13 +63,11 @@ from .sequential_thinking_mcp_integration import SequentialThinkingMCPIntegratio
 # Import advanced monitoring system
 from .advanced_monitoring_system import AdvancedMonitoringSystem
 
-# Import load balancing system
-from .load_balancing_system import (
-    AdaptiveLoadBalancer, 
-    SystemInstance, 
-    CircuitBreakerConfig,
-    LoadBalancingStrategy
-)
+# Import advanced task orchestration
+from .advanced_task_orchestration import AdvancedTaskOrchestrator
+
+# Import advanced security
+from ..security.advanced_security import AdvancedSecurity
 
 # Create logger instance
 logger = get_logger('unified_system_controller')
@@ -1623,4 +1628,4 @@ class UnifiedSystemController:
         task_context.routing_strategy = strategy
         
         # Execute with forced strategy
-        return await self.process_task(task_description, context) 
+        return await self.process_task(task_description, context)

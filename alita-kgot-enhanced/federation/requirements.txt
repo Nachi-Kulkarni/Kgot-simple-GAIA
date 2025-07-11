@@ -1,0 +1,22 @@
+# Simple Federation Server Requirements
+
+# Core web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# HTTP client for federation requests
+httpx==0.25.2
+requests==2.31.0
+
+# Data validation and serialization
+pydantic==2.5.0
+
+# Async support
+aiofiles==23.2.1
+
+# Logging and monitoring
+structlog==23.2.0
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1

@@ -120,7 +120,7 @@ Edit `config/models/model_config.json`:
     "openrouter": {
       "base_url": "https://openrouter.ai/api/v1",
       "models": {
-        "orchestration": "google/gemini-2.5-pro",
+        "orchestration": "x-ai/grok-4",
         "webagent": "anthropic/claude-4-sonnet", 
         "vision": "openai/o3"
       }

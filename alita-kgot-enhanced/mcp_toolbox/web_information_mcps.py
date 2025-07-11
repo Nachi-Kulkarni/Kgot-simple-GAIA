@@ -124,19 +124,17 @@ class SearchEngineConfig:
     Configuration for multi-provider search engine support based on RAG-MCP integration
     
     Attributes:
-        google_api_key (Optional[str]): Google Custom Search API key
-        google_search_engine_id (Optional[str]): Google Custom Search Engine ID
+        serpapi_api_key (Optional[str]): SerpApi API key powering Google-results retrieval
         bing_api_key (Optional[str]): Bing Search API key
-        default_provider (str): Default search provider to use
+        default_provider (str): Default search provider to use (serpapi | bing | duckduckgo)
         max_results (int): Maximum number of search results to return
         enable_caching (bool): Whether to cache search results
         cache_ttl (int): Cache time-to-live in seconds
         result_ranking_enabled (bool): Whether to enable result ranking
     """
-    google_api_key: Optional[str] = None
-    google_search_engine_id: Optional[str] = None
+    serpapi_api_key: Optional[str] = None
     bing_api_key: Optional[str] = None
-    default_provider: str = "google"
+    default_provider: str = "serpapi"
     max_results: int = 10
     enable_caching: bool = True
     cache_ttl: int = 3600
@@ -602,7 +600,7 @@ class WebScraperMCP(BaseTool):
 class SearchEngineMCPInputSchema(BaseModel):
     """Input schema for SearchEngineMCP with multi-provider support"""
     query: str = Field(description="Search query string")
-    provider: Optional[str] = Field(default=None, description="Search provider (google, bing, duckduckgo)")
+    provider: Optional[str] = Field(default=None, description="Search provider (serpapi, bing, duckduckgo)")
     max_results: Optional[int] = Field(default=10, description="Maximum number of results to return")
     language: Optional[str] = Field(default="en", description="Language for search results")
     region: Optional[str] = Field(default="us", description="Region for localized results")
@@ -635,7 +633,7 @@ class SearchEngineMCP(BaseTool):
     
     name: str = "search_engine_mcp"
     description: str = """
-    Multi-provider search engine with intelligent result ranking and optimization.
+    Multi-provider search with SerpApi, Bing, DuckDuckGo integration.
     
     Supports:
     - Google Custom Search with advanced filtering
@@ -648,7 +646,7 @@ class SearchEngineMCP(BaseTool):
     Input should be a JSON string with:
     {
         "query": "search terms",
-        "provider": "google|bing|duckduckgo",
+        "provider": "serpapi|bing|duckduckgo",
         "max_results": 10,
         "language": "en",
         "region": "us", 
@@ -692,30 +690,32 @@ class SearchEngineMCP(BaseTool):
         """Initialize available search providers based on API key availability"""
         self.providers = {}
         
-        # Google Search provider
-        if self.config.google_api_key and self.config.google_search_engine_id:
-            self.providers['google'] = {
-                'api_key': self.config.google_api_key,
-                'search_engine_id': self.config.google_search_engine_id,
-                'endpoint': 'https://www.googleapis.com/customsearch/v1'
+        # SerpApi provider (Google results as a service)
+        if self.config.serpapi_api_key:
+            self.providers["serpapi"] = {
+                "api_key": self.config.serpapi_api_key,
+                "endpoint": "https://serpapi.com/search.json",
             }
         
         # Bing Search provider
         if self.config.bing_api_key:
-            self.providers['bing'] = {
-                'api_key': self.config.bing_api_key,
-                'endpoint': 'https://api.bing.microsoft.com/v7.0/search'
+            self.providers["bing"] = {
+                "api_key": self.config.bing_api_key,
+                "endpoint": "https://api.bing.microsoft.com/v7.0/search",
             }
         
-        # DuckDuckGo (no API key required)
-        self.providers['duckduckgo'] = {
-            'endpoint': 'https://api.duckduckgo.com/'
+        # DuckDuckGo provider (no API key required)
+        self.providers["duckduckgo"] = {
+            "endpoint": "https://api.duckduckgo.com/",
         }
         
-        logger.debug("Search providers initialized", extra={
-            'operation': 'SEARCH_PROVIDERS_INIT',
-            'available_providers': list(self.providers.keys())
-        })
+        logger.debug(
+            "Search providers initialized",
+            extra={
+                "operation": "SEARCH_PROVIDERS_INIT",
+                "available_providers": list(self.providers.keys()),
+            },
+        )
 
 
 class WikipediaMCPInputSchema(BaseModel):
@@ -778,7 +778,7 @@ class WikipediaMCP(BaseTool):
     
     def __init__(self,
                  usage_statistics: Optional[UsageStatistics] = None,
-                 model_name: str = "anthropic/claude-4-sonnet",
+                 model_name: str = "anthropic/claude-sonnet-4",
                  temperature: float = 0.1,
                  **kwargs):
         """
@@ -875,7 +875,7 @@ class BrowserAutomationMCP(BaseTool):
     
     def __init__(self,
                  usage_statistics: Optional[UsageStatistics] = None,
-                 model_name: str = "anthropic/claude-4-sonnet",
+                 model_name: str = "anthropic/claude-sonnet-4",
                  temperature: float = 0.1,
                  **kwargs):
         """
@@ -981,7 +981,7 @@ def register_web_information_mcps_with_rag_engine(rag_engine) -> None:
         ),
         MCPToolSpec(
             name="search_engine_mcp",
-            description="Multi-provider search with Google, Bing, DuckDuckGo integration",
+            description="Multi-provider search with SerpApi, Bing, DuckDuckGo integration",
             capabilities=["web_search", "result_ranking", "content_filtering", "query_optimization"],
             category=MCPCategory.WEB_INFORMATION,
             usage_frequency=0.18,

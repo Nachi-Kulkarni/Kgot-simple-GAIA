@@ -7,14 +7,14 @@ The **Alita Script Generation Tool** is an advanced AI-powered script generation
 ## 🏗️ Architecture & Models
 
 ### Model Specialization (Per User Rules)
-- **🤖 Orchestration**: `google/gemini-2.5-pro` - Main reasoning and coordination
+- **🤖 Orchestration**: `x-ai/grok-4` - Main reasoning and coordination
 - **🌐 Web Agent**: `anthropic/claude-4-sonnet` - GitHub analysis and web tasks  
 - **👁️ Vision**: `openai/o3` - Visual processing and multimodal tasks
 
 ### Core Components
 ```
 ScriptGeneratingTool (Main Orchestrator)
-├── LangChain Agent Executor (gemini-2.5-pro)
+├── LangChain Agent Executor (grok-4)
 ├── MCP Brainstorming Bridge (Task decomposition)
 ├── GitHub Links Processor (claude-4-sonnet)
 ├── RAG-MCP Template Engine (Template generation)
@@ -98,7 +98,7 @@ from alita_core.script_generator import ScriptGenerationConfig
 
 config = ScriptGenerationConfig(
     openrouter_api_key="your_key",
-    orchestration_model="google/gemini-2.5-pro",
+    orchestration_model="x-ai/grok-4",
     webagent_model="anthropic/claude-4-sonnet", 
     vision_model="openai/o3",
     supported_languages=['python', 'bash', 'javascript', 'dockerfile'],
@@ -321,7 +321,7 @@ web_llm = generator._create_specialized_llm('webagent')
 # Vision processing (uses o3)
 vision_llm = generator._create_specialized_llm('vision')
 
-# Main orchestration (uses gemini-2.5-pro)
+# Main orchestration (uses grok-4)
 orchestration_llm = generator._create_specialized_llm('orchestration')
 ```
 
@@ -499,7 +499,7 @@ scripts = await asyncio.gather(*[
 
 ### Model Selection Strategy
 The system automatically routes to optimal models:
-- **Complex reasoning** → Gemini-2.5-Pro 
+- **Complex reasoning** → grok-4 
 - **Web/GitHub analysis** → Claude-4-Sonnet
 - **Visual processing** → O3
 

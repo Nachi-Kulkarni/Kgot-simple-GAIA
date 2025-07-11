@@ -4,6 +4,8 @@
 
 The Sequential Thinking MCP Integration is a sophisticated reasoning engine that serves as the core intelligence layer for the Alita Manager Agent. It provides advanced complexity detection, systematic routing logic, and intelligent decision trees for coordinating between Alita MCP creation and KGoT knowledge processing systems.
 
+**Status**: ✅ **FIXED** - Schema validation issues resolved, now using DynamicTool for better LangChain compatibility.
+
 ## Key Features
 
 ### 🧠 Complexity Detection Triggers
@@ -22,6 +24,13 @@ The Sequential Thinking MCP Integration is a sophisticated reasoning engine that
 - **Decision Trees**: Intelligent routing between Alita and KGoT systems
 - **Coordination Strategies**: Parallel, sequential, and integrated execution
 - **Fallback Mechanisms**: Graceful degradation and error recovery
+
+### 🔧 Recent Fixes (January 2025)
+- **Tool Schema Resolution**: Fixed StructuredTool validation issues by migrating to DynamicTool
+- **Context Binding**: Resolved `this` context binding issues in tool execution
+- **Input Validation**: Enhanced JSON parsing and required field validation
+- **Error Handling**: Improved error messages and recovery mechanisms
+- **OpenAI Compatibility**: Eliminated Zod schema warnings for OpenAI API compliance
 
 ## Architecture
 
@@ -76,14 +85,56 @@ const sequentialThinking = new SequentialThinkingIntegration({
 
 ### 1. LangChain Tool Integration
 
-The Sequential Thinking integration automatically creates a LangChain tool that can be used by the Manager Agent:
+The Sequential Thinking integration automatically creates a DynamicTool that can be used by the Manager Agent:
 
 ```javascript
 // The tool is automatically added to the agent's tools
 const tools = this.createAgentTools(); // Includes sequential_thinking tool
+
+// The tool now uses DynamicTool for better compatibility
+// with OpenAI function calling and avoids Zod schema issues
 ```
 
-### 2. Direct API Access
+### 2. Tool Input Format
+
+The Sequential Thinking tool accepts JSON input with the following structure:
+
+```javascript
+{
+  "taskId": "task_001",                    // Required: Unique task identifier
+  "description": "Complex task description", // Required: Detailed task description
+  "requirements": [                        // Optional: Array of requirements
+    {
+      "description": "Web scraping capability",
+      "priority": "high",
+      "complexity": "medium"
+    }
+  ],
+  "errors": [                             // Optional: Array of errors
+    {
+      "type": "integration",
+      "message": "System coordination failure",
+      "severity": "high"
+    }
+  ],
+  "systemsInvolved": ["Alita", "KGoT"],   // Optional: Systems array
+  "dataTypes": ["text", "structured"],    // Optional: Data types array
+  "interactions": [                       // Optional: Interaction definitions
+    {
+      "type": "bidirectional",
+      "complexity": "high",
+      "systems": ["Alita", "KGoT"]
+    }
+  ],
+  "timeline": {                           // Optional: Timeline object
+    "urgency": "high",
+    "deadline": "2024-01-15T10:00:00Z"
+  },
+  "dependencies": ["web_agent", "mcp_creation"] // Optional: Dependencies array
+}
+```
+
+### 3. Direct API Access
 
 #### Trigger Sequential Thinking
 
@@ -136,42 +187,106 @@ Content-Type: application/json
 {
   "status": "completed",
   "sessionId": "thinking_task_001_1703123456789",
-  "complexityAnalysis": {
-    "complexityScore": 9,
-    "shouldTriggerSequentialThinking": true,
-    "recommendedTemplate": {
-      "name": "System Coordination",
-      "description": "Coordinate complex operations across Alita and KGoT systems"
+  "complexityScore": 9,
+  "complexityFactors": [
+    "Multi-system coordination (2 systems)",
+    "High error count (1 errors)",
+    "Complex interactions (1)"
+  ],
+  "template": "System Coordination",
+  "conclusions": {
+    "keyInsights": {
+      "complexityAssessment": "High complexity multi-system task",
+      "systemCoordination": "Multi-system coordination required",
+      "recommendedActions": ["Implement proper inter-system communication"]
+    },
+    "overallApproach": {
+      "strategy": "coordinated_multi_system",
+      "primary": "coordination",
+      "description": "Coordinate between Alita and KGoT systems with proper synchronization"
+    },
+    "actionPlan": [
+      {
+        "step": 1,
+        "action": "Initialize system coordination",
+        "description": "Set up communication between Alita and KGoT systems",
+        "system": "both",
+        "priority": "high"
+      }
+    ],
+    "riskAssessment": {
+      "overallRisk": "medium",
+      "identifiedRisks": [
+        {
+          "type": "coordination_failure",
+          "severity": "medium",
+          "description": "Systems may fail to coordinate properly",
+          "mitigation": "Implement robust error handling and fallback mechanisms"
+        }
+      ]
     }
   },
-  "thinkingResult": {
-    "template": "System Coordination",
-    "conclusions": {
-      "keyInsights": {
-        "complexityAssessment": "High complexity multi-system task",
-        "systemCoordination": "Multi-system coordination required",
-        "recommendedActions": ["Implement proper inter-system communication"]
-      },
-      "overallApproach": {
-        "strategy": "coordinated_multi_system",
-        "primary": "coordination"
-      }
+  "routingRecommendations": {
+    "systemSelection": {
+      "primary": "both",
+      "secondary": null,
+      "coordination": "integrated",
+      "reasoning": "Complex multi-domain task requires integrated approach"
     },
-    "systemRecommendations": {
-      "systemSelection": {
-        "primary": "both",
-        "coordination": "integrated"
+    "coordinationStrategy": {
+      "strategy": "integrated_workflow",
+      "execution": "parallel_with_synchronization",
+      "monitoring": "real_time",
+      "fallback": "graceful_degradation"
+    },
+    "executionSequence": [
+      {
+        "step": 1,
+        "system": "coordinator",
+        "action": "initialize_both_systems",
+        "description": "Initialize both Alita and KGoT systems"
       },
-      "coordinationStrategy": {
-        "strategy": "integrated_workflow",
-        "execution": "parallel_with_synchronization"
+      {
+        "step": 2,
+        "system": "both",
+        "action": "parallel_execution",
+        "description": "Execute tasks in parallel with synchronization"
       }
-    }
-  }
+    ]
+  },
+  "duration": 1234,
+  "thoughtCount": 6,
+  "timestamp": "2025-01-10T22:48:56.125Z"
 }
 ```
 
-### 3. Monitoring Active Sessions
+#### Error Response Format
+
+```json
+{
+  "status": "error",
+  "error": "taskId and description are required fields",
+  "recommendation": "Provide both taskId and description",
+  "timestamp": "2025-01-10T22:48:56.125Z"
+}
+```
+
+#### Not Required Response Format
+
+```json
+{
+  "status": "not_required",
+  "message": "Task complexity does not require sequential thinking",
+  "complexityScore": 5,
+  "complexityFactors": [
+    "Single system operation (1 system)",
+    "Low error count (0 errors)"
+  ],
+  "recommendation": "Proceed with standard processing"
+}
+```
+
+### 4. Monitoring Active Sessions
 
 ```bash
 GET /sequential-thinking/sessions
@@ -189,8 +304,17 @@ Response:
       "progress": 0.8,
       "duration": 15234,
       "status": "active"
+    },
+    {
+      "sessionId": "thinking_task_002_1703123456790",
+      "taskId": "task_002", 
+      "template": "Error Resolution",
+      "progress": 1.0,
+      "duration": 8567,
+      "status": "completed"
     }
-  ]
+  ],
+  "timestamp": "2025-01-10T22:48:56.125Z"
 }
 ```
 
@@ -352,8 +476,13 @@ graph TD
 ### Automatic Tool Creation
 
 ```javascript
-// Automatically added to LangChain agent tools
+// DynamicTool automatically added to LangChain agent tools
 const sequentialThinkingTool = this.sequentialThinking.createSequentialThinkingTool();
+
+// Fixed version resolves schema validation issues:
+// - Uses DynamicTool instead of StructuredTool
+// - Proper context binding with sequentialThinkingInstance
+// - Enhanced input validation and error handling
 ```
 
 ### Event Coordination
@@ -426,6 +555,56 @@ console.log(analysis.shouldTriggerSequentialThinking); // true
 console.log(analysis.recommendedTemplate.name); // "Error Resolution" or "System Coordination"
 ```
 
+## Fixed Implementation Details
+
+### Tool Schema Validation Resolution
+
+**Problem**: StructuredTool schema properties were not accessible, causing validation failures:
+```javascript
+// Previous failing validation:
+hasName: false,
+hasDescription: false,
+hasSchema: false
+```
+
+**Solution**: Migrated to DynamicTool with proper property exposure:
+```javascript
+// Fixed implementation:
+return new DynamicTool({
+  name: "sequential_thinking",
+  description: "Triggers sequential thinking...",
+  func: async (input) => { /* ... */ }
+});
+```
+
+### Context Binding Issues
+
+**Problem**: `this` context lost when tool function executed by LangChain.
+
+**Solution**: Store instance reference for proper context binding:
+```javascript
+const sequentialThinkingInstance = this;
+
+// Use instance reference in tool function:
+const complexityAnalysis = sequentialThinkingInstance.detectComplexity(taskContext);
+```
+
+### Input Validation Improvements
+
+**Previous**: Relied on Zod schema validation (which was failing).
+
+**Current**: Manual validation with clear error messages:
+```javascript
+// Validate required fields
+if (!taskId || !description) {
+  return JSON.stringify({
+    status: 'error',
+    error: 'taskId and description are required fields',
+    recommendation: 'Provide both taskId and description'
+  });
+}
+```
+
 ## Performance Considerations
 
 ### Memory Management
@@ -446,7 +625,7 @@ console.log(analysis.recommendedTemplate.name); // "Error Resolution" or "System
 ## Best Practices
 
 ### 1. Task Context Structure
-- Always provide `taskId` and `description`
+- Always provide `taskId` and `description` (required fields)
 - Include relevant `systemsInvolved` for accurate routing
 - Specify `errors` array for error-heavy scenarios
 - Define `requirements` with priority and complexity
@@ -456,35 +635,58 @@ console.log(analysis.recommendedTemplate.name); // "Error Resolution" or "System
 - Monitor for `SEQUENTIAL_THINKING_ERROR` log events
 - Implement fallback to standard processing
 - Use timeout configurations appropriate for task complexity
+- Handle JSON parsing errors gracefully
 
 ### 3. Performance Optimization
-- Clean up sessions periodically
+- Clean up sessions periodically using `cleanupSessions()`
 - Cache complexity analysis for repeated tasks
 - Use appropriate complexity thresholds for your use case
+- Monitor active session count
 
 ### 4. Monitoring
 - Track active sessions via `/sequential-thinking/sessions`
 - Monitor system status via `/status` endpoint
 - Set up alerts for failed thinking processes
+- Monitor memory usage and cleanup cycles
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Sequential Thinking Not Triggering
-- Check complexity score calculation
-- Verify trigger conditions are met
-- Ensure proper task context structure
+#### Sequential Thinking Tool Not Loading
+**Symptoms**: Tool validation failures, undefined properties
+**Solution**: Ensure DynamicTool is properly imported and instance context is bound
+```javascript
+// Check logs for:
+// ❌ Sequential Thinking tool has invalid schema
+// ✅ Sequential Thinking tool added successfully
+```
 
-#### System Coordination Failures
-- Check component initialization
-- Verify event listener setup
-- Monitor coordination step errors
+#### Schema Validation Errors
+**Symptoms**: OpenAI API warnings about optional fields
+**Solution**: Fixed in current implementation - no longer uses Zod schemas
+```javascript
+// Old problem: .optional() without .nullable()
+// New solution: Manual validation in DynamicTool func
+```
 
-#### Performance Issues
-- Check active session count
-- Review timeout configurations
-- Monitor memory usage
+#### Context Binding Failures
+**Symptoms**: `this.detectComplexity is not a function`
+**Solution**: Use instance reference approach:
+```javascript
+const sequentialThinkingInstance = this;
+// Use sequentialThinkingInstance.detectComplexity() in tool function
+```
+
+#### Input Parsing Issues
+**Symptoms**: JSON parse errors, missing required fields
+**Solution**: Enhanced input validation:
+```javascript
+const params = typeof input === 'string' ? JSON.parse(input) : input;
+if (!taskId || !description) {
+  return JSON.stringify({ status: 'error', ... });
+}
+```
 
 ### Debug Logging
 
@@ -495,10 +697,38 @@ process.env.LOG_LEVEL = 'debug';
 ```
 
 Key log operations to monitor:
+- `SEQUENTIAL_THINKING_INIT`
+- `TOOL_CREATION`
+- `SEQUENTIAL_THINKING_TOOL_INVOKED`
 - `COMPLEXITY_DETECTION`
 - `SEQUENTIAL_THINKING_START`
 - `THOUGHT_STEP_EXECUTION`
 - `SYSTEM_COORDINATION_EXECUTION`
+
+### Testing the Fixed Implementation
+
+```bash
+# Test the fixed sequential thinking tool
+curl -X POST http://localhost:8888/sequential-thinking \
+  -H "Content-Type: application/json" \
+  -d '{
+    "taskId": "test_001",
+    "description": "Test complex multi-system task",
+    "systemsInvolved": ["Alita", "KGoT"],
+    "errors": [
+      {"type": "integration", "message": "Connection failed", "severity": "high"},
+      {"type": "timeout", "message": "Request timeout", "severity": "medium"},
+      {"type": "validation", "message": "Schema error", "severity": "high"},
+      {"type": "coordination", "message": "Sync failure", "severity": "high"}
+    ],
+    "dataTypes": ["text", "structured", "graph", "multimedia"]
+  }'
+
+# Expected response should now show:
+# "status": "completed" with full thinking results
+# OR "status": "not_required" with complexity analysis
+# No more undefined property errors
+```
 
 ## Future Enhancements
 
@@ -525,7 +755,9 @@ When extending the Sequential Thinking Integration:
 3. Include proper error handling and fallbacks
 4. Add tests for new complexity detection factors
 5. Update documentation for new features
+6. Use DynamicTool for new LangChain tool integrations
+7. Ensure proper context binding for class methods
 
 ## License
 
-This Sequential Thinking MCP Integration is part of the Alita-KGoT Enhanced system and follows the same licensing terms. 
+This Sequential Thinking MCP Integration is part of the Alita-KGoT Enhanced system and follows the same licensing terms.

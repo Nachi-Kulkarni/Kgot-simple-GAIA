@@ -42,7 +42,7 @@ const result = await searchTool.searchWithHuggingFace(JSON.stringify({
 ```
 
 ## Models Used (Per User Rules)
-- **🤖 Orchestration**: `google/gemini-2.5-pro`
+- **🤖 Orchestration**: `x-ai/grok-4`
 - **🌐 Web Agent**: `anthropic/claude-4-sonnet`  
 - **👁️ Vision**: `openai/o3`
 - **🔍 Search**: Hugging Face Agents + KGoT Surfer

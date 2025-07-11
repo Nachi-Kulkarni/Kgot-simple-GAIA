@@ -69,11 +69,11 @@ class ScriptGenerationConfig:
     openrouter_api_key: str = os.getenv('OPENROUTER_API_KEY', '')
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     
-    # Model configuration per user rules: o3(vision), claude-4-sonnet(webagent), gemini-2.5-pro(orchestration)
-    orchestration_model: str = "google/gemini-2.5-pro"  # For main orchestration
-    webagent_model: str = "anthropic/claude-4-sonnet"   # For web agent capabilities
+    # Model configuration per user rules: o3(vision), claude-sonnet-4(webagent), grok-4(orchestration)
+    orchestration_model: str = "x-ai/grok-4"  # For main orchestration
+    webagent_model: str = "anthropic/claude-sonnet-4"   # For web agent capabilities
     vision_model: str = "openai/o3"                     # For vision tasks
-    model_name: str = "google/gemini-2.5-pro"          # Default to orchestration model
+    model_name: str = "x-ai/grok-4"          # Default to orchestration model
     
     # MCP Brainstorming integration
     mcp_brainstorming_endpoint: str = "http://localhost:8001/api/mcp-brainstorming"
@@ -1569,7 +1569,7 @@ class ScriptGeneratingTool:
         })
     
     def _initialize_llm(self) -> Optional[ChatOpenAI]:
-        """Initialize LangChain LLM with OpenRouter per user rules (gemini-2.5-pro for orchestration)"""
+        """Initialize LangChain LLM with OpenRouter per user rules (grok-4 for orchestration)"""
         try:
             # Check for OpenRouter API key
             if not self.config.openrouter_api_key:
@@ -1581,7 +1581,7 @@ class ScriptGeneratingTool:
             
             # Configure for OpenRouter with user rules models
             llm = ChatOpenAI(
-                model_name=self.config.orchestration_model,  # google/gemini-2.5-pro for orchestration
+                model_name=self.config.orchestration_model,  # x-ai/grok-4 for orchestration
                 openai_api_key=self.config.openrouter_api_key,
                 openai_api_base=self.config.openrouter_base_url,
                 temperature=0.1,  # Lower temperature for more consistent code generation
@@ -1615,11 +1615,11 @@ class ScriptGeneratingTool:
         try:
             # Select model based on purpose per user rules
             if purpose == "webagent":
-                model = self.config.webagent_model  # claude-4-sonnet for web agent
+                model = self.config.webagent_model  # claude-sonnet-4 for web agent
             elif purpose == "vision":
                 model = self.config.vision_model    # o3 for vision tasks
             elif purpose == "orchestration":
-                model = self.config.orchestration_model  # gemini-2.5-pro for orchestration
+                model = self.config.orchestration_model  # grok-4 for orchestration
             else:
                 model = self.config.orchestration_model  # default to orchestration
             
@@ -1671,8 +1671,8 @@ class ScriptGeneratingTool:
             # Create agent prompt optimized for user's model setup
             prompt = ChatPromptTemplate.from_messages([
                 ("system", """You are an expert script generation assistant implementing Alita's ScriptGeneratingTool.
-Using advanced orchestration capabilities with gemini-2.5-pro for intelligent reasoning,
-claude-4-sonnet for web agent tasks, and o3 for vision-related processing.
+Using advanced orchestration capabilities with grok-4 for intelligent reasoning,
+claude-sonnet-4 for web agent tasks, and o3 for vision-related processing.
 
 Your role is to:
 1. Analyze task requirements and break them into subtasks using orchestration model

@@ -1,0 +1,145 @@
+{
+    "model_providers": {
+      "openrouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "models": {
+          "o3": {
+            "model_id": "openai/o3",
+            "context_length": 200000,
+            "cost_per_token": {
+              "input": 0.000002,
+              "output": 0.000008
+            },
+            "capabilities": ["text", "reasoning", "code", "agentic", "function_calling"],
+            "recommended_for": ["manager_agent", "complex_reasoning", "tool_execution"]
+          },
+          "claude-sonnet-4": {
+            "model_id": "anthropic/claude-sonnet-4",
+            "context_length": 200000,
+            "cost_per_token": {
+              "input": 0.000003,
+              "output": 0.000015
+            },
+            "capabilities": ["text", "images", "reasoning", "code", "efficiency"],
+            "recommended_for": ["web_agent", "knowledge_operations", "general_tasks", "mcp_creation", "mcp_brainstorming"]
+          },
+          "grok-4": {
+            "model_id": "x-ai/grok-4",
+            "context_length": 1000000,
+            "cost_per_token": {
+              "input": 0.00000125,
+              "output": 0.00001
+            },
+            "capabilities": ["text", "images", "video", "audio", "multimodal", "reasoning"],
+            "recommended_for": ["multimodal_processing", "large_context_tasks", "knowledge_graph"]
+          }
+        }
+      }
+    },
+    "alita_config": {
+      "manager_agent": {
+        "primary_model": "o3",
+        "fallback_model": "claude-sonnet-4",
+        "secondary_fallback": "grok-4",
+        "max_retries": 3,
+        "timeout": 45
+      },
+      "web_agent": {
+        "primary_model": "claude-sonnet-4",
+        "fallback_model": "o3",
+        "secondary_fallback": "grok-4",
+        "max_retries": 2,
+        "timeout": 60
+      },
+      "mcp_creation": {
+        "primary_model": "claude-sonnet-4",
+        "fallback_model": "o3",
+        "secondary_fallback": "grok-4",
+        "max_retries": 3,
+        "timeout": 90
+      },
+      "kgot_controller": {
+        "graph_executor_model": "o3",
+        "tool_executor_model": "grok-4",
+        "fallback_model": "claude-sonnet-4",
+        "max_retries": 3,
+        "timeout": 45,
+        "voting_participants": 5,
+        "max_iterations": 10
+      },
+      "validation": {
+        "primary_model": "o3",
+        "fallback_model": "claude-sonnet-4",
+        "max_retries": 2,
+        "timeout": 120
+      },
+      "mcp_brainstorming": {
+        "primary_model": "claude-sonnet-4",
+        "fallback_model": "o3",
+        "secondary_fallback": "grok-4",
+        "max_retries": 3,
+        "timeout": 120,
+        "creative_temperature": 0.3,
+        "structured_temperature": 0.1
+      }
+    },
+    "kgot_config": {
+      "controller": {
+        "primary_model": "grok-4",
+        "fallback_model": "claude-sonnet-4",
+        "secondary_fallback": "o3",
+        "max_retries": 3,
+        "timeout": 45
+      },
+      "graph_operations": {
+        "primary_model": "grok-4",
+        "fallback_model": "claude-sonnet-4",
+        "max_retries": 2,
+        "timeout": 30
+      },
+      "tool_integration": {
+        "primary_model": "claude-sonnet-4",
+        "fallback_model": "o3",
+        "max_retries": 2,
+        "timeout": 40
+      },
+      "multimodal_processing": {
+        "primary_model": "grok-4",
+        "fallback_model": "claude-sonnet-4",
+        "max_retries": 2,
+        "timeout": 60
+      }
+    },
+    "cost_optimization": {
+      "enable_caching": true,
+      "cache_ttl": 7200,
+      "token_usage_tracking": true,
+      "intelligent_model_selection": true,
+      "cost_thresholds": {
+        "daily_limit": 100.0,
+        "per_request_limit": 10.0,
+        "warning_threshold": 0.75,
+        "premium_model_limit": 25.0
+      },
+      "model_cost_tiers": {
+        "premium": ["claude-sonnet-4", "grok-4"],
+        "standard": ["o3", "claude-sonnet-4", "grok-4"],
+        "budget": ["o3", "grok-4"]
+      }
+    },
+    "context_management": {
+      "max_context_usage": {
+        "grok-4": 800000,
+        "o3": 150000,
+        "claude-4-opus": 150000,
+        "claude-sonnet-4": 150000
+      },
+      "context_optimization": {
+        "enable_compression": true,
+        "sliding_window": true,
+        "priority_retention": true
+      }
+    }
+  }
+  

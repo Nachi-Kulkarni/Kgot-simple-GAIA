@@ -980,85 +980,130 @@ Current Analysis: ${step}`;
    * Create LangChain tool for Sequential Thinking integration
    * This tool can be used by the Manager Agent to trigger sequential thinking
    * 
-   * @returns {DynamicTool} LangChain tool for sequential thinking
+   * @returns {StructuredTool} LangChain tool for sequential thinking
    */
   createSequentialThinkingTool() {
     logger.logOperation('info', 'TOOL_CREATION', 'Creating Sequential Thinking LangChain tool');
 
-    return new DynamicTool({
-      name: 'sequential_thinking',
-      description: `Engage Sequential Thinking MCP for complex task analysis and system coordination.
-        
-        Use this tool when:
-        - Task complexity score > 7
-        - Multiple errors detected (> 3)
-        - Cross-system coordination required
-        - Complex reasoning needed
-        - Multi-domain task processing
-        
-        Input should be a JSON object with:
-        - taskId: Unique identifier for the task
-        - description: Task description
-        - requirements: Array of requirements
-        - errors: Array of detected errors
-        - systemsInvolved: Array of systems needed
-        - dataTypes: Array of data types involved
-        - interactions: Array of system interactions
-        - timeline: Timeline information
-        - dependencies: Array of task dependencies`,
-        
-      func: async (input) => {
+    // Store reference to this instance for proper context binding
+    const sequentialThinkingInstance = this;
+
+    // Import Zod for schema definition
+    const { z } = require('zod');
+    const { StructuredTool } = require('langchain/tools');
+
+    // Define explicit Zod schema for Sequential Thinking tool (using .nullish() for optional fields to satisfy OpenAI requirements)
+    const sequentialThinkingSchema = z.object({
+      taskId: z.string().describe("Unique identifier for the task"),
+      description: z.string().describe("Detailed description of the task or problem"),
+      requirements: z.array(z.any()).default([]).describe("Optional array of requirements"),
+      errors: z.array(z.any()).default([]).describe("Optional array of errors to resolve"),
+      systemsInvolved: z.array(z.string()).default([]).describe("Optional array of systems involved"),
+      dataTypes: z.array(z.string()).default([]).describe("Optional array of data types being processed"),
+      interactions: z.array(z.any()).default([]).describe("Optional array of system interactions"),
+      timeline: z.any().nullish().describe("Optional timeline object"),
+      dependencies: z.array(z.any()).default([]).describe("Optional array of dependencies")
+    });
+
+    return new StructuredTool({
+      name: "sequential_thinking",
+      description: "Triggers sequential thinking for complex tasks, error resolution, or system coordination. Use when task complexity exceeds threshold or multiple systems are involved.",
+      schema: sequentialThinkingSchema,
+      func: async ({ taskId, description, requirements = [], errors = [], systemsInvolved = [], dataTypes = [], interactions = [], timeline, dependencies = [] }) => {
         try {
-          const taskContext = JSON.parse(input);
-          
-          // Validate input
-          if (!taskContext.taskId || !taskContext.description) {
-            throw new Error('Task ID and description are required');
+          // Validate required fields
+          if (!taskId || !description) {
+            return JSON.stringify({
+              status: 'error',
+              error: 'taskId and description are required fields',
+              recommendation: 'Provide both taskId and description'
+            });
           }
 
+          // Create task context object
+          const taskContext = {
+            taskId,
+            description,
+            requirements,
+            errors,
+            systemsInvolved,
+            dataTypes,
+            interactions,
+            timeline,
+            dependencies
+          };
+
           logger.logOperation('info', 'SEQUENTIAL_THINKING_TOOL_INVOKED', 'Sequential thinking tool invoked', {
-            taskId: taskContext.taskId
+            taskId: taskContext.taskId,
+            description: taskContext.description.substring(0, 100)
           });
 
           // Detect complexity and determine if sequential thinking is needed
-          const complexityAnalysis = this.detectComplexity(taskContext);
+          const complexityAnalysis = sequentialThinkingInstance.detectComplexity(taskContext);
 
           if (!complexityAnalysis.shouldTriggerSequentialThinking) {
             return JSON.stringify({
               status: 'not_required',
               message: 'Task complexity does not require sequential thinking',
               complexityScore: complexityAnalysis.complexityScore,
+              complexityFactors: complexityAnalysis.complexityFactors,
               recommendation: 'Proceed with standard processing'
             });
           }
 
           // Execute sequential thinking process
-          const thinkingResult = await this.executeSequentialThinking(
+          logger.logOperation('info', 'SEQUENTIAL_THINKING_EXECUTION_START', 'Starting sequential thinking execution', {
+            taskId: taskContext.taskId,
+            complexityScore: complexityAnalysis.complexityScore
+          });
+
+          const thinkingResult = await sequentialThinkingInstance.executeSequentialThinking(taskContext);
+
+          logger.logOperation('info', 'SEQUENTIAL_THINKING_EXECUTION_COMPLETE', 'Sequential thinking execution completed', {
+            taskId: taskContext.taskId,
+            thinkingSteps: thinkingResult.thoughts?.length || 0,
+            success: true // Assuming executeSequentialThinking always completes or throws
+          });
+
+          // Generate system coordination plan
+          const coordinationPlan = await sequentialThinkingInstance.generateSystemCoordinationPlan(
             taskContext, 
-            complexityAnalysis.recommendedTemplate
+            thinkingResult
           );
 
-          // Return structured result
-          return JSON.stringify({
+          const result = {
             status: 'completed',
-            sessionId: thinkingResult.sessionId,
-            complexityScore: complexityAnalysis.complexityScore,
-            template: complexityAnalysis.recommendedTemplate.name,
-            conclusions: thinkingResult.conclusions,
-            routingRecommendations: thinkingResult.systemRecommendations,
-            duration: thinkingResult.duration,
-            thoughtCount: thinkingResult.thoughts.length
+            taskId: taskContext.taskId,
+            complexityAnalysis,
+            thinkingResult,
+            coordinationPlan,
+            timestamp: new Date().toISOString(),
+            processingTimeMs: Date.now() - (thinkingResult.startTime || Date.now())
+          };
+
+          logger.logOperation('info', 'SEQUENTIAL_THINKING_TOOL_SUCCESS', 'Sequential thinking tool completed successfully', {
+            taskId: taskContext.taskId,
+            finalStatus: result.status,
+            processingTimeMs: result.processingTimeMs
           });
 
+          return JSON.stringify(result, null, 2);
+
         } catch (error) {
-          logger.logError('SEQUENTIAL_THINKING_TOOL_ERROR', error);
+          logger.logError('SEQUENTIAL_THINKING_TOOL_ERROR', error, {
+            taskId: taskId || 'unknown',
+            description: description?.substring(0, 100) || 'no description'
+          });
+
           return JSON.stringify({
             status: 'error',
-            error: error.message,
-            recommendation: 'Fallback to standard processing'
+            error: `Sequential thinking failed: ${error.message}`,
+            taskId: taskId || 'unknown',
+            timestamp: new Date().toISOString(),
+            recommendation: 'Check system logs for detailed error information'
           });
         }
-      }
+      },
     });
   }
 
@@ -1127,4 +1172,4 @@ Current Analysis: ${step}`;
 
 module.exports = {
   SequentialThinkingIntegration
-}; 
+};

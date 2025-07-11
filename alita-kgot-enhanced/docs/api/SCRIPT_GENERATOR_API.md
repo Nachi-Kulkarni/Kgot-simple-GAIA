@@ -18,7 +18,7 @@ class ScriptGenerationConfig:
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     
     # Model specialization per user rules
-    orchestration_model: str = "google/gemini-2.5-pro"   # Main reasoning
+    orchestration_model: str = "x-ai/grok-4"   # Main reasoning
     webagent_model: str = "anthropic/claude-4-sonnet"    # Web agent capabilities
     vision_model: str = "openai/o3"                      # Vision processing
     
@@ -61,7 +61,7 @@ generator = ScriptGeneratingTool()
 # Custom configuration
 config = ScriptGenerationConfig(
     openrouter_api_key="your_key",
-    orchestration_model="google/gemini-2.5-pro"
+    orchestration_model="x-ai/grok-4"
 )
 generator = ScriptGeneratingTool(config)
 ```
@@ -271,7 +271,7 @@ web_llm = generator._create_specialized_llm('webagent')
 # Create vision LLM (uses o3)
 vision_llm = generator._create_specialized_llm('vision')
 
-# Create orchestration LLM (uses gemini-2.5-pro)
+# Create orchestration LLM (uses grok-4)
 orchestration_llm = generator._create_specialized_llm('orchestration')
 ```
 
@@ -479,7 +479,7 @@ from alita_core.script_generator import ScriptGenerationConfig, ScriptGenerating
 
 config = ScriptGenerationConfig(
     openrouter_api_key="your_key",
-    orchestration_model="google/gemini-2.5-pro",
+    orchestration_model="x-ai/grok-4",
     webagent_model="anthropic/claude-4-sonnet",
     vision_model="openai/o3",
     enable_template_caching=True,

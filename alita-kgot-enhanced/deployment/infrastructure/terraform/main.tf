@@ -105,6 +105,71 @@ variable "container_registry" {
   }
 }
 
+# Application secrets variables
+variable "openrouter_api_key" {
+  description = "OpenRouter API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "google_api_key" {
+  description = "Google API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "neo4j_password" {
+  description = "Neo4j database password"
+  type        = string
+  sensitive   = true
+}
+
+variable "redis_password" {
+  description = "Redis password"
+  type        = string
+  sensitive   = true
+}
+
+variable "jwt_secret" {
+  description = "JWT secret for authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "session_secret" {
+  description = "Session secret for web sessions"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_token" {
+  description = "GitHub token for repository access"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "SERPAPI_API_KEY" {
+  description = "SerpAPI key for search functionality"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "aws_access_key_id" {
+  description = "AWS access key ID"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS secret access key"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Local values for common tags and naming
 locals {
   common_tags = {
@@ -242,6 +307,44 @@ resource "kubernetes_secret" "registry_credentials" {
         }
       }
     })
+  }
+}
+
+# Application secrets for KGoT services
+resource "kubernetes_secret" "application_secrets" {
+  metadata {
+    name      = "application-secrets"
+    namespace = kubernetes_namespace.kgot.metadata[0].name
+    
+    labels = merge(local.common_tags, {
+      "app.kubernetes.io/name"      = var.project_name
+      "app.kubernetes.io/component" = "secrets"
+    })
+  }
+  
+  type = "Opaque"
+  
+  data = {
+    # Core API Keys
+    "OPENROUTER_API_KEY"  = var.openrouter_api_key
+
+    "GOOGLE_API_KEY"      = var.google_api_key
+    
+    # Database credentials
+    "NEO4J_PASSWORD"      = var.neo4j_password
+    "REDIS_PASSWORD"      = var.redis_password
+    
+    # Security tokens
+    "JWT_SECRET"          = var.jwt_secret
+    "SESSION_SECRET"      = var.session_secret
+    
+    # External service keys
+    "GITHUB_TOKEN"        = var.github_token
+    "SERPAPI_API_KEY"         = var.SERPAPI_API_KEY
+    
+    # AWS credentials
+    "AWS_ACCESS_KEY_ID"     = var.aws_access_key_id
+    "AWS_SECRET_ACCESS_KEY" = var.aws_secret_access_key
   }
 }
 
@@ -589,4 +692,4 @@ output "monitoring_enabled" {
 output "logging_enabled" {
   description = "Whether logging is enabled"
   value       = var.enable_logging
-} 
+}

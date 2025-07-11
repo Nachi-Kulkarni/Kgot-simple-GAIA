@@ -322,7 +322,7 @@ class AdvancedMCPDiscoveryEngine:
             client = ChatOpenAI(
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
-                model_name="anthropic/claude-4-sonnet",  # Use advanced model for reasoning
+                model_name="anthropic/claude-sonnet-4",  # Use advanced model for reasoning
                 temperature=0.3,  # Lower temperature for more focused analysis
                 max_tokens=2048,
                 timeout=30
@@ -331,7 +331,7 @@ class AdvancedMCPDiscoveryEngine:
             logger.info("Initialized OpenRouter LLM client for discovery engine", extra={
                 'operation': 'LLM_INIT_SUCCESS',
                 'component': 'AdvancedMCPDiscoveryEngine',
-                'model': "anthropic/claude-4-sonnet"
+                'model': "anthropic/claude-sonnet-4"
             })
             
             return client
@@ -665,7 +665,7 @@ class ContextAwareRecommendationSystem:
             llm_client = ChatOpenAI(
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
-                model_name="anthropic/claude-4-sonnet",
+                model_name="anthropic/claude-sonnet-4",
                 temperature=0.4,
                 max_tokens=1500
             )
@@ -916,7 +916,7 @@ class MCPCompositionEngine:
             llm_client = ChatOpenAI(
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
-                model_name="anthropic/claude-4-sonnet",
+                model_name="anthropic/claude-sonnet-4",
                 temperature=0.2,  # Lower temperature for more structured decomposition
                 max_tokens=2048
             )

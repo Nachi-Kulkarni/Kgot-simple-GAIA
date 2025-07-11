@@ -1,0 +1,114 @@
+---
+# Health check for deployed service
+# =================================
+
+- name: "Get {{ service_name }} service information"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Service
+    name: "{{ service_name }}"
+    namespace: "{{ current_env.namespace }}"
+  register: service_info
+
+- name: "Get {{ service_name }} pod information"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ current_env.namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name={{ service_name }}"
+  register: pod_info
+
+- name: "Check {{ service_name }} health endpoint (internal)"
+  uri:
+    url: "http://{{ service_info.resources[0].spec.clusterIP }}:80{{ service_health_path }}"
+    method: GET
+    timeout: 10
+    status_code: [200, 204]
+  register: internal_health_check
+  retries: 5
+  delay: 10
+  until: internal_health_check.status in [200, 204]
+  when: service_info.resources | length > 0
+  ignore_errors: true
+
+- name: "Port-forward for external health check"
+  shell: |
+    kubectl port-forward -n {{ current_env.namespace }} service/{{ service_name }} 8080:80 &
+    echo $! > /tmp/{{ service_name }}_port_forward.pid
+    sleep 5
+  when: internal_health_check is failed or internal_health_check is skipped
+  ignore_errors: true
+
+- name: "Check {{ service_name }} health endpoint (port-forward)"
+  uri:
+    url: "http://localhost:8080{{ service_health_path }}"
+    method: GET
+    timeout: 10
+    status_code: [200, 204]
+  register: external_health_check
+  retries: 3
+  delay: 5
+  until: external_health_check.status in [200, 204]
+  when: internal_health_check is failed or internal_health_check is skipped
+  ignore_errors: true
+
+- name: "Clean up port-forward"
+  shell: |
+    if [ -f /tmp/{{ service_name }}_port_forward.pid ]; then
+      kill $(cat /tmp/{{ service_name }}_port_forward.pid) 2>/dev/null || true
+      rm -f /tmp/{{ service_name }}_port_forward.pid
+    fi
+  when: internal_health_check is failed or internal_health_check is skipped
+  ignore_errors: true
+
+- name: "Check {{ service_name }} pod readiness"
+  set_fact:
+    ready_pods: "{{ pod_info.resources | selectattr('status.conditions', 'defined') | selectattr('status.conditions', 'selectattr', 'type', 'equalto', 'Ready') | selectattr('status.conditions', 'selectattr', 'status', 'equalto', 'True') | list }}"
+    total_pods: "{{ pod_info.resources | length }}"
+
+- name: "Validate {{ service_name }} environment variables"
+  kubernetes.core.k8s_exec:
+    namespace: "{{ current_env.namespace }}"
+    pod: "{{ pod_info.resources[0].metadata.name }}"
+    command: |
+      sh -c '
+      echo "Checking environment variables..."
+      env | grep -E "(OPENROUTER_API_KEY|GOOGLE_API_KEY|NEO4J_PASSWORD|REDIS_PASSWORD|JWT_SECRET|SESSION_SECRET)" | wc -l
+      '
+  register: env_check
+  when: pod_info.resources | length > 0
+  ignore_errors: true
+
+- name: "Display {{ service_name }} health status"
+  debug:
+    msg:
+      - "Service: {{ service_name }}"
+      - "Health Check Status: {{ 'PASS' if (internal_health_check.status | default(0) in [200, 204]) or (external_health_check.status | default(0) in [200, 204]) else 'FAIL' }}"
+      - "Internal Health: {{ internal_health_check.status | default('N/A') }}"
+      - "External Health: {{ external_health_check.status | default('N/A') }}"
+      - "Ready Pods: {{ ready_pods | length }}/{{ total_pods }}"
+      - "Environment Variables: {{ env_check.stdout | default('0') | trim }} configured"
+      - "Service IP: {{ service_info.resources[0].spec.clusterIP if service_info.resources else 'N/A' }}"
+
+- name: "Health check summary for {{ service_name }}"
+  set_fact:
+    health_status:
+      service: "{{ service_name }}"
+      healthy: "{{ (internal_health_check.status | default(0) in [200, 204]) or (external_health_check.status | default(0) in [200, 204]) }}"
+      ready_pods: "{{ ready_pods | length }}"
+      total_pods: "{{ total_pods }}"
+      env_vars_configured: "{{ env_check.stdout | default('0') | trim | int }}"
+      service_ip: "{{ service_info.resources[0].spec.clusterIP if service_info.resources else null }}"
+
+- name: "Fail if {{ service_name }} health check fails"
+  fail:
+    msg: |
+      {{ service_name }} health check failed:
+      - Health endpoint: {{ 'FAIL' if not health_status.healthy else 'PASS' }}
+      - Ready pods: {{ health_status.ready_pods }}/{{ health_status.total_pods }}
+      - Environment variables: {{ health_status.env_vars_configured }}
+  when: >
+    not health_status.healthy or
+    health_status.ready_pods == 0 or
+    health_status.env_vars_configured < 4

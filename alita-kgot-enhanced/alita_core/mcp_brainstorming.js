@@ -634,7 +634,7 @@ class CapabilityAssessor {
     this.options = {
       assessmentModel: options.assessmentModel || 'orchestration',
       temperature: options.temperature || 0.3,
-      maxTokens: options.maxTokens || 2000,
+      maxTokens: options.maxTokens || 30000,
       ...options
     };
 

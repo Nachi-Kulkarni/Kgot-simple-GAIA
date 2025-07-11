@@ -1,0 +1,57 @@
+{
+  "name": "alita-kgot-multimodal-processor",
+  "version": "1.0.0",
+  "description": "Multimodal Processing Service for Alita KGoT Enhanced - Supports audio, vision, and text processing capabilities",
+  "main": "multimodal/index.js",
+  "scripts": {
+    "start": "node multimodal/index.js",
+    "dev": "nodemon multimodal/index.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "health-check": "curl -f http://localhost:3006/health || exit 1"
+  },
+  "keywords": [
+    "multimodal",
+    "image-processing",
+    "audio-processing",
+    "video-processing",
+    "visual-analysis",
+    "alita",
+    "kgot"
+  ],
+  "author": "Alita KGoT Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0",
+    "joi": "^17.11.0",
+    "axios": "^1.6.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.1",
+    "jimp": "^0.22.10",
+    "fluent-ffmpeg": "^2.1.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "eslint": "^8.54.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alita-kgot/enhanced"
+  },
+  "bugs": {
+    "url": "https://github.com/alita-kgot/enhanced/issues"
+  },
+  "homepage": "https://github.com/alita-kgot/enhanced#readme"
+}

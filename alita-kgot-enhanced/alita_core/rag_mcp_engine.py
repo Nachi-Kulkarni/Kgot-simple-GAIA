@@ -1229,7 +1229,7 @@ class RAGMCPEngine:
             llm_client = ChatOpenAI(
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
-                model="anthropic/claude-4-sonnet",  # High-quality model for validation
+                model="anthropic/claude-sonnet-4",  # High-quality model for validation
                 temperature=0.3,  # Low temperature for consistent validation
                 max_tokens=1000,
                 headers={
@@ -1240,7 +1240,7 @@ class RAGMCPEngine:
             
             logger.info("Initialized OpenRouter LLM client", extra={
                 'operation': 'LLM_CLIENT_INIT_SUCCESS',
-                'model': 'anthropic/claude-4-sonnet'
+                'model': 'anthropic/claude-sonnet-4'
             })
             
             return llm_client

@@ -16,7 +16,7 @@ async def test_kgot_advanced_mcp_generation():
     
     try:
         # Import the module
-        from kgot_advanced_mcp_generation import (
+        from .kgot_advanced_mcp_generation import (
             KnowledgeDrivenMCPDesigner,
             ControllerStructuredReasoner,
             KGoTAdvancedMCPGenerator,
@@ -145,4 +145,4 @@ async def test_kgot_advanced_mcp_generation():
 
 if __name__ == "__main__":
     success = asyncio.run(test_kgot_advanced_mcp_generation())
-    print(f"\n{'🎯 Test Results: SUCCESS' if success else '❌ Test Results: FAILED'}") 
+    print(f"\n{'🎯 Test Results: SUCCESS' if success else '❌ Test Results: FAILED'}")

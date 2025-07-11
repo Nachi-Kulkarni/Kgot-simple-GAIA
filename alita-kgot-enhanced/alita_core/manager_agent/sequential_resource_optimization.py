@@ -597,8 +597,8 @@ class CostBenefitAnalyzer:
                 'model_multipliers': {
                     'o3': 1.0,
                     'o4-mini': 1.0,
-                    'claude-4-sonnet': 1.5,
-                    'claude-4-sonnet-thinking': 1
+                    'claude-sonnet-4': 1.5,
+                    'claude-sonnet-4-thinking': 1
                 }
             },
             'system_resources': {
@@ -915,7 +915,7 @@ class CostBenefitAnalyzer:
         
         # Calculate API costs based on expected token usage
         expected_tokens = task_requirements.get('estimated_tokens', 1000)
-        model_name = mcp.get('model', 'claude-4-sonnet')
+        model_name = mcp.get('model', 'claude-sonnet-4')
         base_cost = self.cost_models['openrouter_api']['base_cost_per_token']
         model_multiplier = self.cost_models['openrouter_api']['model_multipliers'].get(model_name, 1.0)
         costs['api_costs'] = expected_tokens * base_cost * model_multiplier
@@ -2955,7 +2955,7 @@ class SequentialResourceOptimizer:
             })
             # Fallback configuration - in production this should be properly configured
             return ChatOpenAI(
-                model="anthropic/claude-4-sonnet",
+                model="anthropic/claude-sonnet-4",
                 temperature=0.1,
                 max_tokens=2000,
                 api_key="dummy-key"  # This would be replaced with actual OpenRouter setup
@@ -2965,7 +2965,7 @@ class SequentialResourceOptimizer:
         return ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.openrouter_api_key,
-            model="anthropic/claude-4-sonnet",  # High-quality model for optimization decisions
+            model="anthropic/claude-sonnet-4",  # High-quality model for optimization decisions
             temperature=0.1,  # Low temperature for consistent optimization decisions
             max_tokens=3000
         )

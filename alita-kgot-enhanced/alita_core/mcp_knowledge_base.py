@@ -1236,7 +1236,7 @@ class MCPCuratorAgent:
         
         try:
             llm_client = ChatOpenAI(
-                model="anthropic/claude-4-sonnet",  # Use Claude-3-Sonnet for validation
+                model="anthropic/claude-sonnet-4",  # Use Claude-3-Sonnet for validation
                 openai_api_key=self.openrouter_api_key,
                 openai_api_base="https://openrouter.ai/api/v1",
                 headers={
@@ -1247,10 +1247,10 @@ class MCPCuratorAgent:
                 max_tokens=2000
             )
             
-            logger.info("Initialized Claude-4-Sonnet for MCP curation", extra={
+            logger.info("Initialized claude-sonnet-4 for MCP curation", extra={
                 'operation': 'LLM_INIT',
                 'component': 'MCPCuratorAgent',
-                'model': 'anthropic/claude-4-sonnet'
+                'model': 'anthropic/claude-sonnet-4'
             })
             
             return llm_client

@@ -2,7 +2,7 @@
 # Multi-language support for Python and Node.js tool execution
 
 # === Build Stage ===
-FROM node:18-alpine AS node-builder
+FROM node:20-alpine AS node-builder
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install Node.js dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev --legacy-peer-deps
 
 # === Python Environment Stage ===
 FROM python:3.11-alpine AS python-base
@@ -35,10 +35,10 @@ RUN apk add --no-cache \
 COPY requirements.txt ./
 
 # Install Python packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python runtime
 RUN apk add --no-cache \
@@ -67,7 +67,7 @@ COPY --from=python-base /usr/local/lib/python3.11/site-packages /usr/local/lib/p
 COPY . .
 
 # Copy configuration files
-COPY ../../config ./config
+COPY config ./config
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/kgot logs/integrated_tools tools workspace && \
@@ -97,4 +97,4 @@ ENV PYTHONPATH=/app
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the integrated tools service
-CMD ["node", "integrated_tools_manager.js"] 
+CMD ["node", "kgot_core/integrated_tools/integrated_tools_manager.js"] 

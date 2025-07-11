@@ -77,7 +77,7 @@ class VisualAnalysisConfig:
     """
     # Vision model configuration (KGoT Section 2.3)
     vision_model: str = "openai/o3"  # OpenAI o3 for multimodal inputs as specified
-    orchestration_model: str = "google/gemini-2.5-pro"  # Gemini 2.5 Pro for complex reasoning
+    orchestration_model: str = "x-ai/grok-4"  # Gemini 2.5 Pro for complex reasoning
     temperature: float = 0.3
     max_tokens: int = 32000
     

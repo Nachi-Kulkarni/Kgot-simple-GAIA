@@ -21,7 +21,7 @@
 | Capability | Model | Status | Configuration |
 |------------|-------|--------|---------------|
 | **Vision** | `openai/o3` | ✅ **OPERATIONAL** | OpenRouter endpoint configured |
-| **Orchestration** | `google/gemini-2.5-pro` | ✅ **OPERATIONAL** | 1M+ context, OpenRouter endpoint |
+| **Orchestration** | `x-ai/grok-4` | ✅ **OPERATIONAL** | 1M+ context, OpenRouter endpoint |
 | **Web Agent** | `anthropic/claude-4-sonnet` | ✅ **OPERATIONAL** | OpenRouter endpoint configured |
 
 ---
@@ -92,7 +92,7 @@ Successfully installed kgot-1.1.0 with dependencies:
    - **Integration**: System-level tracking
 
 ### **⏸️ Tools Requiring Additional Configuration**
-1. **LLM Tool** - Target Model: `google/gemini-2.5-pro`
+1. **LLM Tool** - Target Model: `x-ai/grok-4`
 2. **Image Tool** - Target Model: `openai/o3`
 3. **Web Agent Tool** - Target Model: `anthropic/claude-4-sonnet`
 4. **Wikipedia Tool** - Status: Dependency issue (HOCRConverter)
@@ -111,7 +111,7 @@ Successfully installed kgot-1.1.0 with dependencies:
   },
   "model_configuration": {
     "vision_model": "openai/o3",
-    "orchestration_model": "google/gemini-2.5-pro",
+    "orchestration_model": "x-ai/grok-4",
     "web_agent_model": "anthropic/claude-4-sonnet",
     "temperature": 0.3,
     "max_tokens": 32000,
@@ -133,7 +133,7 @@ Successfully installed kgot-1.1.0 with dependencies:
     "available_tools": ["python_code"],
     "model_assignments": {
       "vision": "openai/o3",
-      "orchestration": "google/gemini-2.5-pro",
+      "orchestration": "x-ai/grok-4",
       "web_agent": "anthropic/claude-4-sonnet"
     }
   }

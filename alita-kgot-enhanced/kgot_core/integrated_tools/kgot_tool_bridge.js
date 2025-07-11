@@ -59,8 +59,8 @@ class KGoTToolBridge extends EventEmitter {
     // Model configurations matching the specific AI model assignments
     this.modelConfigurations = {
       vision: 'openai/o3',               // OpenAI o3 for vision
-      orchestration: 'google/gemini-2.5-pro', // Gemini 2.5 Pro for orchestration and complex reasoning
-      webAgent: 'anthropic/claude-4-sonnet'   // Claude 4 Sonnet for web agent
+      orchestration: 'x-ai/grok-4', // Gemini 2.5 Pro for orchestration and complex reasoning
+      webAgent: 'anthropic/claude-sonnet-4'   // Claude 4 Sonnet for web agent
     };
 
     // ERROR MANAGEMENT: Enhanced error tracking
@@ -152,8 +152,9 @@ try:
     manager = create_integrated_tools_manager(config)
     
     # Export configuration
+    import json
     result = manager.export_configuration()
-    print("TOOLS_MANAGER_SUCCESS:" + str(result))
+    print("TOOLS_MANAGER_SUCCESS:" + json.dumps(result))
     
 except Exception as e:
     print("TOOLS_MANAGER_ERROR:" + str(e))
@@ -900,4 +901,4 @@ asyncio.run(handle_integrated_error())
 module.exports = {
   KGoTToolBridge,
   createKGoTToolBridge: (options) => new KGoTToolBridge(options)
-}; 
+};

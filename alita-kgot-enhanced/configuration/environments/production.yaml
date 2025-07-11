@@ -99,36 +99,16 @@ alita:
 # Model Configuration (Production)
 models:
   model_providers:
-    openai:
-      api_key: "${OPENAI_API_KEY}"
-      base_url: "https://api.openai.com/v1"
-      timeout: 60
-      max_retries: 3
-      rate_limit: 50          # Requests per minute
-      
-    anthropic:
-      api_key: "${ANTHROPIC_API_KEY}"
-      base_url: "https://api.anthropic.com"
-      timeout: 60
-      max_retries: 3
-      rate_limit: 30
-      
-    azure_openai:
-      api_key: "${AZURE_OPENAI_API_KEY}"
-      endpoint: "${AZURE_OPENAI_ENDPOINT}"
-      api_version: "2024-02-15-preview"
-      timeout: 60
-      max_retries: 3
   
   default_models:
-    reasoning: "gpt-4"        # Most capable model
-    coding: "gpt-4"
-    analysis: "claude-3-opus" # Best analysis model
+    reasoning: "grok-4"        # Most capable model
+    coding: "claude-sonnet-4"
+    analysis: "grok-4" # Best analysis model
   
   fallback_models:
-    reasoning: "gpt-3.5-turbo"
-    coding: "gpt-3.5-turbo"
-    analysis: "claude-3-sonnet"
+    reasoning: "grok-4"
+    coding: "claude-sonnet-4"
+    analysis: "grok-4"
   
   cost_tracking:
     enabled: true

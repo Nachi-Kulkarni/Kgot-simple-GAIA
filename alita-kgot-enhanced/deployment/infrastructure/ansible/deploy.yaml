@@ -179,13 +179,37 @@
               app.kubernetes.io/component: "secrets"
           type: Opaque
           data:
-            db_password: "{{ db_password | b64encode }}"
+            # Core API Keys
+            openrouter_api_key: "{{ openrouter_api_key | b64encode }}"
+            google_api_key: "{{ google_api_key | b64encode }}"
+            
+            # Database credentials
+            neo4j_password: "{{ neo4j_password | b64encode }}"
+            redis_password: "{{ redis_password | b64encode }}"
+            
+            # Security tokens
             jwt_secret: "{{ jwt_secret | b64encode }}"
-            api_key: "{{ api_key | b64encode }}"
+            session_secret: "{{ session_secret | b64encode }}"
+            
+            # External service keys
+            github_token: "{{ github_token | default('') | b64encode }}"
+            SERPAPI_API_KEY: "{{ SERPAPI_API_KEY | default('') | b64encode }}"
+            
+            # AWS credentials
+            aws_access_key_id: "{{ aws_access_key_id | default('') | b64encode }}"
+            aws_secret_access_key: "{{ aws_secret_access_key | default('') | b64encode }}"
+            
+            # Legacy support
+            db_password: "{{ neo4j_password | b64encode }}"
+            api_key: "{{ openrouter_api_key | b64encode }}"
       when: 
-        - db_password is defined
+        - openrouter_api_key is defined
+        
+        - google_api_key is defined
+        - neo4j_password is defined
+        - redis_password is defined
         - jwt_secret is defined
-        - api_key is defined
+        - session_secret is defined
     
     - name: "Create registry credentials secret"
       kubernetes.core.k8s:
@@ -389,4 +413,4 @@
       when: 
         - slack_webhook_url is defined
         - send_notifications | default(true)
-      ignore_errors: true 
+      ignore_errors: true

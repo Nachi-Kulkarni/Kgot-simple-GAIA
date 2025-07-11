@@ -537,7 +537,7 @@ k8s_store = ExternalConfigurationStore(
 models:
   model_providers:
     openai:
-      api_key: "${OPENAI_API_KEY}"  # Environment variable
+      api_key: "${OPENROUTER_API_KEY}"  # Environment variable
       
 database:
   graph_store:
@@ -743,13 +743,13 @@ await config_manager.update_configuration(
 model_config = {
     "model_providers": {
         "openai": {
-            "api_key": "${OPENAI_API_KEY}",
+            "api_key": "${OPENROUTER_API_KEY}",
             "base_url": "https://api.openai.com/v1",
             "timeout": 60,
             "max_retries": 3
         },
         "anthropic": {
-            "api_key": "${ANTHROPIC_API_KEY}",
+            "api_key": "${OPENROUTER_API_KEY}",
             "base_url": "https://api.anthropic.com",
             "timeout": 60,
             "max_retries": 3

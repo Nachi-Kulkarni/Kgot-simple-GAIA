@@ -2,7 +2,7 @@
 # Supports audio, vision, and text processing capabilities
 
 # === Build Stage ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -15,13 +15,13 @@ RUN apk add --no-cache \
     git
 
 # Copy package files
-COPY package*.json ./
+COPY multimodal/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --omit=dev --legacy-peer-deps
 
 # === Production Stage ===
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install Python and multimedia processing libraries
 RUN apk add --no-cache \
@@ -48,14 +48,14 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy application source
-COPY . .
+COPY multimodal/ .
 
 # Copy configuration files
-COPY ../config ./config
+COPY config ./config
 
 # Install Python packages for multimodal processing
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+COPY multimodal/requirements.txt ./
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # Create necessary directories with proper permissions
 RUN mkdir -p logs/multimodal storage/audio storage/video storage/images storage/text && \
@@ -85,4 +85,4 @@ ENV PYTHONPATH=/app
 ENTRYPOINT ["dumb-init", "--"]
 
 # Start the multimodal processing service
-CMD ["node", "index.js"] 
+CMD ["node", "multimodal/index.js"]

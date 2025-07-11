@@ -21,7 +21,7 @@ The system implements the following AI model assignments:
 | Capability | Model | Purpose | Configuration |
 |------------|-------|---------|---------------|
 | **Vision** | `openai/o3` | Multimodal inputs, image processing | OpenRouter endpoint |
-| **Orchestration** | `google/gemini-2.5-pro` | Complex reasoning, 1M+ context | OpenRouter endpoint |
+| **Orchestration** | `x-ai/grok-4` | Complex reasoning, 1M+ context | OpenRouter endpoint |
 | **Web Agent** | `anthropic/claude-4-sonnet` | Web interaction, navigation | OpenRouter endpoint |
 
 ### Model Configuration Details
@@ -35,8 +35,8 @@ The system implements the following AI model assignments:
     "base_url": "https://openrouter.ai/api/v1",
     "model_family": "OpenAI"
   },
-  "google/gemini-2.5-pro": {
-    "model": "google/gemini-2.5-pro", 
+  "x-ai/grok-4": {
+    "model": "x-ai/grok-4", 
     "temperature": 0.3,
     "api_key": "",
     "base_url": "https://openrouter.ai/api/v1",
@@ -106,7 +106,7 @@ AlitaIntegratedToolsManager
 
 #### 1. LLM Tool
 - **Purpose**: Auxiliary language model integration
-- **Target Model**: `google/gemini-2.5-pro`
+- **Target Model**: `x-ai/grok-4`
 - **Status**: ⏸️ Configuration pending
 - **Requirements**: OpenRouter API key, advanced LLM configuration
 
@@ -167,7 +167,7 @@ from integrated_tools_manager import create_integrated_tools_manager, ModelConfi
 # Create custom model configuration
 config = ModelConfiguration(
     vision_model="openai/o3",
-    orchestration_model="google/gemini-2.5-pro", 
+    orchestration_model="x-ai/grok-4", 
     web_agent_model="anthropic/claude-4-sonnet"
 )
 
@@ -224,7 +224,7 @@ The implementation includes comprehensive testing that validates:
   },
   "model_configuration": {
     "vision_model": "openai/o3",
-    "orchestration_model": "google/gemini-2.5-pro",
+    "orchestration_model": "x-ai/grok-4",
     "web_agent_model": "anthropic/claude-4-sonnet",
     "temperature": 0.3,
     "max_tokens": 32000,
@@ -246,7 +246,7 @@ The implementation includes comprehensive testing that validates:
     "available_tools": ["python_code"],
     "model_assignments": {
       "vision": "openai/o3",
-      "orchestration": "google/gemini-2.5-pro",
+      "orchestration": "x-ai/grok-4",
       "web_agent": "anthropic/claude-4-sonnet"
     }
   }

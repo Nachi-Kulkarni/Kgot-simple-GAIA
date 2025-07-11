@@ -202,8 +202,8 @@ if __name__ == "__main__":
 ### Environment Variables
 ```bash
 # OpenRouter API Configuration (per user memory)
-OPENAI_API_KEY=your_openrouter_api_key
-OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 
 # Optional: Custom configuration
 RAG_MCP_CONFIG_PATH=./config/rag_mcp_config.json
@@ -268,8 +268,8 @@ mkdir -p logs/validation logs/kgot data config
 
 ### 3. **Configure OpenRouter API**
 ```bash
-export OPENAI_API_KEY="your_openrouter_api_key"
-export OPENAI_BASE_URL="https://openrouter.ai/api/v1"
+export OPENROUTER_API_KEY="your_openrouter_api_key"
+export OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
 ```
 
 ### 4. **Test Installation**
@@ -388,4 +388,4 @@ The Task 17 RAG-MCP Coordinator implementation is **production-ready** with:
 **Status**: ✅ **Production Ready** - Task 17 Successfully Implemented  
 **Version**: 1.0.0  
 **Last Updated**: December 2024  
-**Team**: Enhanced Alita KGoT Development Team 
+**Team**: Enhanced Alita KGoT Development Team

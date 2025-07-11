@@ -13,6 +13,7 @@ An advanced AI assistant system that combines the **Alita** architecture with **
 - **Multimodal Processing**: Vision, audio, and document processing
 - **Dynamic Tool Creation**: MCP-based tool generation
 - **Knowledge Graph Reasoning**: Complex problem-solving with graph structures
+- **Simple Federation System**: Local MCP federation for development and testing
 - **Cost Optimization**: Intelligent model selection and usage tracking
 - **Validation & QA**: Automated quality assurance and testing
 - **Performance Optimization**: Resource management and efficiency tuning
@@ -29,6 +30,11 @@ alita-kgot-enhanced/
 │   ├── controller/                # KGoT reasoning controller
 │   ├── graph_store/               # Knowledge graph persistence
 │   └── integrated_tools/          # Tool execution and management
+├── federation/                    # Simple Federation System
+│   ├── simple_local_mcp_server.py # Local MCP server with REST API
+│   ├── simple_federated_rag_mcp_engine.py # Federation-aware RAG engine
+│   ├── start_simple_server.py     # Server startup with demo data
+│   └── test_simple_mcp_system.py  # Comprehensive test suite
 ├── multimodal/                    # Multimodal processing
 │   ├── vision/                    # Image and video processing
 │   ├── audio/                     # Audio processing and transcription
@@ -67,9 +73,17 @@ alita-kgot-enhanced/
 2. **Configure Environment**
    Edit `.env` file with your API keys and configuration:
    ```bash
+   # Core API Keys
    OPENROUTER_API_KEY=your_key_here
+   
+   
+   # Database Configuration
    NEO4J_PASSWORD=your_password_here
    REDIS_PASSWORD=your_password_here
+   
+   # Federation Configuration (optional)
+   SIMPLE_MCP_SERVERS=http://127.0.0.1:8080
+   SEQUENTIAL_THINKING_MCP_ENDPOINT=http://localhost:8081
    ```
 
 3. **Install Dependencies**
@@ -108,7 +122,35 @@ Access monitoring:
 
 ## 📝 Usage Examples
 
-### Basic Chat Interface
+### Interactive Chat Interface
+
+#### CLI Chat (Recommended)
+Start the interactive command-line chat interface:
+
+```bash
+# Start the CLI chat interface
+npm run chat
+# or
+npm run cli
+# or directly
+node cli_chat.js
+```
+
+**Features:**
+- 🚀 Interactive command-line interface
+- 📋 Built-in help system (`/help`)
+- 🔄 Session management
+- 🎯 Real-time error handling
+- 💬 Natural conversation flow
+
+**Available Commands:**
+- `/help` - Show available commands
+- `/clear` - Clear the screen
+- `/session` - Show session information
+- `/exit` - Exit the chat
+
+#### Programmatic API
+For integration into other applications:
 
 ```javascript
 const response = await fetch('http://localhost:3000/chat', {
@@ -149,6 +191,30 @@ const kgotTask = await fetch('http://localhost:3000/chat', {
   })
 });
 ```
+
+### Simple Federation System
+
+The Simple Federation System provides local MCP federation for development and testing:
+
+```bash
+# Start a simple federation server with demo data
+python federation/start_simple_server.py --demo
+
+# Start on custom port
+python federation/start_simple_server.py --port 8081
+
+# Test the federation system
+python federation/test_simple_mcp_system.py --unit
+```
+
+**Key Features:**
+- ✅ Zero configuration setup
+- ✅ No authentication required
+- ✅ Perfect for local development
+- ✅ Built-in demo data and examples
+- ✅ Comprehensive test suite
+
+For detailed information, see the [Federation Documentation](federation/FEDERATED_RAG_OVERVIEW.md).
 
 ## 🔧 Configuration
 
@@ -309,4 +375,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for the future of AI assistance** 
+**Built with ❤️ for the future of AI assistance**

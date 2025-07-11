@@ -303,7 +303,7 @@ class MCPMarketplaceConfig:
     # AI and Sequential Thinking settings
     enable_ai_recommendations: bool = True
     ai_model_endpoint: str = "https://openrouter.ai/api/v1"  # OpenRouter preferred
-    ai_model_name: str = "anthropic/claude-4-sonnet"
+    ai_model_name: str = "anthropic/claude-sonnet-4"
     enable_sequential_thinking: bool = True
     complexity_threshold: float = 7.0
     

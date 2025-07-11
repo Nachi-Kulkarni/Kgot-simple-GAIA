@@ -7,7 +7,7 @@ The **LangChain Sequential Manager Agent** is the core orchestration component o
 ## 🚀 Key Features
 
 ### **LangChain Integration**
-- **OpenRouter LLM Integration**: Uses Claude-4-Sonnet-Thinking, O3, and Gemini-2.5-Pro models via OpenRouter API
+- **OpenRouter LLM Integration**: Uses Claude-4-Sonnet-Thinking, O3, and grok-4 models via OpenRouter API
 - **AgentExecutor Framework**: Full LangChain agent with tools, memory, and callback handling
 - **Function Calling**: OpenAI Functions agent for structured tool invocation
 - **Custom Callbacks**: Sequential thinking integration callbacks for memory management
@@ -128,8 +128,8 @@ Create or update `config/models/model_config.json`:
         "o3": {
           "model_id": "openai/o3"
         },
-        "gemini-2.5-pro": {
-          "model_id": "google/gemini-2.5-pro"
+        "grok-4": {
+          "model_id": "x-ai/grok-4"
         }
       }
     }
@@ -639,7 +639,7 @@ model=openrouter_config.get("models", {}).get(manager_config.get("primary_model"
 
 ##### **1. Core LangChain Integration** (1,170+ lines)
 - **LangChainSequentialManager**: Main orchestration class
-- **OpenRouter Integration**: Claude-4-Sonnet-Thinking, O3, Gemini-2.5-Pro support
+- **OpenRouter Integration**: Claude-4-Sonnet-Thinking, O3, grok-4 support
 - **AgentExecutor Setup**: Complete LangChain agent with tools and memory
 - **FastAPI Application**: RESTful API with CORS and middleware
 

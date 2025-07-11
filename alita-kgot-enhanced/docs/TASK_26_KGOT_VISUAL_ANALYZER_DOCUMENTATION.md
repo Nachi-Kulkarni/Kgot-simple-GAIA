@@ -215,7 +215,7 @@ Following user requirements and existing system patterns:
 ```python
 VISION_MODEL_CONFIG = {
     'primary_model': 'openai/o3',              # Advanced vision processing
-    'orchestration_model': 'google/gemini-2.5-pro',  # Reasoning coordination
+    'orchestration_model': 'x-ai/grok-4',  # Reasoning coordination
     'temperature': 0.3,                        # Balanced creativity/consistency
     'max_tokens': 4000,                        # Extended context for complex analysis
     'api_provider': 'openrouter'               # Per user preference
@@ -234,7 +234,7 @@ VISION_MODEL_CONFIG = {
 class VisualAnalysisConfig:
     # Vision Model Settings
     vision_model: str = "openai/o3"
-    orchestration_model: str = "google/gemini-2.5-pro"
+    orchestration_model: str = "x-ai/grok-4"
     temperature: float = 0.3
     max_tokens: int = 4000
     

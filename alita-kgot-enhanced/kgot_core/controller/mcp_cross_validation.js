@@ -15,6 +15,9 @@
  * @module MCPCrossValidation
  */
 
+// Load environment variables
+require('dotenv').config();
+
 const { ChatOpenAI } = require('@langchain/openai');
 const { HumanMessage, SystemMessage } = require('@langchain/core/messages');
 const { ChatPromptTemplate } = require('@langchain/core/prompts');
@@ -36,7 +39,7 @@ class MCPCrossValidationCoordinator extends EventEmitter {
     super();
     
     this.options = {
-      validationModels: options.validationModels || ['o3', 'claude-4-sonnet', 'gemini-2.5-pro'],
+      validationModels: options.validationModels || ['o3', 'claude-sonnet-4', 'grok-4'],
       consensusThreshold: options.consensusThreshold || 0.7,
       confidenceThreshold: options.confidenceThreshold || 0.8,
       maxValidationRounds: options.maxValidationRounds || 3,
@@ -60,20 +63,36 @@ class MCPCrossValidationCoordinator extends EventEmitter {
       options: this.options 
     });
 
-    this.initializeValidationLLMs();
-    this.setupQualityMetrics();
+    // Initialize components asynchronously
+    this.initialize();
   }
 
   /**
-   * Initialize validation LLMs for cross-model verification
+   * Initialize all components asynchronously
+   * Ensures proper initialization order and error handling
+   */
+  async initialize() {
+    try {
+      await this.initializeValidationLLMs();
+      this.setupQualityMetrics();
+      logger.logOperation('info', 'MCP_VALIDATION_INIT_SUCCESS', 'MCP Cross-Validation Coordinator initialized successfully');
+    } catch (error) {
+      logger.logError('MCP_VALIDATION_INIT_FAILED', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initialize validation LLMs for cross-model validation
    * Creates multiple model instances for independent validation
    */
   async initializeValidationLLMs() {
+    // Use manager_agent config as fallback for validation if validation config doesn't exist
+    const validationConfig = modelConfig.alita_config.validation || modelConfig.alita_config.manager_agent;
+    const openRouterConfig = modelConfig.model_providers.openrouter;
+    
     try {
       logger.logOperation('info', 'VALIDATION_LLMS_INIT', 'Initializing validation LLMs');
-
-      const validationConfig = modelConfig.alita_config.validation;
-      const openRouterConfig = modelConfig.model_providers.openrouter;
 
       // Initialize multiple LLMs for cross-validation
       for (const modelKey of this.options.validationModels) {
@@ -85,7 +104,7 @@ class MCPCrossValidationCoordinator extends EventEmitter {
             },
             modelName: openRouterConfig.models[modelKey].model_id,
             temperature: 0.1, // Lower temperature for consistent validation
-            maxTokens: 4000,
+            maxTokens: 40000,
             timeout: validationConfig.timeout * 1000,
             maxRetries: validationConfig.max_retries,
           });
@@ -554,4 +573,4 @@ Please provide your validation assessment in the following format:
   }
 }
 
-module.exports = { MCPCrossValidationCoordinator }; 
+module.exports = { MCPCrossValidationCoordinator };

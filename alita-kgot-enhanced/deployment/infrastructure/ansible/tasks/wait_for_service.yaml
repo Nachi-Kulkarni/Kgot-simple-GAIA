@@ -1,0 +1,56 @@
+---
+# Wait for service to be ready
+# ============================
+
+- name: "Wait for {{ service_name }} deployment to be ready"
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: "{{ service_name }}"
+    namespace: "{{ current_env.namespace }}"
+    wait: true
+    wait_condition:
+      type: Progressing
+      status: "True"
+      reason: NewReplicaSetAvailable
+    wait_timeout: 600
+  register: deployment_status
+
+- name: "Wait for {{ service_name }} pods to be running"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ current_env.namespace }}"
+    label_selectors:
+      - "app.kubernetes.io/name={{ service_name }}"
+    wait: true
+    wait_condition:
+      type: Ready
+      status: "True"
+    wait_timeout: 300
+  register: pod_status
+
+- name: "Verify {{ service_name }} service endpoint"
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Service
+    name: "{{ service_name }}"
+    namespace: "{{ current_env.namespace }}"
+  register: service_info
+
+- name: "Display {{ service_name }} deployment status"
+  debug:
+    msg:
+      - "Service: {{ service_name }}"
+      - "Deployment Status: {{ deployment_status.resources[0].status.conditions[-1].reason if deployment_status.resources else 'Unknown' }}"
+      - "Ready Replicas: {{ deployment_status.resources[0].status.readyReplicas | default(0) }}/{{ deployment_status.resources[0].spec.replicas if deployment_status.resources else 0 }}"
+      - "Service IP: {{ service_info.resources[0].spec.clusterIP if service_info.resources else 'Not Available' }}"
+      - "Pods Running: {{ pod_status.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
+
+- name: "Fail if {{ service_name }} is not ready"
+  fail:
+    msg: "{{ service_name }} deployment failed or is not ready"
+  when: >
+    deployment_status.resources | length == 0 or
+    deployment_status.resources[0].status.readyReplicas | default(0) != deployment_status.resources[0].spec.replicas or
+    pod_status.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0
